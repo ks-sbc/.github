@@ -1,3 +1,4 @@
+```text
 .github/
 ├── ISSUE_TEMPLATE/
 │   ├── config.yml                        # Issue template configuration
@@ -43,3 +44,4 @@
 │   └── README.md                         # Organization profile README (public)
 │
 └── README.md                             # Main repository README
+```
