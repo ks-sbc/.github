@@ -1,0 +1,63 @@
+name: Issue Management
+
+on:
+  issues:
+    types: [opened, labeled, closed]
+  pull_request:
+    types: [opened, closed]
+
+jobs:
+  process-issue:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Apply security labels
+        if: github.event_name == 'issues' && github.event.action == 'opened'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            // Detect security level from issue content
+            const body = context.payload.issue.body;
+            
+            if (body.includes("Security Classification: Cadre")) {
+              github.rest.issues.addLabels({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                labels: ['security:cadre']
+              });
+            }
+            
+            // Additional security processing
+            
+      - name: Update linked issues on PR
+        if: github.event_name == 'pull_request' && github.event.action == 'opened'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            // Extract issue numbers from PR description
+            const body = context.payload.pull_request.body;
+            const issueMatch = body.match(/#(\d+)/g);
+            
+            if (issueMatch) {
+              // Update issue status based on PR
+              const prNumber = context.payload.pull_request.number;
+              const issueNumbers = issueMatch.map(i => i.substring(1));
+              
+              for (const issue of issueNumbers) {
+                github.rest.issues.addLabels({
+                  issue_number: issue,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  labels: ['proposal-submitted']
+                });
+                
+                github.rest.issues.createComment({
+                  issue_number: issue,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: `Proposal submitted in PR #${prNumber}`
+                });
+              }
+            }
