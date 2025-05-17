@@ -66,3 +66,19 @@
 coming soon
 
 ### 
+
+### WORKFLOW
+
+```mermaid
+graph TD
+    A[GitHub Discussions] -->|Debate & Discussion| B[Pull Request]
+    B -->|Cadre Vote| F((Decision))
+    F ==>|Denied| E[Close Discussion]
+    F ==>|Approved| C[GitHub Issues]
+    C -->|Implementation Work| D[GitHub Projects]
+    D -->|Coordination| C
+    A -.->|Creates| C
+    C -.->|Conditions| A
+    D -.->|Organizes| C
+    
+```
