@@ -1,0 +1,17 @@
+# Implementation Guidance
+
+1. Create these files in each repository's `.github/ISSUE_TEMPLATE` directory    
+2. Configure repository settings to:
+    - Require templates for new issues
+    - Enforce label requirements
+    - Automate workflow progression
+3. Maintain strict access controls per security level
+    
+
+This system ensures:
+    - Rigorous theoretical grounding in Marxism-Leninism
+    - Consistent application of democratic centralismdocument
+    - Proper security consciousness at all levelsame != 'pull_request'
+        - uses: sigstore/cosign-installer@v3.8.1
+        - uses: sigstore/cosign-installer@v3.8.2
+    - Organizational discipline in all processes
