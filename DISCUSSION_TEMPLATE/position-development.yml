@@ -12,7 +12,7 @@ body:
     attributes:
       label: Analysis
       description: Give a brief analysis of the current conditions relevant to your position.
-      placeholder: Enter your analysis here here.
+      placeholder: Enter your analysis here.
 
   - type: markdown
     attributes:
