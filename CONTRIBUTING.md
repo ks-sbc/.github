@@ -1,11 +1,24 @@
-# Contributing to KSBC
+I need to refactor the provided CONTRIBUTORS.md with what I wrote earlier. I'll combine elements from both to create a more comprehensive document that includes:
 
-Thank you for your interest in contributing to the Kansas Socialist Book Club's repositories. This document outlines our contribution process, which follows democratic centralist principles.
+1. My earlier content about non-technical contributions
+2. The existing content about democratic centralist workflow
+3. The security classification system
+4. The detailed contribution process
+5. The commit guidelines and documentation standards
+
+I'll preserve the structure of the provided document but integrate the additional content about non-technical contributions from my earlier version.
+
+```md
+# Contributing to DRUIDS
+
+Thank you for your interest in contributing to the Kansas Socialist Book Club's Distributed, Reproducible, Unifying, Ideological Documentation System (DRUIDS). This document outlines our contribution process, which follows democratic centralist principles and welcomes contributions from people with all levels of technical expertise.
 
 ## Table of Contents
 - [Democratic Centralist Workflow](#democratic-centralist-workflow)
 - [Security Classification System](#security-classification-system)
 - [Getting Started](#getting-started)
+- [Technical Contributions](#technical-contributions)
+- [Non-Technical Contributions](#non-technical-contributions)
 - [Contribution Process](#contribution-process)
 - [Commit Guidelines](#commit-guidelines)
 - [Documentation Standards](#documentation-standards)
@@ -60,6 +73,56 @@ We operate with a three-tier security classification system:
    - Review documentation templates
    - Familiarize yourself with our YAML frontmatter requirements
    - Learn our tag taxonomy
+
+## Technical Contributions
+
+If you have technical skills, consider helping with:
+
+- GitHub Actions workflow development
+- Obsidian plugin configuration and scripting
+- Security model implementation
+- Documentation system automation
+
+Technical contributors should consult our [Development Guide](./docs/development.md) for coding standards and technical requirements.
+
+## Non-Technical Contributions
+
+There are many valuable ways to contribute without technical expertise:
+
+### Documentation & Content Creation
+
+- **Create Document Templates**  
+  Design Markdown templates for frequently used document types with clear placeholder text.
+  
+- **Develop Visual Security Classification Guide**  
+  Create visual explanations of our three-tier security model (L0/L1/L2) with examples.
+  
+- **Create Step-by-Step Workflow Guides**  
+  Develop user-friendly guides showing common workflows with screenshots.
+
+### Testing & User Experience
+
+- **Conduct Usability Testing**  
+  Test the system by following specific scenarios and document your experience.
+  
+- **Create Glossary of Terms**  
+  Compile and define terms used throughout the system.
+
+### Organization & Metadata
+
+- **Organize Tag Taxonomy**  
+  Help organize and structure the hierarchical tag system.
+  
+- **Review and Improve Error Messages**  
+  Suggest more user-friendly alternatives to current error messages.
+
+### Training Materials
+
+- **Create FAQ Document**  
+  Compile common questions and answers about using the system.
+  
+- **Develop Training Scenarios**  
+  Create realistic scenarios for training exercises.
 
 ## Contribution Process
 
@@ -183,4 +246,7 @@ If you have questions about contributing, please:
 3. Create a new issue using the "question" template
 4. Reach out to the appropriate committee
 
+Remember, contributing to DRUIDS isn't just about technical skills—it's about contributing to a system that enhances our collective organizing capacity. Every contribution, regardless of technical complexity, has value in our revolutionary documentation effort.
+
 Thank you for contributing to our collective work!
+```
