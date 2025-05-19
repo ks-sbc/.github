@@ -2,46 +2,7 @@
 # This file defines ownership and review requirements for different parts of the repository
 # FORMAT: path pattern followed by one or more committee identifiers
 
-# TODO fix and coordinate these actual paths to reflect our groups
-# TODO solidify the actual groups
-
 # Default owners for everything unless a later rule takes precedence
-* @ks-sbc/technical-committee
+* @ks-sbc/cadre
 
 # Organization-level files
-/.github/ @ks-sbc/steering-committee
-/README.md @ks-sbc/steering-committee
-/LICENSE @ks-sbc/steering-committee
-
-# Public documentation and content
-/public/ @ks-sbc/education-committee
-/public/educational-materials/ @ks-sbc/education-committee
-/public/reading-lists/ @ks-sbc/education-committee
-/public/events/ @ks-sbc/outreach-committee
-
-# Candidate-level documentation and content
-/internal/candidate/ @ks-sbc/cadre-committee
-/internal/candidate/training/ @ks-sbc/education-committee @ks-sbc/cadre-committee
-/internal/candidate/study-guides/ @ks-sbc/education-committee @ks-sbc/cadre-committee
-
-# Cadre-level documentation and content
-/internal/cadre/ @ks-sbc/steering-committee
-/internal/cadre/security/ @ks-sbc/security-committee
-/internal/cadre/planning/ @ks-sbc/steering-committee
-/internal/cadre/criticism/ @ks-sbc/steering-committee
-
-# Structural components
-/_templates/ @ks-sbc/technical-committee
-/_scripts/ @ks-sbc/technical-committee
-/quartz/ @ks-sbc/technical-committee
-
-# Security components
-/.obsidian/ @ks-sbc/technical-committee @ks-sbc/security-committee
-
-# Democratic process documents
-/*/issues/ @ks-sbc/steering-committee
-/*/projects/ @ks-sbc/steering-committee
-/*/criticism/ @ks-sbc/steering-committee
-
-# Workflows and automation
-/.github/workflows/ @ks-sbc/technical-committee @ks-sbc/security-committee
