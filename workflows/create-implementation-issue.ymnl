@@ -17,7 +17,8 @@ jobs:
             ## Implementation of Theoretical Position
             
             This issue implements the theoretical position developed in [discussion #${github.event.discussion.number}](${github.event.discussion.html_url}).
-            
+
+            #editing with a Comment
             ### Decided Position
             ${github.event.discussion.answer.body}
             
