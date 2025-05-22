@@ -29,35 +29,36 @@ jobs:
                 repo: context.repo.repo,
                 category_id: 'DIC_kwDOIlE1cc4CU2Mc', // ID of meeting-preparation category
                 title: `Agenda Discussion: ${{ github.event.inputs.meeting_type }} Meeting - ${{ github.event.inputs.meeting_date }}`,
-                body:```
-# Agenda Discussion: ${{ github.event.inputs.meeting_type }} Meeting - ${{ github.event.inputs.meeting_date }}
+                body: |
+                  # Agenda Discussion: ${{ github.event.inputs.meeting_type }} Meeting - ${{ github.event.inputs.meeting_date }}
 
-## Security Classification
+                  ## Security Classification
 
-${{ github.event.inputs.security_level }}
+                  ${{ github.event.inputs.security_level }}
 
-## Context
+                  ## Context
 
-This discussion thread is for developing the agenda for the ${{ github.event.inputs.meeting_type }} meeting scheduled for ${{ github.event.inputs.meeting_date }}.
+                  This discussion thread is for developing the agenda for the ${{ github.event.inputs.meeting_type }} meeting scheduled for ${{ github.event.inputs.meeting_date }}.
 
-## Proposed Agenda Items
+                  ## Proposed Agenda Items
 
-Please comment with suggested agenda items using the following format:
+                  Please comment with suggested agenda items using the following format:
 
-- **Item:** [Brief description]
-- **Time needed:** [Estimated minutes]
-- **Priority:** [High/Medium/Low]
-- **Supporting materials:** [Links or attachments]
-- **Related discussions:** [Links to relevant discussions]
+                  - **Item:** [Brief description]
+                  - **Time needed:** [Estimated minutes]
+                  - **Priority:** [High/Medium/Low]
+                  - **Supporting materials:** [Links or attachments]
+                  - **Related discussions:** [Links to relevant discussions]
 
-## Current Draft Agenda
+                  ## Current Draft Agenda
 
-1. Opening and attendance (5 min)
-2. [TBD based on comments]
-3. [TBD based on comments]
-4. Action item review (10 min)
-5. Closing (5 min)
-```
+                  1. Opening and attendance (5 min)
+                  2. [TBD based on comments]
+                  3. [TBD based on comments]
+                  4. Action item review (10 min)
+                  5. Closing (5 min)
+                private: false,
+                labels: ['process:discussion', 'meeting-preparation'],
               });
               // Add labels based on meeting type and status
               await github.rest.issues.addLabels({

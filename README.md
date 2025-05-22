@@ -65,8 +65,6 @@
 
 coming soon
 
-### 
-
 ### WORKFLOW
 
 ```mermaid
@@ -82,3 +80,16 @@ graph TD
     D -.->|Organizes| C
     
 ```
+
+## Projects
+
+### GitHub Projects Board
+
++-------------------+---------------+----------------+------------------+
+| Democratic        | Decision      | Unity of       | Evaluation       |
+| Discussion        | Making        | Action         |                  |
++-------------------+---------------+----------------+------------------+
+| • Theory debates  | • Consensus   | • Tasks being  | • Completed work |
+| • Study materials | formation     | implemented    | • CSC process    |
+| • Investigations  | • Voting      | • Assignments  | • Lessons learned|
++-------------------+---------------+----------------+------------------+

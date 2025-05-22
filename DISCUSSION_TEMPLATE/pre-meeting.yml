@@ -1,0 +1,80 @@
+labels:
+  - type/meeting-minutes
+  - security/${{ inputs.security_classification }}
+  - meeting/${{ inputs.meeting_type }}
+  - stage/approved
+  - department/${{ inputs.department }}
+body:
+  - type: input
+    id: meeting_type
+    attributes:
+      label: Meeting Type
+      description: Specify the type of meeting (e.g., general, committee, working-group)
+      placeholder: general
+    validations:
+      required: true
+
+  - type: input
+    id: date
+    attributes:
+      label: Meeting Date
+      description: Date of the upcoming meeting (YYYY-MM-DD)
+      placeholder: 2025-05-22
+    validations:
+      required: true
+
+  - type: input
+    id: security_classification
+    attributes:
+      label: Security Classification
+      description: Security level (L0, L1, L2)
+      placeholder: L0
+    validations:
+      required: true
+
+  - type: input
+    id: department
+    attributes:
+      label: Department
+      description: Department or group name
+      placeholder: engineering
+    validations:
+      required: false
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Briefly describe the purpose or context for this agenda discussion.
+      placeholder: |
+        This discussion thread is for developing the agenda for the [meeting type] scheduled for [date].
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed_items
+    attributes:
+      label: Proposed Agenda Items
+      description: Suggest agenda items using the format below. Add as many as needed.
+      placeholder: |
+        - **Item:** [Brief description]
+        - **Time needed:** [Estimated minutes]
+        - **Priority:** [High/Medium/Low]
+        - **Supporting materials:** [Links or attachments]
+        - **Related discussions:** [Links to relevant discussions]
+    validations:
+      required: true
+
+  - type: textarea
+    id: draft_agenda
+    attributes:
+      label: Current Draft Agenda
+      description: List the current draft agenda, including standard items and placeholders for new suggestions.
+      placeholder: |
+        1. Opening and attendance (5 min)
+        2. [TBD based on comments]
+        3. [TBD based on comments]
+        4. Action item review (10 min)
+        5. Closing (5 min)
+    validations:
+      required: false

@@ -1,0 +1,55 @@
+title: "Criticism and Self-Criticism"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Criticism & Self-Criticism
+        This template guides dialectical assessment of our work.
+  
+  - type: dropdown
+    id: security
+    attributes:
+      label: Security Classification
+      description: Select the appropriate security level
+      options:
+        - L0 - Public
+        - L1 - Candidate
+        - L2 - Cadre
+    validations:
+      required: true
+      
+  - type: textarea
+    id: current_practice
+    attributes:
+      label: Current Practice
+      description: Describe the current practice being assessed
+      placeholder: "Our current approach to..."
+    validations:
+      required: true
+      
+  - type: textarea
+    id: contradictions
+    attributes:
+      label: Contradictions
+      description: Identify the contradictions in current practice
+      placeholder: "The primary contradictions identified are..."
+    validations:
+      required: true
+      
+  - type: textarea
+    id: theoretical_basis
+    attributes:
+      label: Theoretical Basis for Criticism
+      description: Provide the theoretical foundation for the criticism
+      placeholder: "According to [theory], our practice should..."
+    validations:
+      required: true
+      
+  - type: textarea
+    id: corrections
+    attributes:
+      label: Proposed Corrections
+      description: What changes should be made to resolve contradictions
+      placeholder: "To resolve these contradictions, we should..."
+    validations:
+      required: true
