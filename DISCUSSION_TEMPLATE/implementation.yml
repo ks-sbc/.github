@@ -1,0 +1,73 @@
+name: "Implementation Plan"
+description: "Template for tracking the implementation of a decision from a meeting"
+labels:
+  - type/implementation
+body:
+  - type: input
+    id: decision_summary
+    attributes:
+      label: Decision Summary
+      placeholder: "[Decision] from [Meeting Type] - [YYYY-MM-DD]"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: security_classification
+    attributes:
+      label: Security Classification
+      options:
+        - L0
+        - L1
+        - L2
+    validations:
+      required: true
+
+  - type: textarea
+    id: decision_reference
+    attributes:
+      label: Decision Reference
+      description: Reference to the decision made, including meeting and date.
+      value: |
+        This discussion implements the decision made at the [meeting type] on [date]: 
+
+        > [Exact decision text]
+
+        **Meeting Minutes:** [Link to minutes]
+        **Original Discussion:** [Link to pre-meeting discussion]
+    validations:
+      required: true
+
+  - type: textarea
+    id: implementation_plan
+    attributes:
+      label: Implementation Plan
+      description: Provide step-by-step plan, assign responsibilities and deadlines.
+      value: |
+        1. [Implementation step 1]
+           - Responsible: @username
+           - Deadline: [YYYY-MM-DD]
+           - Status: [Not Started/In Progress/Completed]
+
+        2. [Implementation step 2]
+           - Responsible: @username
+           - Deadline: [YYYY-MM-DD]
+           - Status: [Not Started/In Progress/Completed]
+    validations:
+      required: true
+
+  - type: textarea
+    id: progress_updates
+    attributes:
+      label: Progress Updates
+      description: Use comments for ongoing updates.
+      value: "[Initial post - will be updated through comments]"
+    validations:
+      required: false
+
+  - type: textarea
+    id: questions
+    attributes:
+      label: Questions and Clarifications
+      description: Space for any questions about implementation.
+    validations:
+      required: false

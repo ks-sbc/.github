@@ -1,0 +1,109 @@
+labels:
+  - type/meeting-minutes
+  - security/${{ inputs.security_classification }}
+  - meeting/${{ inputs.meeting_type }}
+  - stage/approved
+  - department/${{ inputs.department }}
+body:
+  - type: input
+    id: meeting_type
+    attributes:
+      label: Meeting Type
+      description: Specify the type of meeting (e.g., general, committee, working-group)
+      placeholder: general
+    validations:
+      required: true
+
+  - type: input
+    id: date
+    attributes:
+      label: Date
+      description: Date of the meeting (YYYY-MM-DD)
+      placeholder: 2025-05-22
+    validations:
+      required: true
+
+  - type: input
+    id: security_classification
+    attributes:
+      label: Security Classification
+      description: Security level (L0, L1, L2)
+      placeholder: L0
+    validations:
+      required: true
+
+  - type: input
+    id: department
+    attributes:
+      label: Department
+      description: Department or group name
+      placeholder: engineering
+    validations:
+      required: false
+
+  - type: textarea
+    id: attendance
+    attributes:
+      label: Attendance
+      description: List attendees, absentees, facilitator, and secretary.
+      placeholder: |
+        Present: [list of attendees]
+        Absent: [list of absent members]
+        Facilitator: [name]
+        Secretary: [name]
+    validations:
+      required: true
+
+  - type: textarea
+    id: agenda
+    attributes:
+      label: Agenda
+      description: List agenda items.
+      placeholder: |
+        1. [Agenda item 1]
+        2. [Agenda item 2]
+        3. [Agenda item 3]
+    validations:
+      required: true
+
+  - type: textarea
+    id: items
+    attributes:
+      label: Discussion Items
+      description: For each agenda item, summarize discussion, decisions, voting, and action items.
+      placeholder: |
+        ## Item 1: [Agenda item 1]
+        **Related Discussion:** [Link to GitHub Discussion]
+
+        ### Summary of Discussion
+        [Summary of key points raised]
+
+        ### Decision
+        [Formal decision text]
+
+        **Voting Record:** [If applicable]
+        - In favor: [count]
+        - Against: [count]
+        - Abstain: [count]
+
+        ### Action Items
+        - [ ] [Action 1] (@assignee, deadline)
+        - [ ] [Action 2] (@assignee, deadline)
+
+        ## Item 2: [Agenda item 2]
+        [Repeat structure]
+    validations:
+      required: true
+
+  - type: textarea
+    id: next_meeting
+    attributes:
+      label: Next Meeting
+      description: Details for the next meeting.
+      placeholder: |
+        Date: [YYYY-MM-DD]
+        Time: [HH:MM]
+        Facilitator: [name]
+        Secretary: [name]
+    validations:
+      required: false

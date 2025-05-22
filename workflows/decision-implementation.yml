@@ -1,0 +1,51 @@
+# .github/workflows/decision-implementation.yml
+name: Decision Implementation
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  check-consensus:
+    if: contains(github.event.issue.labels.*.name, 'process:discussion')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            // Check if the comment indicates consensus
+            const consensusIndicator = "CONSENSUS REACHED";
+            
+            if (context.payload.comment.body.includes(consensusIndicator)) {
+              // Add decision label
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.issue.number,
+                labels: ['process:decision']
+              });
+              
+              // Create implementation issue
+              const issueBody = `
+              ## Implementation of Decision
+              
+              This issue implements the decision made in issue #${context.payload.issue.number}.
+              
+              ### Decision
+              ${context.payload.comment.body.split(consensusIndicator)[1].trim()}
+              
+              ### Implementation Tasks
+              - [ ] Create document
+              - [ ] Review with committee
+              - [ ] Publish to appropriate location
+              `;
+              
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `Implement: ${context.payload.issue.title}`,
+                body: issueBody,
+                labels: ['process:implementation']
+              });
+            }

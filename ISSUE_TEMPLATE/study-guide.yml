@@ -1,0 +1,176 @@
+name: Study Guide
+description: Create a study guide for theoretical or practical material
+title: "[STUDY] "
+labels: ["type:study-guide", "process:development", "status:draft"]
+assignees: [cadre1, cadre2]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        # Study Guide
+        
+        This template is for creating structured study guides for books, articles, or other materials. Study guides should facilitate collective learning and discussion.
+
+  - type: dropdown
+    id: security_classification
+    attributes:
+      label: Security Classification
+      description: Specify the security level for this study guide
+      options:
+        - L0 (Public)
+        - L1 (Candidate)
+      default: 0
+    validations:
+      required: true
+
+  - type: input
+    id: source_material
+    attributes:
+      label: Source Material
+      description: The primary text or material being studied
+      placeholder: "Capital Vol. 1, On Contradiction, etc."
+    validations:
+      required: true
+
+  - type: input
+    id: author
+    attributes:
+      label: Author
+      description: Author of the source material
+      placeholder: "Marx, Lenin, Mao, etc."
+    validations:
+      required: true
+
+  - type: input
+    id: study_sessions
+    attributes:
+      label: Number of Sessions
+      description: How many study sessions this guide covers
+      placeholder: "3 sessions"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: difficulty_level
+    attributes:
+      label: Difficulty Level
+      description: Estimated difficulty level of this material
+      options:
+        - Introductory
+        - Intermediate
+        - Advanced
+    validations:
+      required: true
+
+  - type: textarea
+    id: overview
+    attributes:
+      label: Study Guide Overview
+      description: General introduction to the material being studied
+      placeholder: "Provide context about the work and its significance..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: learning_objectives
+    attributes:
+      label: Learning Objectives
+      description: What participants will learn from this study
+      placeholder: "By completing this study, participants will understand..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: session_structure
+    attributes:
+      label: Session Structure
+      description: Break down the study into logical sessions
+      value: |
+        ## Session 1: [Topic]
+        
+        ### Reading Assignment
+        - [Pages or chapters to read before the session]
+        
+        ### Key Concepts
+        - [List of key concepts]
+        
+        ### Discussion Questions
+        1. [Question 1]
+        2. [Question 2]
+        3. [Question 3]
+        
+        ### Activities
+        - [Suggested activities]
+        
+        ## Session 2: [Topic]
+        
+        ### Reading Assignment
+        - [Pages or chapters to read before the session]
+        
+        ### Key Concepts
+        - [List of key concepts]
+        
+        ### Discussion Questions
+        1. [Question 1]
+        2. [Question 2]
+        3. [Question 3]
+        
+        ### Activities
+        - [Suggested activities]
+        
+        ## Session 3: [Topic]
+        
+        ### Reading Assignment
+        - [Pages or chapters to read before the session]
+        
+        ### Key Concepts
+        - [List of key concepts]
+        
+        ### Discussion Questions
+        1. [Question 1]
+        2. [Question 2]
+        3. [Question 3]
+        
+        ### Activities
+        - [Suggested activities]
+    validations:
+      required: true
+
+  - type: textarea
+    id: supplementary_materials
+    attributes:
+      label: Supplementary Materials
+      description: Additional readings or resources to enhance understanding
+      placeholder: "List additional materials, videos, or resources..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: facilitation_notes
+    attributes:
+      label: Facilitation Notes
+      description: Guidance for facilitators leading the study
+      placeholder: "Provide tips for facilitating productive discussion..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: practical_application
+    attributes:
+      label: Practical Application
+      description: How to apply the theoretical concepts in practice
+      placeholder: "Explain how to connect theory to practice..."
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: development_status
+    attributes:
+      label: Development Status
+      description: Track the development of this study guide
+      options:
+        - label: Initial outline complete
+        - label: Content development in progress
+        - label: Ready for committee review
+        - label: Tested in study session
+        - label: Approved for general use

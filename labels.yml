@@ -1,0 +1,345 @@
+- name: security:public
+  color: "0366d6"
+  description: Public-facing information accessible to anyone
+- name: security:candidate
+  color: "fbca04"
+  description: Information restricted to candidate members and above
+- name: security:cadre
+  color: "d73a4a"
+  description: Sensitive information restricted to cadre members only
+- name: process:discussion
+  color: "5319e7"
+  description: Democratic discussion phase - open debate and theoretical development
+- name: process:proposal
+  color: "7057ff"
+  description: Proposal phase - specific motion for voting consideration
+- name: process:decided
+  color: "8a63d2"
+  description: Decision phase - proposal has been approved or rejected through vote
+- name: process:implementation
+  color: "9975e2"
+  description: Implementation phase - executing the democratically decided action
+- name: process:complete
+  color: "b185f2"
+  description: Completion phase - implementation finished, ready for evaluation
+- name: status:todo
+  color: "eeeeee"
+  description: Workflow state - approved to start, waiting to be picked up
+- name: status:doing
+  color: "ffcc00"
+  description: Workflow state - work in progress
+- name: status:review
+  color: "9932cc"
+  description: Workflow state - being evaluated and tested
+- name: status:done
+  color: "44cc44"
+  description: Workflow state - completed
+- name: status:blocked
+  color: "ff0000"
+  description: Workflow state - unable to complete due to an obstacle
+- name: status:cancelled
+  color: "666666"
+  description: Workflow state - abandoned task
+- name: priority:p0
+  color: "c0c0c0"
+  description: No due date, no urgency - background tasks
+- name: priority:p1
+  color: "bfd4f2"
+  description: Due within a year - long-term planning
+- name: priority:p2
+  color: "92b5d8"
+  description: Due within 1 month - medium-term planning
+- name: priority:p3
+  color: "6897c6"
+  description: Due within 1 week - short-term planning
+- name: priority:p4
+  color: "4372aa"
+  description: Due within 72 hours - urgent tasks
+- name: priority:p5
+  color: "1d4f8c"
+  description: Urgent - drop everything and do this right now
+- name: time:XS
+  color: "c9ecdb"
+  description: 0-15 minutes - very small task
+- name: time:S
+  color: "a0dfc1"
+  description: 15 minutes to 1 hour - small task
+- name: time:M
+  color: "79ceaa"
+  description: 1 hour to 3 hours - medium task
+- name: time:L
+  color: "56be95"
+  description: 3 hours to 8 hours - large task (full day)
+- name: time:XL
+  color: "34ae81"
+  description: More than 8 hours - major task requiring multiple work sessions
+- name: type:document
+  color: "fef2c0"
+  description: Improvements or additions to documentation
+- name: type:content
+  color: "f9e49a"
+  description: Published material for external consumption
+- name: type:event
+  color: "f9d86e"
+  description: Organizing or attending an event
+- name: type:theory
+  color: "f5c633"
+  description: Theoretical development work
+- name: type:theory:marxism
+  color: "f1bd33"
+  description: Theory related to classical Marxism
+- name: type:theory:leninism
+  color: "edb733"
+  description: Theory related to Leninism
+- name: type:theory:maoism
+  color: "e9b033"
+  description: Theory related to Maoism
+- name: type:theory:decolonial
+  color: "e5a933"
+  description: Theory related to decolonial frameworks
+- name: type:task
+  color: "e3ba29"
+  description: Concrete practical task
+- name: type:reference
+  color: "d4ad1d"
+  description: Reference material or catalog item
+- name: type:organization
+  color: "c3a113"
+  description: An organization that we interact with, good or bad
+- name: type:training
+  color: "aa870c"
+  description: Educational material for internal development
+- name: discussion:theory
+  color: "e99695"
+  description: Theoretical position papers and ideological development
+- name: discussion:poli-ed
+  color: "e57b7a"
+  description: Political education materials on broader topics
+- name: discussion:study-guide
+  color: "e05654"
+  description: Study guides for lessons on particular writings
+- name: discussion:minutes
+  color: "d93633"
+  description: Meeting minutes and official records
+- name: discussion:csc
+  color: "cc2a27"
+  description: Criticism and self-criticism documentation
+- name: discussion:csc:individual
+  color: "b82420"
+  description: Individual criticism and self-criticism
+- name: discussion:csc:collective
+  color: "a82220"
+  description: Collective criticism and self-criticism
+- name: discussion:csc:campaign
+  color: "961d1c"
+  description: Campaign-specific criticism and self-criticism
+- name: evaluation:political
+  color: "ffb3e6"
+  description: Political development outcome - consciousness growth, line advancement
+- name: evaluation:material
+  color: "ff80d5"
+  description: Material victories - collective action, building power, concrete improvements
+- name: evaluation:growth
+  color: "ff4dc4"
+  description: Organization growth - recruitment, expansion, new contacts
+- name: politics:theory:marxism
+  color: "9e0142"
+  description: Theoretical work related to Marxism
+- name: politics:theory:marxism:political-economy
+  color: "970140"
+  description: Marxist political economy and critique of capitalism
+- name: politics:theory:marxism:dialectics
+  color: "90013e"
+  description: Dialectical materialism methodology and philosophy
+- name: politics:theory:marxism:history
+  color: "89013c"
+  description: Historical materialism and class analysis
+- name: politics:theory:leninism
+  color: "d53e4f"
+  description: Theoretical work related to Leninism
+- name: politics:theory:leninism:party
+  color: "cc3c4b"
+  description: Leninist party organization and democratic centralism
+- name: politics:theory:leninism:imperialism
+  color: "c33947"
+  description: Theory of imperialism as highest stage of capitalism
+- name: politics:theory:leninism:state
+  color: "ba3743"
+  description: Leninist understanding of state and revolution
+- name: politics:theory:maoism
+  color: "f46d43"
+  description: Theoretical work related to Maoism
+- name: politics:theory:maoism:contradiction
+  color: "e8683f"
+  description: Maoist theory of contradiction
+- name: politics:theory:maoism:mass-line
+  color: "dc623b"
+  description: Mass line methodology and practice
+- name: politics:theory:maoism:cultural-revolution
+  color: "d05d38"
+  description: Cultural revolution theory and practice
+- name: politics:theory:decolonial
+  color: "fdae61"
+  description: Theoretical work related to decolonial theory
+- name: politics:theory:decolonial:fanon
+  color: "f0a55c"
+  description: Fanonian analysis of colonialism and resistance
+- name: politics:theory:decolonial:indigenous
+  color: "e39c57"
+  description: Indigenous resistance and decolonization frameworks
+- name: politics:theory:decolonial:settler
+  color: "d69352"
+  description: Settler colonialism analysis and abolition
+- name: politics:mass-work
+  color: "fdae61"
+  description: Work directly involving the masses
+- name: politics:mass-work:tenant
+  color: "f0a55c"
+  description: Tenant organizing and housing struggles
+- name: politics:mass-work:labor
+  color: "e39c57"
+  description: Labor organizing and workplace struggles
+- name: politics:mass-work:education
+  color: "d69352"
+  description: Educational organizing and student struggles
+- name: politics:education
+  color: "fee08b"
+  description: Political education work
+- name: politics:democracy
+  color: "e6f598"
+  description: Work enabling group participation and democratic processes
+- name: politics:security
+  color: "abdda4"
+  description: Security-related political considerations
+- name: politics:reactionary
+  color: "66c2a5"
+  description: Analysis of reactionary forces and counter-revolutionary tendencies
+- name: method:mass-line
+  color: "7fa9e9"
+  description: From the masses, to the masses methodology
+- name: method:mass-line:investigation
+  color: "6fa3e7"
+  description: Investigation phase of mass line process
+- name: method:mass-line:synthesis
+  color: "5f9ee5"
+  description: Synthesis phase of mass line process
+- name: method:mass-line:implementation
+  color: "4f98e3"
+  description: Implementation phase of mass line process
+- name: method:criticism-self-criticism
+  color: "5c91e5"
+  description: Criticism and self-criticism process
+- name: method:democratic-centralism
+  color: "3979e1"
+  description: Democratic centralist process - free debate, unified action
+- name: method:democratic-centralism:democracy
+  color: "3574df"
+  description: Democratic aspect of democratic centralism
+- name: method:democratic-centralism:centralism
+  color: "316fdd"
+  description: Centralist aspect of democratic centralism
+- name: method:social-investigation
+  color: "1662dd"
+  description: Social investigation and class analysis
+- name: method:one-divides-into-two
+  color: "0052d8"
+  description: One divides into two dialectical method
+- name: issue:task
+  color: "c2e0c6"
+  description: A concrete task to be completed
+- name: issue:implementation-plan
+  color: "a2d8a2"
+  description: Plan for implementing a decided position
+- name: issue:campaign
+  color: "85d685"
+  description: Formulating campaign plans
+- name: issue:campaign:planning
+  color: "75d075"
+  description: Planning phase of campaign
+- name: issue:campaign:execution
+  color: "65ca65"
+  description: Execution phase of campaign
+- name: issue:campaign:evaluation
+  color: "55c455"
+  description: Evaluation phase of campaign
+- name: issue:security-protocol
+  color: "68d368"
+  description: Security protocol development or implementation
+- name: issue:tech
+  color: "44cc44"
+  description: Technical implementation tasks
+- name: issue:tech:github
+  color: "2eb82e"
+  description: Work on GitHub infrastructure
+- name: issue:tech:github:workflow
+  color: "1fa41f"
+  description: GitHub workflow development and maintenance
+- name: issue:tech:github:actions
+  color: "159e15"
+  description: GitHub Actions configuration and implementation
+- name: issue:tech:github:labels
+  color: "0b980b"
+  description: GitHub label taxonomy management
+- name: issue:tech:obsidian
+  color: "069206"
+  description: Obsidian configuration and plugins
+- name: issue:tech:obsidian:plugins
+  color: "058c05"
+  description: Obsidian plugin configuration
+- name: issue:tech:obsidian:templates
+  color: "048604"
+  description: Obsidian templates development
+- name: issue:tech:obsidian:sync
+  color: "038003"
+  description: Obsidian-GitHub synchronization
+- name: issue:tech:tails
+  color: "027a02"
+  description: Tails OS configuration and usage
+- name: issue:task:standardization
+  color: "13801a"
+  description: Standardization of processes and documents
+- name: project:strategy
+  color: "c6c0f2"
+  description: Strategic planning document
+- name: project:resources
+  color: "a49ae5"
+  description: Resource allocation plan for a project
+- name: project:capacity
+  color: "8573d9"
+  description: Work distribution matrix to measure labor capacity
+- name: project:evals
+  color: "674fcc"
+  description: Evaluation framework for a project to implement CSC
+- name: project:timeline
+  color: "4a2cbf"
+  description: Project timeline planning and tracking
+- name: project:timeline:milestone
+  color: "4527b5"
+  description: Major milestone in project timeline
+- name: project:timeline:checkpoint
+  color: "4123ac"
+  description: Regular checkpoint in project timeline
+- name: project:timeline:deadline
+  color: "3d1ea2"
+  description: Hard deadline in project timeline
+- name: contradiction:internal
+  color: "ff9999"
+  description: Internal contradiction within the organization
+- name: contradiction:external
+  color: "ff6666"
+  description: External contradiction with outside forces
+- name: contradiction:primary
+  color: "ff3333"
+  description: Primary contradiction requiring immediate resolution
+- name: contradiction:secondary
+  color: "ff0000"
+  description: Secondary contradiction to be addressed after primary ones
+- name: contradiction:antagonistic
+  color: "e60000"
+  description: Antagonistic contradiction requiring fundamental transformation
+- name: contradiction:non-antagonistic
+  color: "cc0000"
+  description: Non-antagonistic contradiction resolvable through unity-struggle-unity
+- name: critical-path
+  color: "6600cc"
+  description: Task on the critical path of project completion

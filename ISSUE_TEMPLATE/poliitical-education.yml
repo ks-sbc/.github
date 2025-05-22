@@ -1,0 +1,163 @@
+name: Political Education
+description: Create political education materials for study and training
+title: "[EDUCATION] "
+labels: ["type:political-education", "process:development", "status:draft"]
+assignees: [cadre1, cadre2]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        # Political Education
+        
+        This template is for developing political education materials for use in study sessions, training, or public education. Political education documents should be accessible while maintaining theoretical rigor.
+
+  - type: dropdown
+    id: security_classification
+    attributes:
+      label: Security Classification
+      description: Specify the security level for these materials
+      options:
+        - L0 (Public)
+        - L1 (Candidate)
+      default: 0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: educational_format
+    attributes:
+      label: Educational Format
+      description: Primary format for this educational material
+      options:
+        - Study Session Plan
+        - Reading Guide
+        - Presentation
+        - Workshop
+        - Video Script
+        - Infographic/Visual
+        - Other (specify in Description)
+    validations:
+      required: true
+
+  - type: input
+    id: related_theory
+    attributes:
+      label: Related Theoretical Position
+      description: Link to the theoretical position this implements
+      placeholder: "#123"
+    validations:
+      required: false
+
+  - type: input
+    id: target_audience
+    attributes:
+      label: Target Audience
+      description: Primary intended audience for these materials
+      placeholder: "New members, Public, Working class community members, etc."
+    validations:
+      required: true
+
+  - type: input
+    id: duration
+    attributes:
+      label: Estimated Duration
+      description: Approximate time required for this educational content
+      placeholder: "60 minutes, 3 sessions, etc."
+    validations:
+      required: true
+
+  - type: textarea
+    id: educational_objectives
+    attributes:
+      label: Educational Objectives
+      description: What participants will learn or understand
+      placeholder: "By the end of this session, participants will be able to..."
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: theoretical_basis
+    attributes:
+      label: Theoretical Basis
+      description: Select the theoretical foundations for this material
+      options:
+        - label: Marxist-Leninist classics
+        - label: Historical materialism
+        - label: Dialectical analysis
+        - label: Contemporary application
+        - label: Decolonial theory
+        - label: Other (specify in Description)
+
+  - type: textarea
+    id: class_analysis
+    attributes:
+      label: Class Analysis
+      description: Identify the class character and implications
+      placeholder: "Analysis of class character of the content and audience..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: educational_content
+    attributes:
+      label: Educational Content Outline
+      description: Outline the educational content
+      value: |
+        ## Introduction
+        [Introduction content]
+        
+        ## Key Concept 1
+        [Concept 1 content]
+        
+        ## Key Concept 2
+        [Concept 2 content]
+        
+        ## Application
+        [Application content]
+        
+        ## Conclusion
+        [Conclusion content]
+    validations:
+      required: true
+
+  - type: textarea
+    id: study_questions
+    attributes:
+      label: Study Questions
+      description: Questions for discussion or reflection
+      value: |
+        1. [Dialectical analysis question]
+        2. [Historical context question]
+        3. [Contemporary application question]
+    validations:
+      required: true
+
+  - type: textarea
+    id: materials_needed
+    attributes:
+      label: Materials Needed
+      description: Resources needed to implement this educational content
+      placeholder: "Readings, videos, handouts, etc."
+    validations:
+      required: true
+
+  - type: textarea
+    id: mass_line
+    attributes:
+      label: Mass Line Connection
+      description: How this reflects collected mass experiences
+      placeholder: "Explain the connection to mass experiences and needs..."
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: development_status
+    attributes:
+      label: Development Status
+      description: Track the development of these materials
+      options:
+        - label: Initial outline complete
+        - label: Content development in progress
+        - label: Committee review
+        - label: Tested with focus group
+        - label: Ready for implementation

@@ -1,0 +1,27 @@
+name: Convert decisions to action items
+on:
+  discussion:
+    types: [labeled]
+jobs:
+  convert-to-issue:
+    if: contains(github.event.label.name, 'consensus-reached')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create implementation issue
+        uses: peter-evans/create-issue-from-discussion@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          title: "Implement: ${{ github.event.discussion.title }}"
+          body: |
+            This issue implements the decision from [discussion #${{ github.event.discussion.number }}](${{ github.event.discussion.html_url }}).
+            
+            ## Decision Summary
+            
+            > ${{ github.event.discussion.body }}
+            
+            ## Implementation Tasks
+            
+            - [ ] Draft document changes
+            - [ ] Review with stakeholders
+            - [ ] Finalize documentation
+          labels: implementation,consensus-approved

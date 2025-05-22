@@ -1,0 +1,14 @@
+name: Move issues through workflow stages
+on:
+  issues:
+    types: [labeled]
+jobs:
+  automate-project-columns:
+    runs-on: ubuntu-latest
+    if: contains(github.event.label.name, 'consensus-reached')
+    steps:
+      - uses: alex-page/github-project-automation-plus@v0.8.3
+        with:
+          project: Documentation Workflow
+          column: Implementation
+          repo-token: ${{ secrets.GITHUB_TOKEN }}

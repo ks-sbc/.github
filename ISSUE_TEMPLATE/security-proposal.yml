@@ -1,0 +1,48 @@
+name: SECURITY PROPOSAL
+description: Proposal for security protocols and measures
+labels: [security, cadre, discussion]
+assignees: [cadre1, cadre2]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        # Security Protocol Proposal
+
+  - type: textarea
+    id: threat_assessment
+    attributes:
+      label: Threat Assessment
+      description: Assess threats and context.
+      placeholder: |
+        - Class enemy capabilities:
+        - Vulnerabilities addressed:
+        - Historical precedents:
+    validations:
+      required: true
+
+  - type: textarea
+    id: discipline_requirements
+    attributes:
+      label: Proletarian Discipline Requirements
+      description: Describe training and compliance mechanisms.
+      placeholder: Training and compliance mechanisms
+    validations:
+      required: true
+
+  - type: textarea
+    id: compartmentalization_plan
+    attributes:
+      label: Compartmentalization Plan
+      description: Explain need-to-know implementation.
+      placeholder: Need-to-know implementation
+    validations:
+      required: true
+
+  - type: textarea
+    id: testing_protocol
+    attributes:
+      label: Testing Protocol
+      description: Outline verification methods.
+      placeholder: Verification methods
+    validations:
+      required: true

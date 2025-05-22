@@ -1,0 +1,134 @@
+name: Theoretical Position
+description: Develop a theoretical position for discussion and approval
+title: "[THEORY] "
+labels: ["type:theoretical-position", "process:discussion", "status:draft"]
+assignees: [cadre1, cadre2]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        # Theoretical Position
+        
+        This template is for developing theoretical positions that will be subject to democratic discussion and decision-making. Theoretical positions should be grounded in Marxist-Leninist-Maoist analysis.
+
+  - type: dropdown
+    id: security_classification
+    attributes:
+      label: Security Classification
+      description: Specify the security level for this theoretical position
+      options:
+        - L0 (Public)
+        - L1 (Candidate)
+        - L2 (Cadre)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: theoretical_framework
+    attributes:
+      label: Theoretical Framework
+      description: Primary theoretical framework this position draws from
+      options:
+        - Marxism
+        - Leninism
+        - Maoism
+        - Decolonial Theory
+        - Other (specify in Current Conditions)
+    validations:
+      required: true
+
+  - type: input
+    id: related_discussions
+    attributes:
+      label: Related Discussions
+      description: Link any related discussions or issues
+      placeholder: "#123, #456"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: department
+    attributes:
+      label: Department
+      description: Primary department responsible for this position
+      options:
+        - Education
+        - Mass Work
+        - Technical
+        - Security
+    validations:
+      required: true
+
+  - type: textarea
+    id: current_conditions
+    attributes:
+      label: Current Conditions
+      description: Analyze the material conditions relevant to this theoretical position
+      placeholder: "Provide a materialist analysis of current conditions..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: contradictions
+    attributes:
+      label: Contradictions
+      description: Identify key contradictions that this position addresses
+      placeholder: "List and analyze the primary and secondary contradictions..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: theoretical_position
+    attributes:
+      label: Theoretical Position
+      description: Present the theoretical position with clear reasoning
+      placeholder: "Articulate the theoretical position in detail..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: historical_basis
+    attributes:
+      label: Historical Basis
+      description: Provide historical examples or theoretical precedents
+      placeholder: "Reference historical examples and theoretical precedents..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: practical_implications
+    attributes:
+      label: Practical Implications
+      description: Explain how this theoretical position would guide practice
+      placeholder: "Detail how this position would inform concrete actions..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: implementation_requirements
+    attributes:
+      label: Implementation Requirements
+      description: Outline what implementing this position would require
+      placeholder: "List resources, changes, or actions needed to implement..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: references
+    attributes:
+      label: References
+      description: List theoretical works, discussions, or other references
+      placeholder: "Provide citations and references..."
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: decision_process
+    attributes:
+      label: Decision Process
+      description: Track the democratic centralist decision process
+      options:
+        - label: Open discussion phase (set end date)
+        - label: Committee review
+        - label: Approval decision
+        - label: Implementation planning

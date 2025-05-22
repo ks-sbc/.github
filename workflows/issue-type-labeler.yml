@@ -1,0 +1,55 @@
+# .github/workflows/issue-type-labeler.yml
+name: Issue Type Labeler
+
+on:
+  issues:
+    types: [opened, edited]
+
+jobs:
+  apply-labels:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issueBody = context.payload.issue.body;
+            
+            // Extract template type from issue body metadata
+            const typeMatch = issueBody.match(/issue-template:\s*([^\s]+)/);
+            if (!typeMatch) return;
+            
+            const issueType = typeMatch[1];
+            
+            // Define label mappings for issue types
+            const labelMapping = {
+              'theoretical-position': ['type:theory', 'process:discussion'],
+              'political-education': ['type:content', 'politics:education'],
+              'study-guide': ['discussion:study-guide', 'type:training'],
+              'csc-document': ['discussion:csc', 'method:criticism-self-criticism'],
+              'strategic-plan': ['project:strategy', 'type:document'],
+              'campaign-plan': ['issue:campaign', 'type:document'],
+              'resource-allocation': ['project:resources', 'type:document'],
+              'work-distribution': ['project:capacity', 'type:document'],
+              'timeline': ['project:timeline', 'type:document'],
+              'evaluation-framework': ['project:evals', 'type:document'],
+              'task-assignment': ['issue:task', 'type:task'],
+              'implementation-plan': ['issue:implementation-plan', 'process:implementation'],
+              'technical-implementation': ['issue:tech', 'type:task'],
+              'bug-report': ['type:task', 'status:todo'],
+              'security-protocol': ['issue:security-protocol', 'politics:security'],
+              'mass-investigation': ['method:social-investigation', 'politics:mass-work'],
+              'mass-experience': ['politics:mass-work', 'type:document'],
+              'mass-line-application': ['method:mass-line:implementation', 'politics:mass-work'],
+              'meeting-minutes': ['discussion:minutes', 'type:document']
+            };
+            
+            // Apply appropriate labels
+            if (labelMapping[issueType]) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.issue.number,
+                labels: labelMapping[issueType]
+              });
+            }

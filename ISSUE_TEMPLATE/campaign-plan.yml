@@ -1,0 +1,241 @@
+name: Campaign Plan
+description: Plan a mass work campaign or organizational initiative
+title: "[CAMPAIGN] "
+labels: ["type:campaign-plan", "process:planning", "status:draft"]
+assignees: [cadre1, cadre2]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        # Campaign Plan
+        
+        This template is for planning campaigns and organizational initiatives that implement strategic priorities.
+
+  - type: dropdown
+    id: security_classification
+    attributes:
+      label: Security Classification
+      description: Specify the security level for this campaign plan
+      options:
+        - L0 (Public)
+        - L1 (Candidate)
+        - L2 (Cadre)
+    validations:
+      required: true
+
+  - type: input
+    id: campaign_period
+    attributes:
+      label: Campaign Period
+      description: Timeframe for this campaign
+      placeholder: "July - November 2025"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: lead_committee
+    attributes:
+      label: Lead Committee
+      description: Committee leading this campaign
+      options:
+        - Education Committee
+        - Mass Work Committee
+        - Technical Committee
+        - Security Committee
+        - Steering Committee
+    validations:
+      required: true
+
+  - type: input
+    id: supporting_committees
+    attributes:
+      label: Supporting Committees
+      description: Other committees involved in this campaign
+      placeholder: "Education Committee, Technical Committee"
+    validations:
+      required: false
+
+  - type: input
+    id: related_theory
+    attributes:
+      label: Related Theoretical Position
+      description: Link to the theoretical position this implements
+      placeholder: "#123"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Campaign priority level
+      options:
+        - Critical
+        - High
+        - Medium
+        - Low
+    validations:
+      required: true
+
+  - type: textarea
+    id: political_objective
+    attributes:
+      label: Political Objective
+      description: Primary political objective of this campaign
+      placeholder: "Define the main political objective..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: class_analysis
+    attributes:
+      label: Class Analysis
+      description: Analysis of class forces relevant to this campaign
+      placeholder: "Provide class analysis..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: target_audience
+    attributes:
+      label: Target Audience
+      description: Specific groups this campaign will engage
+      placeholder: "Identify specific target groups..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: class_composition
+    attributes:
+      label: Class Composition
+      description: Class character of target groups and existing forces
+      placeholder: "Analyze class composition of target audience..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: contradictions
+    attributes:
+      label: Principal Contradictions
+      description: Primary contradictions this campaign addresses
+      placeholder: "Identify and analyze key contradictions..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: investigation_phase
+    attributes:
+      label: Phase 1 - Investigation
+      description: Initial investigation phase
+      value: |
+        ### Investigation Phase
+        
+        **Timeline**: [Start Date] to [End Date]
+        
+        **Tasks**:
+        - [ ] [Task 1]
+        - [ ] [Task 2]
+        - [ ] [Task 3]
+        
+        **Objectives**:
+        [List investigation objectives]
+    validations:
+      required: true
+
+  - type: textarea
+    id: development_phase
+    attributes:
+      label: Phase 2 - Development
+      description: Line development phase
+      value: |
+        ### Development Phase
+        
+        **Timeline**: [Start Date] to [End Date]
+        
+        **Tasks**:
+        - [ ] [Task 1]
+        - [ ] [Task 2]
+        - [ ] [Task 3]
+        
+        **Objectives**:
+        [List development objectives]
+    validations:
+      required: true
+
+  - type: textarea
+    id: implementation_phase
+    attributes:
+      label: Phase 3 - Implementation
+      description: Implementation phase
+      value: |
+        ### Implementation Phase
+        
+        **Timeline**: [Start Date] to [End Date]
+        
+        **Tasks**:
+        - [ ] [Task 1]
+        - [ ] [Task 2]
+        - [ ] [Task 3]
+        
+        **Objectives**:
+        [List implementation objectives]
+    validations:
+      required: true
+
+  - type: textarea
+    id: summation_phase
+    attributes:
+      label: Phase 4 - Summation
+      description: Summation and evaluation phase
+      value: |
+        ### Summation Phase
+        
+        **Timeline**: [Start Date] to [End Date]
+        
+        **Tasks**:
+        - [ ] [Task 1]
+        - [ ] [Task 2]
+        - [ ] [Task 3]
+        
+        **Objectives**:
+        [List summation objectives]
+    validations:
+      required: true
+
+  - type: textarea
+    id: resource_requirements
+    attributes:
+      label: Resource Requirements
+      description: Resources required for this campaign
+      placeholder: "Detail the resources required..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: success_metrics
+    attributes:
+      label: Success Metrics
+      description: How success will be measured
+      placeholder: "Define how success will be measured..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: security_protocols
+    attributes:
+      label: Security Protocols
+      description: Security procedures for this campaign
+      placeholder: "Outline the security procedures..."
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: decision_process
+    attributes:
+      label: Decision Process
+      description: Track the democratic centralist decision process
+      options:
+        - label: Committee review
+        - label: Membership discussion
+        - label: Final approval
+        - label: Regular assessment

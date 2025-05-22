@@ -1,0 +1,59 @@
+name: Apply Metadata Labels
+
+on:
+  issues:
+    types: [opened, edited]
+
+jobs:
+  apply-labels:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issue = context.payload.issue;
+            
+            // Extract data from issue body
+            const body = issue.body;
+            let securityLabel = '';
+            let departmentLabel = '';
+            
+            // For YAML form templates
+            // Security classification extraction
+            if (body.includes('### Security Classification')) {
+              if (body.includes('L1 (Candidate)')) {
+                securityLabel = 'security:candidate';
+              } else if (body.includes('L2 (Cadre)')) {
+                securityLabel = 'security:cadre';
+              } else if (body.includes('L0 (Public)')) {
+                securityLabel = 'security:public';
+              }
+            }
+            
+            // Department extraction
+            if (body.includes('### Department')) {
+              if (body.includes('Education')) {
+                departmentLabel = 'department:education';
+              } else if (body.includes('Mass Work')) {
+                departmentLabel = 'department:mass-work';
+              } else if (body.includes('Technical')) {
+                departmentLabel = 'department:technical';
+              } else if (body.includes('Security')) {
+                departmentLabel = 'department:security';
+              }
+            }
+            
+            // Apply extracted labels
+            const labelsToAdd = [];
+            if (securityLabel) labelsToAdd.push(securityLabel);
+            if (departmentLabel) labelsToAdd.push(departmentLabel);
+            
+            if (labelsToAdd.length > 0) {
+              await github.rest.issues.addLabels({
+                issue_number: issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                labels: labelsToAdd
+              });
+            }

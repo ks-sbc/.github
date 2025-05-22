@@ -1,0 +1,211 @@
+name: Evaluation Framework
+description: Define criteria and processes for evaluating work
+title: "[EVALUATION] "
+labels: ["type:evaluation-framework", "process:planning", "status:draft"]
+assignees: [cadre1, cadre2]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        # Evaluation Framework
+        
+        This template is for defining the criteria and processes for evaluating organizational work, campaigns, or initiatives.
+
+  - type: dropdown
+    id: security_classification
+    attributes:
+      label: Security Classification
+      description: Specify the security level for this framework
+      options:
+        - L0 (Public)
+        - L1 (Candidate)
+        - L2 (Cadre)
+    validations:
+      required: true
+
+  - type: input
+    id: application_scope
+    attributes:
+      label: Application Scope
+      description: What work this framework applies to
+      placeholder: "Tenant Organizing Campaign, Education Program, etc."
+    validations:
+      required: true
+
+  - type: input
+    id: related_work
+    attributes:
+      label: Related Work
+      description: Link to work this framework evaluates
+      placeholder: "#123"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: department
+    attributes:
+      label: Department
+      description: Primary department responsible for this framework
+      options:
+        - Education
+        - Mass Work
+        - Technical
+        - Security
+        - All Departments
+    validations:
+      required: true
+
+  - type: dropdown
+    id: review_cycle
+    attributes:
+      label: Review Cycle
+      description: How frequently evaluations occur
+      options:
+        - Weekly
+        - Bi-weekly
+        - Monthly
+        - Quarterly
+        - Annually
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Version number for this framework
+      placeholder: "1.0.0"
+    validations:
+      required: true
+
+  - type: textarea
+    id: political_development
+    attributes:
+      label: Political Development Metrics
+      description: Metrics for assessing political advancement
+      value: |
+        ## Political Development
+        
+        ### Growth in Class Consciousness
+        - **Measurement**: [Method]
+        - **Baseline**: [Current state]
+        - **Target**: [Desired state]
+        - **Assessment frequency**: [Timeframe]
+        
+        ### Development of Indigenous Leadership
+        - **Measurement**: [Method]
+        - **Baseline**: [Current state]
+        - **Target**: [Desired state]
+        - **Assessment frequency**: [Timeframe]
+        
+        ### Advancement of Political Line
+        - **Measurement**: [Method]
+        - **Baseline**: [Current state]
+        - **Target**: [Desired state]
+        - **Assessment frequency**: [Timeframe]
+    validations:
+      required: true
+
+  - type: textarea
+    id: organizational_growth
+    attributes:
+      label: Organizational Growth Metrics
+      description: Metrics for assessing organizational development
+      value: |
+        ## Organizational Growth
+        
+        ### Membership Development
+        - **Measurement**: [Method]
+        - **Baseline**: [Current state]
+        - **Target**: [Desired state]
+        - **Assessment frequency**: [Timeframe]
+        
+        ### Organizational Capacity
+        - **Measurement**: [Method]
+        - **Baseline**: [Current state]
+        - **Target**: [Desired state]
+        - **Assessment frequency**: [Timeframe]
+    validations:
+      required: true
+
+  - type: textarea
+    id: material_victories
+    attributes:
+      label: Material Victories Metrics
+      description: Metrics for assessing concrete achievements
+      value: |
+        ## Material Victories
+        
+        ### Concrete Improvements
+        - **Measurement**: [Method]
+        - **Baseline**: [Current state]
+        - **Target**: [Desired state]
+        - **Assessment frequency**: [Timeframe]
+        
+        ### Collective Actions
+        - **Measurement**: [Method]
+        - **Baseline**: [Current state]
+        - **Target**: [Desired state]
+        - **Assessment frequency**: [Timeframe]
+    validations:
+      required: true
+
+  - type: textarea
+    id: qualitative_methods
+    attributes:
+      label: Qualitative Methods
+      description: Approaches for qualitative assessment
+      placeholder: "Detail qualitative evaluation methods..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: quantitative_methods
+    attributes:
+      label: Quantitative Methods
+      description: Approaches for quantitative assessment
+      placeholder: "Detail quantitative evaluation methods..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: dialectical_analysis
+    attributes:
+      label: Dialectical Analysis
+      description: Framework for synthesizing qualitative and quantitative data
+      placeholder: "Explain dialectical approach to evaluation..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: evaluation_schedule
+    attributes:
+      label: Evaluation Schedule
+      description: Timeline for evaluation activities
+      value: |
+        - [ ] Weekly: [Metrics]
+        - [ ] Monthly: [Metrics]
+        - [ ] Quarterly: [Metrics]
+        - [ ] Annually: [Metrics]
+    validations:
+      required: true
+
+  - type: textarea
+    id: csc_integration
+    attributes:
+      label: Criticism and Self-Criticism Integration
+      description: How C/SC process connects to evaluation
+      placeholder: "Explain how evaluation integrates with CSC process..."
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: decision_process
+    attributes:
+      label: Decision Process
+      description: Track the democratic centralist decision process
+      options:
+        - label: Framework proposal
+        - label: Review and feedback
+        - label: Formal adoption
+        - label: Regular refinement

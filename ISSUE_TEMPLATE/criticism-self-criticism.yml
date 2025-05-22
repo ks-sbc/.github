@@ -1,0 +1,160 @@
+name: Criticism and Self-Criticism
+description: Document for criticism and self-criticism process
+title: "[CSC] "
+labels: ["type:csc", "process:evaluation", "status:draft"]
+assignees: [cadre1, cadre2]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        # Criticism and Self-Criticism
+        
+        This template facilitates the criticism and self-criticism process for evaluating work, identifying contradictions, and ensuring revolutionary development. CSC is a fundamental method for dialectical improvement.
+
+  - type: dropdown
+    id: security_classification
+    attributes:
+      label: Security Classification
+      description: Specify the security level for this CSC document
+      options:
+        - L1 (Candidate)
+        - L2 (Cadre)
+      default: 0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: csc_type
+    attributes:
+      label: CSC Type
+      description: Type of criticism and self-criticism
+      options:
+        - Individual
+        - Committee
+        - Project
+        - Organizational
+    validations:
+      required: true
+
+  - type: input
+    id: subject
+    attributes:
+      label: Subject
+      description: Individual, committee, or work being evaluated
+      placeholder: "Education Committee, Anti-Eviction Campaign, etc."
+    validations:
+      required: true
+
+  - type: input
+    id: period
+    attributes:
+      label: Period Under Review
+      description: Time period this CSC covers
+      placeholder: "January-March 2025"
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Brief context for this CSC process
+      placeholder: "Provide background on the work being evaluated..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: current_practice
+    attributes:
+      label: Current Practice
+      description: Assessment of current organizational practice
+      placeholder: "Describe the current approach, methods, and outcomes..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: criticisms
+    attributes:
+      label: Criticisms
+      description: Specific criticisms of the work or practice
+      value: |
+        ## Primary Contradictions
+        
+        1. **Contradiction**: [Description]
+           - **Evidence**: [Supporting evidence]
+           - **Impact**: [Effect on work or organization]
+        
+        2. **Contradiction**: [Description]
+           - **Evidence**: [Supporting evidence]
+           - **Impact**: [Effect on work or organization]
+        
+        ## Secondary Contradictions
+        
+        1. **Contradiction**: [Description]
+           - **Evidence**: [Supporting evidence]
+           - **Impact**: [Effect on work or organization]
+    validations:
+      required: true
+
+  - type: textarea
+    id: theoretical_basis
+    attributes:
+      label: Theoretical Basis for Criticism
+      description: Theoretical justification for criticism
+      placeholder: "Ground criticisms in Marxist-Leninist-Maoist theory..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: self_criticism
+    attributes:
+      label: Self-Criticism
+      description: Recognition of own role in contradictions
+      placeholder: "Acknowledge personal or collective responsibility..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed_corrections
+    attributes:
+      label: Proposed Corrections
+      description: Specific corrections to address contradictions
+      value: |
+        ## Immediate Actions
+        
+        1. [Specific action]
+           - **Responsible**: [Person/committee]
+           - **Timeline**: [Completion date]
+        
+        2. [Specific action]
+           - **Responsible**: [Person/committee]
+           - **Timeline**: [Completion date]
+        
+        ## Long-term Adjustments
+        
+        1. [Longer-term change]
+           - **Approach**: [Implementation approach]
+           - **Evaluation**: [How to measure success]
+    validations:
+      required: true
+
+  - type: textarea
+    id: learning_outcomes
+    attributes:
+      label: Learning Outcomes
+      description: Key lessons from this CSC process
+      placeholder: "Document the primary political lessons learned..."
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: csc_process
+    attributes:
+      label: CSC Process Status
+      description: Track the CSC process
+      options:
+        - label: Individual reflection complete
+        - label: Group discussion held
+        - label: Corrections identified
+        - label: Implementation plan developed
+        - label: Follow-up review scheduled

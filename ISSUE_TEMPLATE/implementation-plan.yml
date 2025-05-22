@@ -1,0 +1,177 @@
+name: Implementation Plan
+description: Plan the implementation of an approved decision
+title: "[IMPLEMENT] "
+labels: ["type:implementation-plan", "process:implementation", "status:planning"]
+assignees: [cadre1, cadre2]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        # Implementation Plan
+        
+        This template is for planning the implementation of decisions made through the democratic centralist process.
+
+  - type: dropdown
+    id: security_classification
+    attributes:
+      label: Security Classification
+      description: Specify the security level for this implementation plan
+      options:
+        - L0 (Public)
+        - L1 (Candidate)
+        - L2 (Cadre)
+    validations:
+      required: true
+
+  - type: input
+    id: decision_reference
+    attributes:
+      label: Decision Reference
+      description: Reference to the decision being implemented
+      placeholder: "#123"
+    validations:
+      required: true
+
+  - type: input
+    id: implementation_owner
+    attributes:
+      label: Implementation Owner
+      description: Primary person responsible for implementation
+      placeholder: "@username"
+    validations:
+      required: true
+
+  - type: input
+    id: timeline
+    attributes:
+      label: Implementation Timeline
+      description: Overall timeframe for implementation
+      placeholder: "July 15 - August 30, 2025"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Implementation priority level
+      options:
+        - Critical
+        - High
+        - Medium
+        - Low
+    validations:
+      required: true
+
+  - type: dropdown
+    id: department
+    attributes:
+      label: Department
+      description: Primary department responsible for implementation
+      options:
+        - Education
+        - Mass Work
+        - Technical
+        - Security
+        - All Departments
+    validations:
+      required: true
+
+  - type: textarea
+    id: decision_summary
+    attributes:
+      label: Decision Summary
+      description: Summary of the decision being implemented
+      placeholder: "Quote exactly from decision document..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: implementation_step_1
+    attributes:
+      label: Implementation Step 1
+      description: First major implementation step
+      value: |
+        ### Task: [Description]
+        
+        - **Assignee**: @[username]
+        - **Deadline**: YYYY-MM-DD
+        - **Status**: Not Started
+        - **Security**: [L0/L1/L2]
+        
+        **Details**: [Additional details about this task]
+    validations:
+      required: true
+
+  - type: textarea
+    id: implementation_step_2
+    attributes:
+      label: Implementation Step 2
+      description: Second major implementation step
+      value: |
+        ### Task: [Description]
+        
+        - **Assignee**: @[username]
+        - **Deadline**: YYYY-MM-DD
+        - **Status**: Not Started
+        - **Security**: [L0/L1/L2]
+        
+        **Details**: [Additional details about this task]
+    validations:
+      required: false
+
+  - type: textarea
+    id: implementation_step_3
+    attributes:
+      label: Implementation Step 3
+      description: Third major implementation step
+      value: |
+        ### Task: [Description]
+        
+        - **Assignee**: @[username]
+        - **Deadline**: YYYY-MM-DD
+        - **Status**: Not Started
+        - **Security**: [L0/L1/L2]
+        
+        **Details**: [Additional details about this task]
+    validations:
+      required: false
+
+  - type: textarea
+    id: resource_requirements
+    attributes:
+      label: Resource Requirements
+      description: Resources needed for implementation
+      placeholder: "Detail resources needed for this implementation..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: success_criteria
+    attributes:
+      label: Success Criteria
+      description: How successful implementation will be measured
+      placeholder: "Define clear criteria for successful implementation..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: security_considerations
+    attributes:
+      label: Security Considerations
+      description: Security aspects of implementation
+      placeholder: "Address any security concerns specific to implementation..."
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: implementation_checklist
+    attributes:
+      label: Implementation Checklist
+      description: Key steps to ensure proper implementation
+      options:
+        - label: Resources secured
+        - label: Tasks assigned
+        - label: Timeline confirmed
+        - label: Regular progress updates scheduled
+        - label: Review process defined

@@ -1,0 +1,20 @@
+# .gitconsensus.yaml
+version: 3
+extra_labels: false
+prevent_doubles: true
+
+pull_requests:
+  # Minimum number of voters
+  quorum: 5
+  
+  # Required percentage of "yes" votes
+  threshold: 0.65
+  
+  # Only count votes from contributors
+  contributors_only: false
+  
+  # Time delay before merging allowed
+  merge_delay: 24  # hours
+  
+  # Number of hours before PR is auto-closed if not enough votes
+  timeout: 168  # One week
