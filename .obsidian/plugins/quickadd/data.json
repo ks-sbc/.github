@@ -1,0 +1,10 @@
+{
+  "choices": [],
+  "migrations": {
+    "oldVersion": "0.0.0"
+  },
+  "disableSettingPrompts": false,
+  "announceUpdates": true,
+  "commandDelay": 500,
+  "autoRunStartupMacros": false
+}
