@@ -1,0 +1,108 @@
+/* 00-neobrutal-base.css */
+/* Establishes core neobrutalist variables and base styling for DRUIDS vault */
+
+/* --- Core Neobrutalist Variables --- */
+:root {
+  --neobrutal-primary: #FF0000; /* Screaming Red */
+  --neobrutal-dark: #000000;    /* Pure Black */
+  --neobrutal-light: #FFE200;  /* Warning Yellow */
+  --neobrutal-white: #FFFFFF;  /* Use Sparingly White */
+
+  --neobrutal-border-strong: 5px solid var(--neobrutal-dark);
+  --neobrutal-border-medium: 3px solid var(--neobrutal-dark);
+  
+  /* Adjusted shadow to be less offset for typical UI, can be overridden for specific components */
+  --neobrutal-shadow-strong: 6px 6px 0 var(--neobrutal-dark); 
+  --neobrutal-shadow-medium: 4px 4px 0 var(--neobrutal-dark);
+
+  --font-text-theme: "EB Garamond", serif; /* For body text */
+  --font-monospace-theme: monospace; /* Keep monospaced as is or choose a brutalist one if specified */
+}
+
+/* --- Font Import --- */
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;700&display=swap');
+
+/* --- General Body & Content Styling (Scoped to preview mode) --- */
+.markdown-preview-view {
+  background-color: var(--neobrutal-light) !important; /* Warning Yellow background */
+  color: var(--neobrutal-dark) !important;             /* Pure Black text */
+  font-family: var(--font-text-theme);
+  font-size: 1.2rem; /* Body text (400WT, 1.2REM, line-height: 1.6) */
+  line-height: 1.6;
+}
+
+/* Ensure editor mode is not overly affected if possible, or apply similar for consistency if desired */
+/* For now, primarily targeting preview view for the aggressive background */
+
+/* --- Link Styling --- */
+.markdown-preview-view a,
+.markdown-preview-view a.internal-link,
+.markdown-preview-view a.external-link {
+  color: var(--neobrutal-primary) !important; /* Screaming Red */
+  text-decoration: underline 3px var(--neobrutal-dark) !important;
+  font-weight: bold; /* Add boldness to make links stand out more */
+}
+
+.markdown-preview-view a:hover,
+.markdown-preview-view a.internal-link:hover,
+.markdown-preview-view a.external-link:hover {
+  background-color: var(--neobrutal-dark) !important; /* Pure black on hover */
+  color: var(--neobrutal-light) !important;          /* Warning yellow text on hover */
+}
+
+/* --- Heading Typography --- */
+.markdown-preview-view h1 {
+  font-family: var(--font-text-theme);
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  font-size: 3.5rem !important;
+  color: var(--neobrutal-dark) !important; /* Or primary for more aggression: var(--neobrutal-primary) */
+  border-bottom: var(--neobrutal-border-medium); /* Add border for structural feel */
+  padding-bottom: 0.2em;
+  margin-bottom: 0.5em;
+}
+
+.markdown-preview-view h2 {
+  font-family: var(--font-text-theme);
+  font-weight: 700 !important;
+  /* Title Case is default for H2, no text-transform needed */
+  font-size: 2.5rem !important;
+  color: var(--neobrutal-dark) !important;
+  border-bottom: 2px solid var(--neobrutal-dark);
+  padding-bottom: 0.15em;
+  margin-bottom: 0.4em;
+}
+
+/* Other headings for consistency */
+.markdown-preview-view h3,
+.markdown-preview-view h4,
+.markdown-preview-view h5,
+.markdown-preview-view h6 {
+  font-family: var(--font-text-theme);
+  font-weight: 700 !important; /* Bold for all headings */
+  color: var(--neobrutal-dark) !important;
+}
+
+/* --- Basic Structural Elements (Example: Blockquotes) --- */
+.markdown-preview-view blockquote {
+  border-left: var(--neobrutal-border-medium) !important;
+  border-top: 1px solid var(--neobrutal-dark) !important; /* Lighter top/bottom for effect */
+  border-bottom: 1px solid var(--neobrutal-dark) !important;
+  box-shadow: var(--neobrutal-shadow-medium);
+  background-color: var(--neobrutal-white); /* Use sparingly white */
+  color: var(--neobrutal-dark);
+  padding: 1em;
+  margin: 1.5em 0;
+}
+
+/* --- Code Blocks (Basic Brutalist Touch) --- */
+.markdown-preview-view pre {
+  border: var(--neobrutal-border-medium);
+  box-shadow: var(--neobrutal-shadow-medium);
+  padding: 1em;
+  background-color: var(--neobrutal-dark); /* Dark background for code */
+  color: var(--neobrutal-light); /* Light text for code */
+}
+.markdown-preview-view pre code {
+  font-family: var(--font-monospace-theme);
+}
