@@ -1,18 +1,29 @@
 <%*
 // Templater script for creating new study guide
 let title = await tp.system.prompt("Study Guide Title", "Untitled Study Guide");
-let securityLevel = await tp.system.suggester(
-  ["Public", "Candidate", "Cadre"], 
-  ["public", "candidate", "cadre"],
-  false, // allow custom values: false
-  "Select Security Level"
-);
+
+let securityLevel = null;
+const securityOptions = ["Public", "Candidate", "Cadre"];
+const securityValues = ["public", "candidate", "cadre"];
+while (securityLevel == null) { // Loop until a selection is made
+    securityLevel = await tp.system.suggester(
+        securityOptions, 
+        securityValues, 
+        false, 
+        "Select Security Level (Required)"
+    );
+    if (securityLevel == null) {
+        // Optional: new Notice("Security level selection is mandatory.");
+        // The loop will continue if prompt is cancelled.
+    }
+}
+let classificationDate = tp.date.now("YYYY-MM-DD");
 
 let issueNumber = await tp.system.prompt("Related GitHub Issue Number (optional)", "");
 let tagsInput = await tp.system.prompt("Tags (comma separated, e.g., theory, marxism, study-guide)", "study-guide");
 let tagArray = tagsInput.split(',').map(t => t.trim()).filter(t => t.length > 0);
 
-let now = tp.date.now("YYYY-MM-DD");
+let now = tp.date.now("YYYY-MM-DD"); // This is 'created' date
 
 // Suggest a filename
 let suggestedFilename = "Study Guide - " + title.replace(/[\/:?"<>|]/g, '_');
@@ -22,6 +33,7 @@ await tp.file.rename(suggestedFilename);
 title: "<% title %>"
 created: <% now %>
 security: <% securityLevel %>
+classification_date: <% classificationDate %>
 issue: "<% issueNumber ? issueNumber : '' %>"
 tags: [<% tagArray.map(t => `"${t}"`).join(', ') %>]
 ---

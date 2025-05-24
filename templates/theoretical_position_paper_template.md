@@ -2,13 +2,24 @@
 // Templater script for Theoretical Position Paper
 let docTitle = await tp.system.prompt("Position Paper Title", "Untitled Position Paper");
 let authorsInput = await tp.system.prompt("Author(s) (comma-separated)", "KSBC Collective");
-let securityLevel = await tp.system.suggester(
-  ["Public", "Candidate", "Cadre"], 
-  ["public", "candidate", "cadre"],
-  false, // allow custom values: false
-  "Select Security Level"
-);
-let creationDate = tp.date.now("YYYY-MM-DD");
+
+let securityLevel = null;
+const securityOptions = ["Public", "Candidate", "Cadre"];
+const securityValues = ["public", "candidate", "cadre"];
+while (securityLevel == null) { // Loop until a selection is made
+    securityLevel = await tp.system.suggester(
+        securityOptions, 
+        securityValues, 
+        false, 
+        "Select Security Level (Required)"
+    );
+    if (securityLevel == null) {
+        // Optional: new Notice("Security level selection is mandatory.");
+    }
+}
+let classificationDate = tp.date.now("YYYY-MM-DD");
+
+let creationDate = tp.date.now("YYYY-MM-DD"); // This is the 'date' field
 
 let suggestedFilename = "Position Paper - " + docTitle.replace(/[\/:?"<>|]/g, '_');
 await tp.file.rename(suggestedFilename);
@@ -18,6 +29,7 @@ title: "<% docTitle %>"
 authors: [<% authorsInput.split(',').map(item => `"${item.trim()}"`).join(', ') %>]
 date: <% creationDate %>
 security: <% securityLevel %>
+classification_date: <% classificationDate %>
 status: "draft"
 tags: [position-paper, theory]
 ---

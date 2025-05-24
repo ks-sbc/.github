@@ -1,6 +1,23 @@
 <%*
 // Templater script for Criticism/Self-Criticism Session
 let sessionDate = await tp.system.prompt("Session Date", tp.date.now("YYYY-MM-DD"));
+
+let securityLevel = null;
+const securityOptions = ["Public", "Candidate", "Cadre"];
+const securityValues = ["public", "candidate", "cadre"];
+while (securityLevel == null) { // Loop until a selection is made
+    securityLevel = await tp.system.suggester(
+        securityOptions, 
+        securityValues, 
+        false, 
+        "Select Security Level (Required)"
+    );
+    if (securityLevel == null) {
+        // Optional: new Notice("Security level selection is mandatory.");
+    }
+}
+let classificationDate = tp.date.now("YYYY-MM-DD");
+
 let facilitator = await tp.system.prompt("Facilitator Name", "To Be Determined");
 let sessionType = await tp.system.suggester(
   ["Individual", "Collective", "Committee"], 
@@ -22,6 +39,8 @@ title: "<% docTitle %>"
 session_date: <% sessionDate %>
 facilitator: "<% facilitator %>"
 session_type: "<% sessionType %>"
+security: <% securityLevel %>
+classification_date: <% classificationDate %>
 <% if (attendeesInput) { %>attendees: [<% attendeesInput.split(',').map(item => `"${item.trim()}"`).join(', ') %>]<% } %>
 tags: [criticism-session, demcent]
 ---

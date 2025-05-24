@@ -1,6 +1,23 @@
 <%*
 // Templater script for Project Proposal
 let proposalTitle = await tp.system.prompt("Proposal Title", "Untitled Proposal");
+
+let securityLevel = null;
+const securityOptions = ["Public", "Candidate", "Cadre"];
+const securityValues = ["public", "candidate", "cadre"];
+while (securityLevel == null) { // Loop until a selection is made
+    securityLevel = await tp.system.suggester(
+        securityOptions, 
+        securityValues, 
+        false, 
+        "Select Security Level (Required)"
+    );
+    if (securityLevel == null) {
+        // Optional: new Notice("Security level selection is mandatory.");
+    }
+}
+let classificationDate = tp.date.now("YYYY-MM-DD");
+
 let proposer = await tp.system.prompt("Proposer", "Current User"); // Placeholder, actual user might need different handling
 let submissionDate = tp.date.now("YYYY-MM-DD");
 let relatedIssue = await tp.system.prompt("Related GitHub Issue # (optional)", "");
@@ -13,6 +30,8 @@ await tp.file.rename(suggestedFilename);
 title: "<% proposalTitle %>"
 proposer: "<% proposer %>"
 submission_date: <% submissionDate %>
+security: <% securityLevel %>
+classification_date: <% classificationDate %>
 status: "draft"
 related_issue: "<% relatedIssue ? relatedIssue : '' %>"
 tags: [proposal]

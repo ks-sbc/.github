@@ -1,6 +1,23 @@
 <%*
 // Templater script for Member Development Plan
 let memberName = await tp.system.prompt("Member Name", "Untitled Member");
+
+let securityLevel = null;
+const securityOptions = ["Public", "Candidate", "Cadre"];
+const securityValues = ["public", "candidate", "cadre"];
+while (securityLevel == null) { // Loop until a selection is made
+    securityLevel = await tp.system.suggester(
+        securityOptions, 
+        securityValues, 
+        false, 
+        "Select Security Level (Required)"
+    );
+    if (securityLevel == null) {
+        // Optional: new Notice("Security level selection is mandatory.");
+    }
+}
+let classificationDate = tp.date.now("YYYY-MM-DD");
+
 let reviewPeriod = await tp.system.prompt("Review Period (e.g., YYYY Q1, or specific date range)", tp.date.now("YYYY") + " Q" + (Math.floor(tp.date.now("M") / 3) + 1));
 let mentorName = await tp.system.prompt("Mentor/Reviewer Name", "To Be Assigned");
 let planDate = tp.date.now("YYYY-MM-DD");
@@ -15,6 +32,8 @@ member_name: "<% memberName %>"
 review_period: "<% reviewPeriod %>"
 mentor: "<% mentorName %>"
 plan_date: <% planDate %>
+security: <% securityLevel %>
+classification_date: <% classificationDate %>
 status: "active"
 tags: [member-development, cadre]
 ---

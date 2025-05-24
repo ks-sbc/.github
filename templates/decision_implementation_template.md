@@ -1,10 +1,27 @@
 <%*
 // Templater script for Decision Implementation Plan
 let decisionTitle = await tp.system.prompt("Decision/Proposal Title being implemented", "Untitled Implementation Plan");
+
+let securityLevel = null;
+const securityOptions = ["Public", "Candidate", "Cadre"];
+const securityValues = ["public", "candidate", "cadre"];
+while (securityLevel == null) { // Loop until a selection is made
+    securityLevel = await tp.system.suggester(
+        securityOptions, 
+        securityValues, 
+        false, 
+        "Select Security Level (Required)"
+    );
+    if (securityLevel == null) {
+        // Optional: new Notice("Security level selection is mandatory.");
+    }
+}
+let classificationDate = tp.date.now("YYYY-MM-DD");
+
 let decisionDate = await tp.system.prompt("Date of Decision/Approval (YYYY-MM-DD)", tp.date.now("YYYY-MM-DD"));
 let implementationLead = await tp.system.prompt("Implementation Lead/Committee", "To Be Determined");
 let targetCompletionDate = await tp.system.prompt("Target Completion Date (YYYY-MM-DD)", tp.date.now("YYYY-MM-DD", 30)); // Default 30 days from now
-let creationDate = tp.date.now("YYYY-MM-DD"); // Used for 'date' if needed, not for title here
+// let creationDate = tp.date.now("YYYY-MM-DD"); // Not used for title, classificationDate is used
 
 let docTitle = "Implementation Plan: " + decisionTitle;
 let suggestedFilename = "Implementation Plan - " + decisionTitle.replace(/[\/:?"<>|]/g, '_');
@@ -16,6 +33,8 @@ decision_title: "<% decisionTitle %>"
 decision_date: <% decisionDate %>
 implementation_lead: "<% implementationLead %>"
 target_completion_date: <% targetCompletionDate %>
+security: <% securityLevel %>
+classification_date: <% classificationDate %>
 status: "planning"
 tags: [implementation-plan, decision]
 ---

@@ -1,12 +1,23 @@
 <%*
 // Templater script for Security Protocol
 let protocolTitle = await tp.system.prompt("Protocol Title", "Untitled Security Protocol");
-let securityLevel = await tp.system.suggester(
-  ["L1-Candidate", "L2-Cadre"], 
-  ["L1-Candidate", "L2-Cadre"],
-  false, // allow custom values: false
-  "Select Security Level"
-);
+
+let securityLevel = null;
+const securityOptions = ["Public", "Candidate", "Cadre"]; // Standardized options
+const securityValues = ["public", "candidate", "cadre"]; // Standardized values
+while (securityLevel == null) { // Loop until a selection is made
+    securityLevel = await tp.system.suggester(
+        securityOptions, 
+        securityValues, 
+        false, 
+        "Select Security Level (Required)"
+    );
+    if (securityLevel == null) {
+        // Optional: new Notice("Security level selection is mandatory.");
+    }
+}
+let classificationDate = tp.date.now("YYYY-MM-DD");
+
 let version = await tp.system.prompt("Version Number (e.g., 1.0)", "1.0");
 let protocolAuthor = await tp.system.prompt("Author/Originating Committee", "Security Committee");
 let effectiveDate = tp.date.now("YYYY-MM-DD"); // Or prompt if a future date is needed
@@ -19,11 +30,12 @@ await tp.file.rename(suggestedFilename);
 title: "<% docTitle %>"
 protocol_title: "<% protocolTitle %>"
 security_level: "<% securityLevel %>"
+classification_date: <% classificationDate %>
 version: "<% version %>"
 author: "<% protocolAuthor %>"
 effective_date: <% effectiveDate %>
 status: "active"
-tags: [security-protocol, <% securityLevel.toLowerCase().replace('-', '_') %>]
+tags: [security-protocol, <% securityLevel.toLowerCase() %>]
 ---
 
 # <% docTitle %>

@@ -1,10 +1,27 @@
 <%*
 // Templater script for Mass Line Investigation
 let investigationTopic = await tp.system.prompt("Investigation Topic/Title", "Untitled Investigation");
+
+let securityLevel = null;
+const securityOptions = ["Public", "Candidate", "Cadre"];
+const securityValues = ["public", "candidate", "cadre"];
+while (securityLevel == null) { // Loop until a selection is made
+    securityLevel = await tp.system.suggester(
+        securityOptions, 
+        securityValues, 
+        false, 
+        "Select Security Level (Required)"
+    );
+    if (securityLevel == null) {
+        // Optional: new Notice("Security level selection is mandatory.");
+    }
+}
+let classificationDate = tp.date.now("YYYY-MM-DD");
+
 let investigatorsInput = await tp.system.prompt("Investigator(s) (comma-separated)", "KSBC Collective");
 let investigationDate = await tp.system.prompt("Date of Investigation (YYYY-MM-DD)", tp.date.now("YYYY-MM-DD"));
 let targetGroup = await tp.system.prompt("Target Group/Community for Investigation", "To Be Determined");
-let creationDate = tp.date.now("YYYY-MM-DD"); // Not directly used in docTitle but good for record
+// let creationDate = tp.date.now("YYYY-MM-DD"); // Not used for title, classificationDate is used
 
 let docTitle = "Mass Line: " + investigationTopic;
 let suggestedFilename = "Mass Line - " + investigationTopic.replace(/[\/:?"<>|]/g, '_');
@@ -16,6 +33,8 @@ investigation_topic: "<% investigationTopic %>"
 investigators: [<% investigatorsInput.split(',').map(item => `"${item.trim()}"`).join(', ') %>]
 investigation_date: <% investigationDate %>
 target_group: "<% targetGroup %>"
+security: <% securityLevel %>
+classification_date: <% classificationDate %>
 status: "in-progress"
 tags: [mass-line, investigation]
 ---

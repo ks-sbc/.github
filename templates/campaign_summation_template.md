@@ -1,10 +1,27 @@
 <%*
 // Templater script for Campaign Summation
 let campaignName = await tp.system.prompt("Campaign/Initiative Name", "Untitled Campaign");
+
+let securityLevel = null;
+const securityOptions = ["Public", "Candidate", "Cadre"];
+const securityValues = ["public", "candidate", "cadre"];
+while (securityLevel == null) { // Loop until a selection is made
+    securityLevel = await tp.system.suggester(
+        securityOptions, 
+        securityValues, 
+        false, 
+        "Select Security Level (Required)"
+    );
+    if (securityLevel == null) {
+        // Optional: new Notice("Security level selection is mandatory.");
+    }
+}
+let classificationDate = tp.date.now("YYYY-MM-DD");
+
 let startDate = await tp.system.prompt("Campaign Start Date (YYYY-MM-DD)", "");
 let endDate = await tp.system.prompt("Campaign End Date (YYYY-MM-DD)", tp.date.now("YYYY-MM-DD"));
 let campaignLead = await tp.system.prompt("Campaign Lead/Committee", "To Be Determined");
-let creationDate = tp.date.now("YYYY-MM-DD"); // Not directly used in frontmatter title but good for 'date' if needed
+// let creationDate = tp.date.now("YYYY-MM-DD"); // Not directly used in frontmatter title but good for 'date' if needed
 
 let docTitle = "Summation: " + campaignName;
 let suggestedFilename = "Summation - " + campaignName.replace(/[\/:?"<>|]/g, '_');
@@ -16,6 +33,8 @@ campaign_name: "<% campaignName %>"
 start_date: <% startDate %>
 end_date: <% endDate %>
 campaign_lead: "<% campaignLead %>"
+security: <% securityLevel %>
+classification_date: <% classificationDate %>
 status: "completed"
 tags: [summation, campaign-review]
 ---

@@ -1,6 +1,23 @@
 <%*
 // Templater script for Meeting Notes
 let meetingTitle = await tp.system.prompt("Meeting Title", "Untitled Meeting");
+
+let securityLevel = null;
+const securityOptions = ["Public", "Candidate", "Cadre"];
+const securityValues = ["public", "candidate", "cadre"];
+while (securityLevel == null) { // Loop until a selection is made
+    securityLevel = await tp.system.suggester(
+        securityOptions, 
+        securityValues, 
+        false, 
+        "Select Security Level (Required)"
+    );
+    if (securityLevel == null) {
+        // Optional: new Notice("Security level selection is mandatory.");
+    }
+}
+let classificationDate = tp.date.now("YYYY-MM-DD");
+
 let meetingDate = await tp.system.prompt("Meeting Date", tp.date.now("YYYY-MM-DD"));
 let attendees = await tp.system.prompt("Attendees (comma-separated)", "");
 let location = await tp.system.prompt("Location/Platform", "Online");
@@ -14,6 +31,8 @@ await tp.file.rename(suggestedFilename);
 title: "<% meetingTitle %>"
 date: <% meetingDate %>
 time_started: <% timeStarted %>
+security: <% securityLevel %>
+classification_date: <% classificationDate %>
 attendees: [<% attendees.split(',').map(a => `"${a.trim()}"`).join(', ') %>]
 location: "<% location %>"
 status: "pending-review"

@@ -68,7 +68,7 @@
             "prompt": "text"
           },
           {
-            "type": " হ্যাঁ Script",
+            "type": "Script",
             "name": "Set Folder Path from Security Level",
             "path": "quickadd_scripts/setFolderPath.js"
           },
@@ -117,7 +117,7 @@
             "prompt": "text"
           },
           {
-            "type": " হ্যাঁ Script",
+            "type": "Script",
             "name": "Set Folder Path from Security Level",
             "path": "quickadd_scripts/setFolderPath.js"
           },
@@ -238,7 +238,7 @@
             "prompt": "text"
           },
           {
-            "type": " হ্যাঁ Script",
+            "type": "Script",
             "name": "Set Folder Path from Security Level",
             "path": "quickadd_scripts/setFolderPath.js"
           },
@@ -308,6 +308,44 @@
       },
       "openFile": true,
       "openFileInNewTab": true,
+      "filePathFormat": {
+        "enabled": false,
+        "format": ""
+      },
+      "incrementFileName": false,
+      "promptForExistingFile": false
+    },
+    {
+      "id": "quickadd-choice-11",
+      "name": "New: Related Note (Inherit Security)",
+      "type": "Macro",
+      "command": true,
+      "macro": {
+        "name": "New: Related Note (Inherit Security)",
+        "actions": [
+          {
+            "type": "Script",
+            "name": "Get Parent Security Level",
+            "path": "quickadd_scripts/getParentSecurityLevel.js"
+          },
+          {
+            "type": "Template",
+            "name": "Create from Generic Note Template",
+            "templatePath": "templates/generic_note_template.md",
+            "folder": {
+              "path": "",
+              "createIfNotExists": true,
+              "chooseWhenCreatingNote": true
+            },
+            "fileNameFormat": {
+              "enabled": true,
+              "format": "{{DATE:YYYY-MM-DD}} - Untitled Related Note"
+            },
+            "openFile": true,
+            "openFileInNewTab": true
+          }
+        ]
+      },
       "filePathFormat": {
         "enabled": false,
         "format": ""
