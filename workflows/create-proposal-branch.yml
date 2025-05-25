@@ -1,0 +1,38 @@
+name: Create Proposal Branch
+
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  create-proposal-branch:
+    if: contains(github.event.issue.labels.*.name, 'proposal')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          
+      - name: Create proposal branch
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          
+          # Generate branch name from issue title
+          BRANCH_NAME="proposal/$(echo "${{ github.event.issue.title }}" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g')"
+          
+          # Create branch
+          git checkout main
+          git pull
+          git checkout -b $BRANCH_NAME
+          
+          # Add initial README with issue details
+          echo "# ${{ github.event.issue.title }}" > README.md
+          echo "" >> README.md
+          echo "Related to issue #${{ github.event.issue.number }}" >> README.md
+          echo "" >> README.md
+          echo "${{ github.event.issue.body }}" >> README.md
+          
+          git add README.md
+          git commit -m "Initialize proposal branch for issue #${{ github.event.issue.number }}"
+          git push --set-upstream origin $BRANCH_NAME

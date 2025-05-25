@@ -1,0 +1,11 @@
+name: Add workflow stage labels
+on:
+  issues:
+    types: [opened]
+jobs:
+  add_label:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions-ecosystem/action-add-labels@v1
+        with:
+          labels: discussion, needs-consensus

@@ -1,0 +1,71 @@
+name: Create Meeting Minutes Discussion
+
+on:
+  workflow_dispatch:
+    inputs:
+      meeting_date:
+        description: 'Date of meeting (YYYY-MM-DD)'
+        required: true
+      meeting_type:
+        description: 'Type of meeting'
+        required: true
+        default: 'General Meeting'
+      security_level:
+        description: 'Security classification'
+        required: true
+        default: 'candidate'
+        
+jobs:
+  create-minutes-discussion:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            // Create the minutes discussion with standard template
+            const discussion = await github.rest.discussions.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              category_id: 'DIC_kwDOIlE1cc4CU2Mb', // ID of meeting-minutes category
+              title: `Minutes: ${{ github.event.inputs.meeting_type }} - ${{ github.event.inputs.meeting_date }}`,
+              body: `---
+              title: "Housing Working Group Meeting Minutes"
+              date: 2025-05-15
+              meeting_type: working_group
+              security: candidate
+              related_discussions: [123, 456, 789]
+              decisions: ["Tenant organizing strategy", "Summer timeline"]
+              attendees: ["emma", "marx", "rosa"]
+              ---
+              
+              # ${{ github.event.inputs.meeting_type }} Minutes - ${{ github.event.inputs.meeting_date }}
+
+              ## Security Classification
+              ${{ github.event.inputs.security_level }}
+              
+              ## Attendance
+              [List attendees here]
+              
+              ## Agenda
+              1. [First agenda item]
+              2. [Second agenda item]
+              
+              ## Item 1: [First agenda item]
+              **Related Discussion:** [Insert link]
+              
+              ### Summary of Discussion
+              [Summary goes here]
+              
+              ### Decision
+              [Decision goes here]
+              
+              ### Action Items
+              - [ ] Action 1 (@assignee)
+              - [ ] Action 2 (@assignee)
+              
+              ## Item 2: [Second agenda item]
+              [Repeat structure]`
+            });
+            
+            console.log(`Created discussion: ${discussion.data.html_url}`);
