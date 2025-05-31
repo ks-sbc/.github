@@ -1,0 +1,28 @@
+name: Create weekly discussion
+on:
+  schedule:
+    - cron: '0 9 * * 1'  # Every Monday at 9 AM
+jobs:
+  create-discussion:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create weekly planning discussion
+        id: create-discussion
+        uses: abirismyname/create-discussion@v1.2.0
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}      
+        with:
+          title: "Weekly Planning Discussion"
+          body: |
+            # Weekly Planning Discussion
+            
+            Please share your thoughts on priorities for this week.
+            All feedback will be consolidated on Wednesday, 
+            and decisions will be implemented by Thursday.
+            
+            ## Guidelines for discussion:
+            - Focus on document priorities
+            - Reference existing issues where possible
+            - Use 👍 to indicate support for others' proposals
+          repository-id: ${{ secrets.REPO_ID }}
+          category-id: ${{ secrets.DISCUSSION_CATEGORY_ID }}

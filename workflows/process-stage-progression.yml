@@ -1,0 +1,46 @@
+# .github/workflows/process-stage-progression.yml
+name: Process Stage Progression
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  progress-stage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            // Get issue details
+            const issue = context.payload.issue;
+            const comment = context.payload.comment;
+            
+            // Check for stage progression commands
+            if (comment.body.includes('/progress-to-proposal')) {
+              // Remove discussion label and add proposal label
+              await github.rest.issues.removeLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                name: 'process:discussion'
+              });
+              
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                labels: ['process:proposal']
+              });
+              
+              // Comment on progression
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: '## Stage Progression\nThis item has progressed from discussion to proposal stage.\n\nPlease review and vote.'
+              });
+            }
+            
+            // Similar handlers for other stage progression commands

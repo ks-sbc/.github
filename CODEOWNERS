@@ -1,0 +1,8 @@
+# KSBC CODEOWNERS File
+# This file defines ownership and review requirements for different parts of the repository
+# FORMAT: path pattern followed by one or more committee identifiers
+
+# Default owners for everything unless a later rule takes precedence
+* @ks-sbc/cadre
+
+# Organization-level files

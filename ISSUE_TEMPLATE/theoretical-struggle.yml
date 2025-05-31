@@ -1,0 +1,74 @@
+name: Theoretical Position
+description: Position paper to establish a theoretical line and facilitate debates
+title: "Theory: "
+labels: ["type:theory", "process:discussion"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Theoretical Position Document
+        This template guides the development of theoretical positions through a dialectical materialist process.
+  
+  - type: dropdown
+    id: security_classification
+    attributes:
+      label: Security Classification
+      description: Select the appropriate security level
+      options:
+        - security:public (L0)
+        - security:candidate (L1)
+        - security:cadre (L2)
+    validations:
+      required: true
+      
+  - type: textarea
+    id: contradictions
+    attributes:
+      label: Current Contradictions
+      description: Identify the contradictions in current theory/practice this addresses
+      placeholder: "The primary contradiction is between..."
+    validations:
+      required: true
+      
+  - type: textarea
+    id: theoretical_basis
+    attributes:
+      label: Theoretical Basis
+      description: Provide the theoretical foundation for your position
+      placeholder: "This position builds upon..."
+    validations:
+      required: true
+      
+  - type: textarea
+    id: proposed_position
+    attributes:
+      label: Proposed Position
+      description: Articulate the theoretical position clearly
+      placeholder: "This document proposes that..."
+    validations:
+      required: true
+      
+  - type: textarea
+    id: practical_implications
+    attributes:
+      label: Practical Implications
+      description: How would this position affect our practice?
+      placeholder: "If adopted, this position would..."
+    validations:
+      required: true
+
+  - type: input
+    id: related_discussions
+    attributes:
+      label: Related Discussions
+      description: Link to related discussion threads
+      placeholder: "#123, #456"
+    
+  - type: input
+    id: issue_template
+    attributes:
+      label: Issue Template Type
+      value: theoretical-position
+      description: Do not change this value
+    validations:
+      required: true
