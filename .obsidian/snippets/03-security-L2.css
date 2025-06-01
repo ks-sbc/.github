@@ -1,0 +1,121 @@
+/* 03-security-L2.css */
+/* Styles for L2 (Cadre) security level content */
+/* Neobrutalist: Red background, Black text, Yellow accents, Strong structural elements */
+
+/* Notes with security: cadre in frontmatter */
+body[data-security="cadre"] .markdown-preview-view {
+  background-color: var(--neobrutal-primary) !important; /* Screaming Red background */
+  color: var(--neobrutal-dark) !important;             /* Pure Black text */
+  border: var(--neobrutal-border-strong) !important;   /* Strong Black border */
+  box-shadow: var(--neobrutal-shadow-strong) !important; /* Strong Black shadow */
+  padding: 0.75em; /* Add some padding so content isn't touching the border */
+}
+
+/* Styling for L2 badges/tags - "Typography as Weapon" */
+.markdown-preview-view .tag[href="#L2"],
+body[data-security="cadre"] .tags .tag, /* Style all tags within L2 notes for emphasis */
+.markdown-preview-view span.tag-L2 {
+  background-color: var(--neobrutal-dark) !important;    /* Black background */
+  color: var(--neobrutal-light) !important;             /* Warning Yellow text */
+  border: 2px solid var(--neobrutal-light) !important; /* Yellow border for contrast on black */
+  padding: 0.15em 0.5em;
+  border-radius: 0px; /* Sharp edges */
+  font-family: var(--font-text-theme); /* Garamond */
+  font-size: 0.9em;
+  font-weight: 700; /* Bold */
+  text-transform: uppercase !important; /* ALL CAPS */
+  box-shadow: var(--neobrutal-shadow-medium); /* Add shadow to badges too */
+}
+body[data-security="cadre"] .tags .tag:hover {
+  background-color: var(--neobrutal-light) !important;
+  color: var(--neobrutal-dark) !important;
+  border-color: var(--neobrutal-dark) !important;
+}
+
+
+/* Header styling for L2 documents */
+body[data-security="cadre"] .markdown-preview-view h1 {
+  color: var(--neobrutal-dark) !important; /* Black text for H1 on red background */
+  border-bottom: 3px solid var(--neobrutal-dark) !important; 
+  /* Optional: Add yellow highlight or background for H1 text if more emphasis needed */
+  /* background-color: var(--neobrutal-light); padding: 0.1em 0; */
+}
+
+body[data-security="cadre"] .markdown-preview-view h2 {
+  color: var(--neobrutal-dark) !important; /* Black text for H2 */
+  border-bottom: 2px solid var(--neobrutal-dark) !important;
+}
+
+body[data-security="cadre"] .markdown-preview-view h3,
+body[data-security="cadre"] .markdown-preview-view h4,
+body[data-security="cadre"] .markdown-preview-view h5,
+body[data-security="cadre"] .markdown-preview-view h6 {
+  color: var(--neobrutal-dark) !important; /* Black text for other headings */
+}
+
+/* Link styling within L2 - ensure visibility on red background */
+body[data-security="cadre"] .markdown-preview-view a,
+body[data-security="cadre"] .markdown-preview-view a.internal-link,
+body[data-security="cadre"] .markdown-preview-view a.external-link {
+  color: var(--neobrutal-light) !important; /* Warning Yellow links for contrast */
+  text-decoration: underline 3px var(--neobrutal-dark) !important; /* Black underline */
+  font-weight: bold;
+}
+
+body[data-security="cadre"] .markdown-preview-view a:hover,
+body[data-security="cadre"] .markdown-preview-view a.internal-link:hover,
+body[data-security="cadre"] .markdown-preview-view a.external-link:hover {
+  background-color: var(--neobrutal-dark) !important; /* Black background on hover */
+  color: var(--neobrutal-light) !important;          /* Yellow text on hover */
+}
+
+/* Code blocks in L2 - use dark background, light text for contrast with red page */
+body[data-security="cadre"] .markdown-preview-view pre {
+  background-color: var(--neobrutal-dark) !important; 
+  color: var(--neobrutal-light) !important; 
+  border: 2px solid var(--neobrutal-light) !important; /* Yellow border */
+  box-shadow: var(--neobrutal-shadow-medium) var(--neobrutal-light); /* Yellow shadow */
+}
+
+/* Print styles for L2 */
+@media print {
+  body[data-security="cadre"] .markdown-preview-view {
+    background-color: #FFFFFF !important; /* White background for print */
+    color: #000000 !important;           /* Black text */
+    border: 8px solid #000000 !important; /* Heaviest Black border for L2 indication */
+    box-shadow: none !important; /* No shadow for print */
+  }
+
+  body[data-security="cadre"] .markdown-preview-view h1,
+  body[data-security="cadre"] .markdown-preview-view h2,
+  body[data-security="cadre"] .markdown-preview-view h3,
+  body[data-security="cadre"] .markdown-preview-view h4,
+  body[data-security="cadre"] .markdown-preview-view h5,
+  body[data-security="cadre"] .markdown-preview-view h6 {
+    color: #000000 !important;
+    border-bottom-color: #000000 !important;
+  }
+  
+  .markdown-preview-view .tag[href="#L2"],
+  body[data-security="cadre"] .tags .tag,
+  .markdown-preview-view span.tag-L2 {
+    border: 2px solid #000000 !important;
+    background-color: #AAAAAA !important; /* Dark grey background for L2 tag */
+    color: #000000 !important;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+
+  body[data-security="cadre"] .markdown-preview-view a,
+  body[data-security="cadre"] .markdown-preview-view a.internal-link,
+  body[data-security="cadre"] .markdown-preview-view a.external-link {
+    color: #000000 !important; /* Black links for print on white background */
+    text-decoration: underline 2px #000000 !important; 
+  }
+  
+  body[data-security="cadre"] .markdown-preview-view pre {
+    background-color: #DDDDDD !important; 
+    color: #000000 !important; 
+    border-color: #000000 !important; 
+  }
+}
