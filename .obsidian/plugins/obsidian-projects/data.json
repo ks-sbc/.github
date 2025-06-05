@@ -1,0 +1,10 @@
+{
+  "projects": [],
+  "preferences": {
+    "dateFormat": "YYYY-MM-DD",
+    "showArchived": false,
+    "projectSizeLimit": 1000,
+    "communityProjectGallery": true
+  },
+  "version": "1.5.0" 
+}
