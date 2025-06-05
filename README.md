@@ -39,7 +39,7 @@ The DRUIDS system is designed to embody and support the democratic centralist pr
 
 ```text
 .github/
-├── ISSUE_TEMPLATE/
+├── ISSUE_TEMPLATE/                    🟨
 │   ├── config.yml                        # Issue template configuration
 │   ├── proposal-template.md              # Template for proposal issues
 │   ├── implementation-template.md        # Template for implementation issues
