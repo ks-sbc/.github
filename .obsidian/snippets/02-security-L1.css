@@ -1,0 +1,113 @@
+/* 02-security-L1.css */
+/* Styles for L1 (Candidate) security level content */
+/* Neobrutalist: Black background, Yellow text, Red accents */
+
+/* Notes with security: candidate in frontmatter */
+body[data-security="candidate"] .markdown-preview-view {
+  background-color: var(--neobrutal-dark) !important;   /* Pure Black background */
+  color: var(--neobrutal-light) !important;            /* Warning Yellow text */
+  border: var(--neobrutal-border-medium) solid var(--neobrutal-primary) !important; /* Screaming Red medium border */
+  padding: 0.5em; /* Add some padding so content isn't touching the border */
+  box-shadow: var(--neobrutal-shadow-medium) var(--neobrutal-primary); /* Red shadow */
+}
+
+/* Styling for L1 badges/tags */
+.markdown-preview-view .tag[href="#L1"],
+body[data-security="candidate"] .tags .tag, /* Style all tags within L1 notes for emphasis */
+.markdown-preview-view span.tag-L1 {
+  background-color: var(--neobrutal-dark) !important;    /* Black background */
+  color: var(--neobrutal-light) !important;             /* Yellow text */
+  border: 1px solid var(--neobrutal-primary) !important; /* Red border */
+  padding: 0.1em 0.4em;
+  border-radius: 3px;
+  font-family: var(--font-text-theme);
+  font-size: 0.85em;
+  text-transform: uppercase;
+}
+body[data-security="candidate"] .tags .tag:hover {
+  background-color: var(--neobrutal-primary) !important;
+  color: var(--neobrutal-dark) !important;
+}
+
+
+/* Header styling for L1 documents */
+body[data-security="candidate"] .markdown-preview-view h1 {
+  color: var(--neobrutal-light) !important; /* Yellow text for H1 on black background */
+  border-bottom-color: var(--neobrutal-primary) !important; /* Red border */
+}
+
+body[data-security="candidate"] .markdown-preview-view h2 {
+  color: var(--neobrutal-light) !important; /* Yellow text for H2 */
+  border-bottom-color: var(--neobrutal-primary) !important; /* Red border */
+}
+
+body[data-security="candidate"] .markdown-preview-view h3,
+body[data-security="candidate"] .markdown-preview-view h4,
+body[data-security="candidate"] .markdown-preview-view h5,
+body[data-security="candidate"] .markdown-preview-view h6 {
+  color: var(--neobrutal-light) !important; /* Yellow text for other headings */
+}
+
+/* Link styling within L1 - ensure visibility on dark background */
+body[data-security="candidate"] .markdown-preview-view a,
+body[data-security="candidate"] .markdown-preview-view a.internal-link,
+body[data-security="candidate"] .markdown-preview-view a.external-link {
+  color: var(--neobrutal-primary) !important; /* Screaming Red links */
+  text-decoration: underline 3px var(--neobrutal-light) !important; /* Yellow underline */
+}
+
+body[data-security="candidate"] .markdown-preview-view a:hover,
+body[data-security="candidate"] .markdown-preview-view a.internal-link:hover,
+body[data-security="candidate"] .markdown-preview-view a.external-link:hover {
+  background-color: var(--neobrutal-primary) !important; /* Red background on hover */
+  color: var(--neobrutal-dark) !important;               /* Black text on hover */
+}
+
+/* Code blocks in L1 - use light background for contrast */
+body[data-security="candidate"] .markdown-preview-view pre {
+  background-color: var(--neobrutal-light) !important; /* Yellow background for code */
+  color: var(--neobrutal-dark) !important; /* Black text for code */
+  border-color: var(--neobrutal-primary) !important; /* Red border */
+  box-shadow: var(--neobrutal-shadow-medium) var(--neobrutal-primary);
+}
+
+
+/* Print styles for L1 */
+@media print {
+  body[data-security="candidate"] .markdown-preview-view {
+    background-color: #FFFFFF !important; /* White background for print */
+    color: #000000 !important;           /* Black text */
+    border: 5px solid #888888 !important; /* Grey heavy border for L1 indication */
+  }
+
+  body[data-security="candidate"] .markdown-preview-view h1,
+  body[data-security="candidate"] .markdown-preview-view h2,
+  body[data-security="candidate"] .markdown-preview-view h3,
+  body[data-security="candidate"] .markdown-preview-view h4,
+  body[data-security="candidate"] .markdown-preview-view h5,
+  body[data-security="candidate"] .markdown-preview-view h6 {
+    color: #000000 !important;
+    border-bottom-color: #000000 !important;
+  }
+  
+  .markdown-preview-view .tag[href="#L1"],
+  body[data-security="candidate"] .tags .tag,
+  .markdown-preview-view span.tag-L1 {
+    border: 1px solid #000000 !important;
+    background-color: #DDDDDD !important; /* Light grey background for L1 tag */
+    color: #000000 !important;
+  }
+
+  body[data-security="candidate"] .markdown-preview-view a,
+  body[data-security="candidate"] .markdown-preview-view a.internal-link,
+  body[data-security="candidate"] .markdown-preview-view a.external-link {
+    color: #AA0000 !important; /* Darker red for print */
+    text-decoration: underline 2px #000000 !important; 
+  }
+  
+  body[data-security="candidate"] .markdown-preview-view pre {
+    background-color: #EEEEEE !important; 
+    color: #000000 !important; 
+    border-color: #888888 !important; 
+  }
+}

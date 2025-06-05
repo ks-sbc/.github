@@ -1,0 +1,45 @@
+{
+  "lintOnSave": true,
+  "displayAppMessages": true,
+  "displayLintMessages": true,
+  "lintOnProgrammaticChanges": false,
+  "foldersToIgnore": [],
+  "filetypesToIgnore": [],
+  "ruleConfigs": {
+    "consistent-list-marker": {
+      "enabled": true,
+      "style": "-"
+    },
+    "empty-list-item": {
+      "enabled": true
+    },
+    "force-yaml-title": {
+      "enabled": false
+    },
+    "heading-increment": {
+      "enabled": true
+    },
+    "no-bare-urls": {
+      "enabled": true
+    },
+    "ordered-list-style": {
+      "enabled": true,
+      "style": "."
+    },
+    "space-after-list-markers": {
+      "enabled": true
+    },
+    "yaml-key-sort": {
+      "enabled": false
+    },
+    "yaml-tags": {
+      "enabled": true,
+      "format": "multi-line"
+    },
+    "yaml-title": {
+      "enabled": true,
+      "titleField": "title"
+    }
+  },
+  "customRules": []
+}

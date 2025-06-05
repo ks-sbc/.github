@@ -1,0 +1,198 @@
+name: Timeline
+description: Define project or initiative timeline with key milestones
+title: "[TIMELINE] "
+labels: ["type:timeline", "process:planning", "status:draft"]
+assignees: [cadre1, cadre2]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        # Timeline
+        
+        This template is for defining project or initiative timelines with key milestones. Timelines provide clear schedules for implementation.
+
+  - type: dropdown
+    id: security_classification
+    attributes:
+      label: Security Classification
+      description: Specify the security level for this timeline
+      options:
+        - L0 (Public)
+        - L1 (Candidate)
+        - L2 (Cadre)
+    validations:
+      required: true
+
+  - type: input
+    id: timeline_period
+    attributes:
+      label: Timeline Period
+      description: Overall timeframe for this timeline
+      placeholder: "July 2025 - December 2025"
+    validations:
+      required: true
+
+  - type: input
+    id: related_project
+    attributes:
+      label: Related Project or Initiative
+      description: Link to the project this timeline is for
+      placeholder: "#123"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: department
+    attributes:
+      label: Department
+      description: Primary department responsible for this timeline
+      options:
+        - Education
+        - Mass Work
+        - Technical
+        - Security
+        - All Departments
+    validations:
+      required: true
+
+  - type: input
+    id: owner
+    attributes:
+      label: Owner
+      description: Primary person responsible for this timeline
+      placeholder: "@username"
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Version number for this timeline
+      placeholder: "1.0.0"
+    validations:
+      required: true
+
+  - type: textarea
+    id: overview
+    attributes:
+      label: Overview
+      description: Brief description of the timeline purpose
+      placeholder: "Explain the purpose and scope of this timeline..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: quarter_1
+    attributes:
+      label: First Quarter
+      description: First quarter of the timeline period
+      value: |
+        ## Q1: [Year] - [Theme/Focus]
+        
+        ### Month 1: [Month Name]
+        - [ ] **Major Milestone**: [Description]
+          - Owner: @[username]
+          - Due: [Specific date]
+          - Dependencies: [List dependencies]
+        - [ ] [Regular task]
+        - [ ] [Regular task]
+        
+        ### Month 2: [Month Name]
+        - [ ] **Major Milestone**: [Description]
+          - Owner: @[username]
+          - Due: [Specific date]
+          - Dependencies: [List dependencies]
+        - [ ] [Regular task]
+        - [ ] [Regular task]
+        
+        ### Month 3: [Month Name]
+        - [ ] **Major Milestone**: [Description]
+          - Owner: @[username]
+          - Due: [Specific date]
+          - Dependencies: [List dependencies]
+        - [ ] [Regular task]
+        - [ ] [Regular task]
+    validations:
+      required: true
+
+  - type: textarea
+    id: quarter_2
+    attributes:
+      label: Second Quarter
+      description: Second quarter of the timeline period
+      value: |
+        ## Q2: [Year] - [Theme/Focus]
+        
+        ### Month 4: [Month Name]
+        - [ ] **Major Milestone**: [Description]
+          - Owner: @[username]
+          - Due: [Specific date]
+          - Dependencies: [List dependencies]
+        - [ ] [Regular task]
+        - [ ] [Regular task]
+        
+        ### Month 5: [Month Name]
+        - [ ] **Major Milestone**: [Description]
+          - Owner: @[username]
+          - Due: [Specific date]
+          - Dependencies: [List dependencies]
+        - [ ] [Regular task]
+        - [ ] [Regular task]
+        
+        ### Month 6: [Month Name]
+        - [ ] **Major Milestone**: [Description]
+          - Owner: @[username]
+          - Due: [Specific date]
+          - Dependencies: [List dependencies]
+        - [ ] [Regular task]
+        - [ ] [Regular task]
+    validations:
+      required: false
+
+  - type: textarea
+    id: key_decision_points
+    attributes:
+      label: Key Decision Points
+      description: Critical decision dates and milestones
+      placeholder: "List critical decision points and when they need to occur..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: review_schedule
+    attributes:
+      label: Review Schedule
+      description: Regular review points for timeline progress
+      placeholder: "Detail when and how progress against timeline will be reviewed..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      description: Critical dependencies that affect timeline
+      placeholder: "List critical external and internal dependencies..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: contingency
+    attributes:
+      label: Contingency Planning
+      description: Adaptations for potential disruptions
+      placeholder: "Outline how timeline will adapt if disruptions occur..."
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: decision_process
+    attributes:
+      label: Decision Process
+      description: Track the democratic centralist decision process
+      options:
+        - label: Initial proposal
+        - label: Stakeholder review
+        - label: Formal approval
+        - label: Regular reassessment

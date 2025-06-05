@@ -1,0 +1,22 @@
+name: Mark discussion for decision
+on:
+  discussion:
+    types: [labeled]
+jobs:
+  summarize:
+    if: contains(github.event.label.name, 'decision-needed')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add summary comment
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          discussion-id: ${{ github.event.discussion.node_id }}
+          body: |
+            ## Decision Time
+            
+            This discussion has reached the decision stage. Please provide
+            final input by Friday, after which a decision will be made and
+            implementation will begin based on consensus.
+            
+            The final decision will be binding for all documentation.
+          reactions: eyes
