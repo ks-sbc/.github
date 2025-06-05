@@ -1,0 +1,39 @@
+name: Position Development
+about: Engage in constructive criticism in preparation for a meeting.
+title: "[{{ date }} Pre-Meeting Discussion: Position Development]"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Current Conditions
+
+  - type: textarea
+    id: analysis
+    attributes:
+      label: Analysis
+      description: Give a brief analysis of the current conditions relevant to your position.
+      placeholder: Enter your analysis here.
+
+  - type: markdown
+    attributes:
+      value: |
+        ## Initial Positions
+
+  - type: textarea
+    id: initial_positions
+    attributes:
+      label: Initial Positions
+      description: State your initial position as it relates to the discussion at hand.
+      placeholder: State position here.
+
+  - type: markdown
+    attributes:
+      value: |
+        ## References
+
+  - type: textarea
+    id: references
+    attributes:
+      label: References
+      description: List relevant theoretical and practical references.
+      placeholder: Provide additional references here.

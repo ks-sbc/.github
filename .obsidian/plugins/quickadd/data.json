@@ -1,0 +1,364 @@
+{
+  "choices": [
+    {
+      "id": "quickadd-choice-1",
+      "name": "New: Meeting Note",
+      "type": "Template",
+      "command": true,
+      "templatePath": "templates/meeting_notes_template.md",
+      "folder": {
+        "path": "",
+        "createIfNotExists": false,
+        "chooseWhenCreatingNote": false
+      },
+      "fileNameFormat": {
+        "enabled": false,
+        "format": ""
+      },
+      "openFile": true,
+      "openFileInNewTab": true,
+      "filePathFormat": {
+        "enabled": false,
+        "format": ""
+      },
+      "incrementFileName": false,
+      "promptForExistingFile": false
+    },
+    {
+      "id": "quickadd-choice-2",
+      "name": "New: Project Proposal",
+      "type": "Template",
+      "command": true,
+      "templatePath": "templates/project_proposal_template.md",
+      "folder": {
+        "path": "",
+        "createIfNotExists": false,
+        "chooseWhenCreatingNote": false
+      },
+      "fileNameFormat": {
+        "enabled": false,
+        "format": ""
+      },
+      "openFile": true,
+      "openFileInNewTab": true,
+      "filePathFormat": {
+        "enabled": false,
+        "format": ""
+      },
+      "incrementFileName": false,
+      "promptForExistingFile": false
+    },
+    {
+      "id": "quickadd-choice-3",
+      "name": "New: Study Guide",
+      "type": "Macro",
+      "command": true,
+      "macro": {
+        "name": "New: Study Guide with Folder Logic",
+        "actions": [
+          {
+            "type": "InputPrompt",
+            "name": "Select Security Level",
+            "options": {
+              "multiSelect": false,
+              "source": "suggester",
+              "suggester": "Public;Candidate;Cadre"
+            },
+            "captureTo": "selectedSecurityLevel",
+            "prompt": "text"
+          },
+          {
+            "type": "Script",
+            "name": "Set Folder Path from Security Level",
+            "path": "quickadd_scripts/setFolderPath.js"
+          },
+          {
+            "type": "Template",
+            "name": "Create Note from Template",
+            "templatePath": "templates/study_guide_template.md",
+            "folder": {
+              "path": "{{VALUE:targetFolderPath}}",
+              "createIfNotExists": true,
+              "chooseWhenCreatingNote": false
+            },
+            "fileNameFormat": {
+              "enabled": true,
+              "format": "{{DATE:YYYY-MM-DD}} - Untitled {{MACRO_NAME}}"
+            },
+            "openFile": true,
+            "openFileInNewTab": true
+          }
+        ]
+      },
+      "filePathFormat": {
+        "enabled": false,
+        "format": ""
+      },
+      "incrementFileName": false,
+      "promptForExistingFile": false
+    },
+    {
+      "id": "quickadd-choice-4",
+      "name": "New: Theoretical Position Paper",
+      "type": "Macro",
+      "command": true,
+      "macro": {
+        "name": "New: Theoretical Position Paper with Folder Logic",
+        "actions": [
+          {
+            "type": "InputPrompt",
+            "name": "Select Security Level",
+            "options": {
+              "multiSelect": false,
+              "source": "suggester",
+              "suggester": "Public;Candidate;Cadre"
+            },
+            "captureTo": "selectedSecurityLevel",
+            "prompt": "text"
+          },
+          {
+            "type": "Script",
+            "name": "Set Folder Path from Security Level",
+            "path": "quickadd_scripts/setFolderPath.js"
+          },
+          {
+            "type": "Template",
+            "name": "Create Note from Template",
+            "templatePath": "templates/theoretical_position_paper_template.md",
+            "folder": {
+              "path": "{{VALUE:targetFolderPath}}",
+              "createIfNotExists": true,
+              "chooseWhenCreatingNote": false
+            },
+            "fileNameFormat": {
+              "enabled": true,
+              "format": "{{DATE:YYYY-MM-DD}} - Untitled {{MACRO_NAME}}"
+            },
+            "openFile": true,
+            "openFileInNewTab": true
+          }
+        ]
+      },
+      "filePathFormat": {
+        "enabled": false,
+        "format": ""
+      },
+      "incrementFileName": false,
+      "promptForExistingFile": false
+    },
+    {
+      "id": "quickadd-choice-5",
+      "name": "New: Criticism Session Note",
+      "type": "Template",
+      "command": true,
+      "templatePath": "templates/criticism_session_template.md",
+      "folder": {
+        "path": "",
+        "createIfNotExists": false,
+        "chooseWhenCreatingNote": false
+      },
+      "fileNameFormat": {
+        "enabled": false,
+        "format": ""
+      },
+      "openFile": true,
+      "openFileInNewTab": true,
+      "filePathFormat": {
+        "enabled": false,
+        "format": ""
+      },
+      "incrementFileName": false,
+      "promptForExistingFile": false
+    },
+    {
+      "id": "quickadd-choice-6",
+      "name": "New: Campaign Summation",
+      "type": "Template",
+      "command": true,
+      "templatePath": "templates/campaign_summation_template.md",
+      "folder": {
+        "path": "",
+        "createIfNotExists": false,
+        "chooseWhenCreatingNote": false
+      },
+      "fileNameFormat": {
+        "enabled": false,
+        "format": ""
+      },
+      "openFile": true,
+      "openFileInNewTab": true,
+      "filePathFormat": {
+        "enabled": false,
+        "format": ""
+      },
+      "incrementFileName": false,
+      "promptForExistingFile": false
+    },
+    {
+      "id": "quickadd-choice-7",
+      "name": "New: Decision Implementation Plan",
+      "type": "Template",
+      "command": true,
+      "templatePath": "templates/decision_implementation_template.md",
+      "folder": {
+        "path": "",
+        "createIfNotExists": false,
+        "chooseWhenCreatingNote": false
+      },
+      "fileNameFormat": {
+        "enabled": false,
+        "format": ""
+      },
+      "openFile": true,
+      "openFileInNewTab": true,
+      "filePathFormat": {
+        "enabled": false,
+        "format": ""
+      },
+      "incrementFileName": false,
+      "promptForExistingFile": false
+    },
+    {
+      "id": "quickadd-choice-8",
+      "name": "New: Security Protocol",
+      "type": "Macro",
+      "command": true,
+      "macro": {
+        "name": "New: Security Protocol with Folder Logic",
+        "actions": [
+          {
+            "type": "InputPrompt",
+            "name": "Select Security Level",
+            "options": {
+              "multiSelect": false,
+              "source": "suggester",
+              "suggester": "Public;Candidate;Cadre"
+            },
+            "captureTo": "selectedSecurityLevel",
+            "prompt": "text"
+          },
+          {
+            "type": "Script",
+            "name": "Set Folder Path from Security Level",
+            "path": "quickadd_scripts/setFolderPath.js"
+          },
+          {
+            "type": "Template",
+            "name": "Create Note from Template",
+            "templatePath": "templates/security_protocol_template.md",
+            "folder": {
+              "path": "{{VALUE:targetFolderPath}}",
+              "createIfNotExists": true,
+              "chooseWhenCreatingNote": false
+            },
+            "fileNameFormat": {
+              "enabled": true,
+              "format": "{{DATE:YYYY-MM-DD}} - Untitled {{MACRO_NAME}}"
+            },
+            "openFile": true,
+            "openFileInNewTab": true
+          }
+        ]
+      },
+      "filePathFormat": {
+        "enabled": false,
+        "format": ""
+      },
+      "incrementFileName": false,
+      "promptForExistingFile": false
+    },
+    {
+      "id": "quickadd-choice-9",
+      "name": "New: Mass Line Investigation",
+      "type": "Template",
+      "command": true,
+      "templatePath": "templates/mass_line_investigation_template.md",
+      "folder": {
+        "path": "",
+        "createIfNotExists": false,
+        "chooseWhenCreatingNote": false
+      },
+      "fileNameFormat": {
+        "enabled": false,
+        "format": ""
+      },
+      "openFile": true,
+      "openFileInNewTab": true,
+      "filePathFormat": {
+        "enabled": false,
+        "format": ""
+      },
+      "incrementFileName": false,
+      "promptForExistingFile": false
+    },
+    {
+      "id": "quickadd-choice-10",
+      "name": "New: Member Development Plan",
+      "type": "Template",
+      "command": true,
+      "templatePath": "templates/member_development_template.md",
+      "folder": {
+        "path": "",
+        "createIfNotExists": false,
+        "chooseWhenCreatingNote": false
+      },
+      "fileNameFormat": {
+        "enabled": false,
+        "format": ""
+      },
+      "openFile": true,
+      "openFileInNewTab": true,
+      "filePathFormat": {
+        "enabled": false,
+        "format": ""
+      },
+      "incrementFileName": false,
+      "promptForExistingFile": false
+    },
+    {
+      "id": "quickadd-choice-11",
+      "name": "New: Related Note (Inherit Security)",
+      "type": "Macro",
+      "command": true,
+      "macro": {
+        "name": "New: Related Note (Inherit Security)",
+        "actions": [
+          {
+            "type": "Script",
+            "name": "Get Parent Security Level",
+            "path": "quickadd_scripts/getParentSecurityLevel.js"
+          },
+          {
+            "type": "Template",
+            "name": "Create from Generic Note Template",
+            "templatePath": "templates/generic_note_template.md",
+            "folder": {
+              "path": "",
+              "createIfNotExists": true,
+              "chooseWhenCreatingNote": true
+            },
+            "fileNameFormat": {
+              "enabled": true,
+              "format": "{{DATE:YYYY-MM-DD}} - Untitled Related Note"
+            },
+            "openFile": true,
+            "openFileInNewTab": true
+          }
+        ]
+      },
+      "filePathFormat": {
+        "enabled": false,
+        "format": ""
+      },
+      "incrementFileName": false,
+      "promptForExistingFile": false
+    }
+  ],
+  "migrations": {
+    "oldVersion": "0.0.0"
+  },
+  "disableSettingPrompts": false,
+  "announceUpdates": true,
+  "commandDelay": 500,
+  "autoRunStartupMacros": false
+}

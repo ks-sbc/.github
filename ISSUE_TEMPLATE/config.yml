@@ -1,0 +1,20 @@
+#blank_issues_enabled: false
+#contact_links:
+#  - name: Kansas Socialist Book Club Documentation Guidelines
+#    url: https://github.com/ks-sbc/.github/blob/main/CONTRIBUTING.md
+#    about: Learn about our documentation standards before creating an issue
+
+# If you want to group templates into categories, use this structure:
+# (Uncomment when implementing)
+# 
+# template_categories:
+#   - category_name: Theoretical Development
+#     template_files:
+#     - theoretical-position.yml
+#     - political-education.yml
+#     - study-guide.yml
+#   - category_name: Operational Planning
+#     template_files:
+#     - strategic-plan.yml
+#     - campaign-plan.yml
+#     - resource-allocation.yml

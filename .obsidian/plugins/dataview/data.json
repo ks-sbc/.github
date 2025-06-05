@@ -1,0 +1,17 @@
+{
+  "renderNullAs": "-",
+  "taskCompletionTracking": true,
+  "taskCompletionText": "completion",
+  "defaultDateFormat": "yyyy-MM-dd",
+  "defaultDateTimeFormat": "yyyy-MM-dd HH:mm",
+  "inlineQueryPrefix": "=",
+  "inlineJsQueryPrefix": "$=",
+  "enableJavaScriptQueries": false,
+  "enableInlineJavaScriptQueries": false,
+  "enableHttpRequests": false,
+  "refreshInterval": 2500,
+  "prettyRenderInlineFields": true,
+  "renderPrivateFields": false,
+  "frontmatterPropertyPrefix": "#",
+  "schemaVersion": 1
+}
