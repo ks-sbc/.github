@@ -1,0 +1,155 @@
+name: Automated Project Board Management
+
+on:
+  issues:
+    types: [labeled, unlabeled, closed, reopened]
+
+permissions:
+  issues: read
+  # GITHUB_TOKEN has project read/write access for same-repo projects by default.
+  # If your project is organization-wide and the repo is not granting access
+  # via its own GITHUB_TOKEN, you might need `projects: write` and a PAT.
+  # For most same-repo projects, this should be sufficient.
+
+jobs:
+  manage_project_board:
+    name: Manage Project Board
+    runs-on: ubuntu-latest
+    env:
+      # === CONFIGURATION REQUIRED ===
+      # Obtain these IDs using GitHub's GraphQL API or by inspecting network requests/UI.
+      # 1. PROJECT_NODE_ID: The Node ID of your GitHub Project (ProjectV2).
+      #    Example: Go to your project, the URL might be `github.com/orgs/YOUR_ORG/projects/NUMBER`.
+      #    Use GraphQL `query { organization(login: "YOUR_ORG"){ projectV2(number: NUMBER) { id } } }`
+      PROJECT_NODE_ID: "YOUR_PROJECT_NODE_ID"
+
+      # 2. STATUS_FIELD_NODE_ID: The Node ID of the "Status" field within your project.
+      #    Example: Use GraphQL `query { node(id: "YOUR_PROJECT_NODE_ID") { ... on ProjectV2 { fields(first: 20) { nodes { ... on ProjectV2SingleSelectField { id name } } } } } }`
+      #    Find the field named "Status" (or your equivalent) and get its ID.
+      STATUS_FIELD_NODE_ID: "YOUR_STATUS_FIELD_NODE_ID"
+
+      # 3. OPTION_IDs for Status Field: The Node IDs for each option within your "Status" single-select field.
+      #    Example: Use GraphQL `query { node(id: "YOUR_STATUS_FIELD_NODE_ID") { ... on ProjectV2SingleSelectField { options { id name } } } }`
+      #    Match the names below to your project's status options and get their IDs.
+      OPTION_ID_TRIAGE: "YOUR_STATUS_OPTION_ID_FOR_TRIAGE" # e.g., for 'needs-triage' label
+      OPTION_ID_BACKLOG: "YOUR_STATUS_OPTION_ID_FOR_BACKLOG" # e.g., for 'status:backlog' label
+      OPTION_ID_L0_APPROVED: "YOUR_STATUS_OPTION_ID_FOR_L0_APPROVED" # e.g., for 'status:L0-approved' label
+      OPTION_ID_L1_IMPL: "YOUR_STATUS_OPTION_ID_FOR_L1_IMPL" # e.g., for 'status:L1-implementation' label
+      OPTION_ID_IN_PROGRESS: "YOUR_STATUS_OPTION_ID_FOR_IN_PROGRESS" # e.g., for 'status:in-progress' label
+      OPTION_ID_NEEDS_REVIEW: "YOUR_STATUS_OPTION_ID_FOR_NEEDS_REVIEW" # e.g., for 'status:needs-review' label
+      OPTION_ID_DONE: "YOUR_STATUS_OPTION_ID_FOR_DONE" # For closed issues
+      OPTION_ID_WONT_DO: "YOUR_STATUS_OPTION_ID_FOR_WONT_DO" # For closed issues with 'resolution:wont-do'
+      # === END CONFIGURATION ===
+
+    steps:
+      - name: Move Issue on Project Board
+        id: move_issue_script # Added id
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issue = context.payload.issue;
+            const issueNodeId = issue.node_id; 
+            const labels = issue.labels.map(l => l.name);
+            const eventName = context.eventName;
+            const action = context.payload.action;
+
+            let targetOptionId = null;
+
+            if (eventName === 'issues') {
+              if (action === 'closed') {
+                if (labels.includes('resolution:wont-do')) {
+                  targetOptionId = process.env.OPTION_ID_WONT_DO;
+                } else {
+                  targetOptionId = process.env.OPTION_ID_DONE;
+                }
+              } else if (action === 'reopened') {
+                targetOptionId = process.env.OPTION_ID_TRIAGE; 
+              } else if (action === 'labeled' || action === 'unlabeled') {
+                if (labels.includes('status:needs-review')) targetOptionId = process.env.OPTION_ID_NEEDS_REVIEW;
+                else if (labels.includes('status:in-progress')) targetOptionId = process.env.OPTION_ID_IN_PROGRESS;
+                else if (labels.includes('status:L1-implementation')) targetOptionId = process.env.OPTION_ID_L1_IMPL;
+                else if (labels.includes('status:L0-approved')) targetOptionId = process.env.OPTION_ID_L0_APPROVED;
+                else if (labels.includes('status:backlog')) targetOptionId = process.env.OPTION_ID_BACKLOG;
+                else if (labels.includes('needs-triage')) targetOptionId = process.env.OPTION_ID_TRIAGE;
+              }
+            }
+
+            if (!targetOptionId || targetOptionId.startsWith("YOUR_STATUS_OPTION_ID_")) {
+              console.log(`No matching or valid target status option ID for issue #${issue.number} (Event: ${eventName}, Action: ${action}, Labels: ${labels.join(',')}). TargetOptionID: ${targetOptionId}. Skipping project update.`);
+              return;
+            }
+            
+            if (!process.env.PROJECT_NODE_ID || process.env.PROJECT_NODE_ID === "YOUR_PROJECT_NODE_ID" ||
+                !process.env.STATUS_FIELD_NODE_ID || process.env.STATUS_FIELD_NODE_ID === "YOUR_STATUS_FIELD_NODE_ID") {
+              console.warn("PROJECT_NODE_ID or STATUS_FIELD_NODE_ID is not configured with actual values in the workflow's 'env' section. Please obtain these IDs from your GitHub project settings (e.g., using GraphQL API explorer or by inspecting network traffic when manually changing status) and update the workflow file. Skipping project update.");
+              return;
+            }
+
+            const findItemQuery = `
+              query($projectNodeId: ID!, $issueNodeId: ID!) {
+                node(id: $projectNodeId) {
+                  ... on ProjectV2 {
+                    items(first: 1, filterBy: {contentId: $issueNodeId}) {
+                      nodes {
+                        id 
+                      }
+                    }
+                  }
+                }
+              }`;
+            
+            let projectItemNodeId;
+            try {
+              const findResult = await github.graphql(findItemQuery, { projectNodeId: process.env.PROJECT_NODE_ID, issueNodeId: issueNodeId });
+              if (findResult.node && findResult.node.items && findResult.node.items.nodes && findResult.node.items.nodes.length > 0) {
+                projectItemNodeId = findResult.node.items.nodes[0].id;
+              } else {
+                console.log(`Issue #${issue.number} (Node ID: ${issueNodeId}) is not yet an item in project ${process.env.PROJECT_NODE_ID}. Skipping status update.`);
+                return;
+              }
+            } catch (error) {
+              console.error(`Error finding project item for issue #${issue.number}: ${error.message}. Skipping status update.`);
+              return;
+            }
+
+            console.log(`Found project item ID: ${projectItemNodeId} for issue #${issue.number}`);
+
+            const mutation = `
+              mutation($projectNodeId: ID!, $itemNodeId: ID!, $statusFieldNodeId: ID!, $statusOptionId: String!) {
+                updateProjectV2ItemFieldValue(
+                  input: {
+                    projectId: $projectNodeId
+                    itemId: $itemNodeId 
+                    fieldId: $statusFieldNodeId
+                    value: { 
+                      singleSelectOptionId: $statusOptionId 
+                    }
+                  }
+                ) {
+                  item {
+                    id 
+                  }
+                }
+              }`;
+            
+            const variables = {
+              projectNodeId: process.env.PROJECT_NODE_ID,
+              itemNodeId: projectItemNodeId, 
+              statusFieldNodeId: process.env.STATUS_FIELD_NODE_ID,
+              statusOptionId: targetOptionId
+            };
+
+            // The script will throw an error if the mutation fails, caught by the job's `if: failure()`
+            const result = await github.graphql(mutation, variables);
+            console.log(`Successfully updated issue #${issue.number} (item ID: ${result.updateProjectV2ItemFieldValue.item.id}) to status option ID ${targetOptionId} on project board.`);
+            
+      - name: Send Slack Notification on Failure
+        if: failure() # This condition specifically targets failures in the preceding steps of this job
+        uses: rtCamp/action-slack-notify@v2.4.0
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_USERNAME: "Project Bot"
+          SLACK_ICON_EMOJI: ":x:"
+          SLACK_COLOR: "danger"
+          SLACK_MESSAGE: "Failed to move Issue <${{ github.event.issue.html_url }}|#${{ github.event.issue.number }} ${{ github.event.issue.title }}> on the project board. Please check workflow logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"

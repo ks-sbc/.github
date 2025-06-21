@@ -1,0 +1,74 @@
+name: Link Validation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches:
+      - main
+      - L1-internal # TODO: Adjust to your actual L1 branch name
+      - L2-secure   # TODO: Adjust to your actual L2 branch name
+      # Add any other branches that should be validated on push
+
+permissions:
+  contents: read
+
+jobs:
+  validate_links:
+    name: Validate Links
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Get changed markdown files (for PRs)
+        id: changed_files_pr
+        if: github.event_name == 'pull_request'
+        uses: tj-actions/changed-files@v44
+        with:
+          files: |
+            **.md
+
+      - name: Run Lychee Link Checker for PRs
+        if: github.event_name == 'pull_request' && steps.changed_files_pr.outputs.any_changed == 'true'
+        uses: lycheeverse/lychee-action@v1.10.0
+        with:
+          args: >
+            --verbose
+            --no-progress
+            ${{ steps.changed_files_pr.outputs.all_changed_files }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          fail: true 
+          # config_file: '.lycheerc' # Optional: Create a .lycheerc file in your repo root for custom Lychee configuration
+                                   # (e.g., to ignore certain URLs, set timeouts, etc.) then uncomment this line.
+
+      - name: Run Lychee Link Checker for Pushes (all markdown files)
+        if: github.event_name == 'push'
+        uses: lycheeverse/lychee-action@v1.10.0
+        with:
+          args: >
+            --verbose
+            --no-progress
+            './**/*.md' # Glob pattern to check all markdown files in the repository
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          fail: true
+          # config_file: '.lycheerc' # Optional: Create a .lycheerc file in your repo root for custom Lychee configuration
+                                   # (e.g., to ignore certain URLs, set timeouts, etc.) then uncomment this line.
+      
+      - name: No markdown files to check for PR
+        if: github.event_name == 'pull_request' && steps.changed_files_pr.outputs.any_changed != 'true'
+        run: echo "No markdown files changed in this PR. Skipping link validation."
+
+      - name: Send Slack Notification on Failure
+        if: failure()
+        uses: rtCamp/action-slack-notify@v2.4.0
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_USERNAME: "Link Checker Bot"
+          SLACK_ICON_EMOJI: ":link:"
+          SLACK_COLOR: "danger"
+          SLACK_MESSAGE: >
+            Link validation FAILED for 
+            ${{ github.event_name == 'pull_request' && format('<{0}|PR #{1} {2}>', github.event.pull_request.html_url, github.event.pull_request.number, github.event.pull_request.title) || '' }}
+            ${{ github.event_name == 'push' && format('push to branch `{0}` (commit <{1}|{2}>)', github.ref_name, github.event.compare || github.event.head_commit.url, github.sha) || '' }}.
+            Broken links detected. Review logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}

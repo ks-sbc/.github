@@ -1,0 +1,49 @@
+{
+  "settings": {
+    "error_output_duration_ms": 10000,
+    "show_output_to_user": "only_if_error",
+    "output_wrapper": "{{output}}",
+    "input_wrapper": "{{input}}",
+    "quote_parameters": "double_quotes_strict",
+    "default_shells": {},
+    "enable_events": false,
+    "debug_verbose": false
+  },
+  "commands": [
+    {
+      "id": "git-force-pull",
+      "name": "Git: Force Pull (Overwrite Local Changes)",
+      "icon": "refresh-cw",
+      "platform_specific_commands": {
+        "default": "git fetch origin && git reset --hard origin/$(git rev-parse --abbrev-ref HEAD)"
+      },
+      "show_output_on_success": true,
+      "output_handling": "overwrite_output_pane",
+      "alias": "gfp"
+    },
+    {
+      "id": "git-signed-log",
+      "name": "Git: Show Signed Commit Log (Last 5)",
+      "icon": "git-commit",
+      "platform_specific_commands": {
+        "default": "git log --pretty=\"format:%h %G? %s (%an)\" -n 5"
+      },
+      "show_output_on_success": true,
+      "output_handling": "overwrite_output_pane",
+      "alias": "gsl"
+    },
+    {
+      "id": "gpg-list-secret-keys",
+      "name": "GPG: List Secret Keys (Hardware Key Info)",
+      "icon": "key",
+      "platform_specific_commands": {
+        "default": "gpg --list-secret-keys"
+      },
+      "show_output_on_success": true,
+      "output_handling": "overwrite_output_pane",
+      "alias": "glsk"
+    }
+  ],
+  "prompts": [],
+  "events": []
+}

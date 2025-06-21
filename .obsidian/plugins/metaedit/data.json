@@ -1,0 +1,12 @@
+{
+  "showPopUpIcon": true,
+  "showEditIcon": true,
+  "showOpenViewIcon": true,
+  "customFrontmatter": [],
+  "customInlineFields": [],
+  "renderFieldIfEmpty": true,
+  "autoConvertAvailable": true,
+  "autoConvertTrigger": "Tab",
+  "tagsToExclude": [],
+  "fieldsToExclude": []
+}

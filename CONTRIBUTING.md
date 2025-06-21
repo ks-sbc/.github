@@ -1,14 +1,3 @@
-I need to refactor the provided CONTRIBUTORS.md with what I wrote earlier. I'll combine elements from both to create a more comprehensive document that includes:
-
-1. My earlier content about non-technical contributions
-2. The existing content about democratic centralist workflow
-3. The security classification system
-4. The detailed contribution process
-5. The commit guidelines and documentation standards
-
-I'll preserve the structure of the provided document but integrate the additional content about non-technical contributions from my earlier version.
-
-```md
 # Contributing to DRUIDS
 
 Thank you for your interest in contributing to the Kansas Socialist Book Club's Distributed, Reproducible, Unifying, Ideological Documentation System (DRUIDS). This document outlines our contribution process, which follows democratic centralist principles and welcomes contributions from people with all levels of technical expertise.
@@ -93,10 +82,10 @@ There are many valuable ways to contribute without technical expertise:
 
 - **Create Document Templates**  
   Design Markdown templates for frequently used document types with clear placeholder text.
-  
+
 - **Develop Visual Security Classification Guide**  
   Create visual explanations of our three-tier security model (L0/L1/L2) with examples.
-  
+
 - **Create Step-by-Step Workflow Guides**  
   Develop user-friendly guides showing common workflows with screenshots.
 
@@ -104,7 +93,7 @@ There are many valuable ways to contribute without technical expertise:
 
 - **Conduct Usability Testing**  
   Test the system by following specific scenarios and document your experience.
-  
+
 - **Create Glossary of Terms**  
   Compile and define terms used throughout the system.
 
@@ -112,7 +101,7 @@ There are many valuable ways to contribute without technical expertise:
 
 - **Organize Tag Taxonomy**  
   Help organize and structure the hierarchical tag system.
-  
+
 - **Review and Improve Error Messages**  
   Suggest more user-friendly alternatives to current error messages.
 
@@ -120,7 +109,7 @@ There are many valuable ways to contribute without technical expertise:
 
 - **Create FAQ Document**  
   Compile common questions and answers about using the system.
-  
+
 - **Develop Training Scenarios**  
   Create realistic scenarios for training exercises.
 
@@ -129,24 +118,24 @@ There are many valuable ways to contribute without technical expertise:
 ### 1. Identify an Area for Contribution
 
 Before creating a proposal or implementation issue, determine:
-- The political need being addressed
-- The appropriate security classification
-- The relevant committee for review
+  - The political need being addressed
+  - The appropriate security classification
+  - The relevant committee for review
 
 ### 2. Create an Issue
 
 Use the appropriate issue template:
-- **Proposal**: For new ideas requiring discussion
-- **Implementation**: For executing approved proposals
-- **Documentation**: For improvements to existing documentation
-- **Criticism**: For constructive criticism of existing work
+  - **Proposal**: For new ideas requiring discussion
+  - **Implementation**: For executing approved proposals
+  - **Documentation**: For improvements to existing documentation
+  - **Criticism**: For constructive criticism of existing work
 
 ### 3. Branch Creation
 
 Branches follow our naming conventions:
-- `proposal/[issue-topic]`: For proposal development
-- `implement/[issue-topic]`: For implementation work
-- `contributor/[username]`: For personal development work
+  - `proposal/[issue-topic]`: For proposal development
+  - `implement/[issue-topic]`: For implementation work
+  - `contributor/[username]`: For personal development work
 
 ### 4. Development Work
 
@@ -241,6 +230,7 @@ All contributors are expected to follow our [Code of Conduct](CODE_OF_CONDUCT.md
 ## Questions?
 
 If you have questions about contributing, please:
+
 1. Check existing documentation
 2. Review past issues and discussions
 3. Create a new issue using the "question" template
@@ -249,4 +239,3 @@ If you have questions about contributing, please:
 Remember, contributing to DRUIDS isn't just about technical skills—it's about contributing to a system that enhances our collective organizing capacity. Every contribution, regardless of technical complexity, has value in our revolutionary documentation effort.
 
 Thank you for contributing to our collective work!
-```
