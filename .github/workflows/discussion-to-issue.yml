@@ -1,0 +1,69 @@
+name: Discussion to Issue
+
+on:
+  discussion:
+    types: [labeled]
+
+permissions:
+  discussions: read
+  issues: write
+
+jobs:
+  create_issue_from_discussion:
+    name: Create Issue from Discussion
+    runs-on: ubuntu-latest
+    if: github.event.label.name == 'promote-to-issue'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create Issue
+        id: create_issue_script # Added id
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const discussion = context.payload.discussion;
+            const issueTitle = `Issue from Discussion: ${discussion.title}`;
+            // Sanitize discussion body for inclusion in code block if it contains backticks
+            const sanitizedBody = discussion.body.replace(/`/g, '\\`');
+
+            const issueBody = `
+            This issue was automatically generated from GitHub Discussion: ${discussion.html_url}
+
+            **Discussion Title:** ${discussion.title}
+            **Discussion Category:** ${discussion.category.name}
+            **Opened by:** @${discussion.user.login}
+
+            **Original Discussion Content:**
+            \`\`\`markdown
+            ${sanitizedBody}
+            \`\`\`
+
+            ---
+            Please define actionable tasks, acceptance criteria, and assign this issue appropriately.
+            It is recommended to manually remove the 'promote-to-issue' label from the original discussion to prevent accidental re-triggering or to signify it has been processed.
+            `;
+            
+            const created_issue_response = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: issueTitle,
+              body: issueBody,
+              labels: ['from-discussion', 'needs-triage']
+            });
+            console.log(`Issue created for discussion: ${discussion.title}`);
+            
+            // Output issue URL and number
+            core.setOutput('issue_url', created_issue_response.data.html_url);
+            core.setOutput('issue_number', created_issue_response.data.number);
+
+      - name: Send Slack Notification
+        if: success()
+        uses: rtCamp/action-slack-notify@v2.4.0
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_USERNAME: "Discussion Bot"
+          SLACK_ICON_EMOJI: ":speech_balloon:"
+          SLACK_COLOR: "good"
+          SLACK_MESSAGE: "New Issue #${{ steps.create_issue_script.outputs.issue_number }} Created from Discussion: <${{ steps.create_issue_script.outputs.issue_url }}|${{ github.event.discussion.title }}>. Needs triage."
