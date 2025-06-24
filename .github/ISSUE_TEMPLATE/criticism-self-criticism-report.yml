@@ -1,0 +1,199 @@
+name: Criticism and Self-Criticism Session Report
+description: Document outcomes from criticism and self-criticism sessions
+title: "[CSC] "
+labels: ["type:csc-report", "process:development", "status:unprocessed"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        # Criticism and Self-Criticism Session Report
+        
+        This template documents the outcomes of criticism and self-criticism sessions. These sessions are essential for political development, correcting errors, and strengthening organizational unity.
+
+  - type: dropdown
+    id: security_classification
+    attributes:
+      label: Security Classification
+      description: CSC sessions often involve sensitive personal and organizational matters
+      options:
+        - L1 (Candidate)
+        - L2 (Cadre)
+      default: 1
+    validations:
+      required: true
+
+  - type: input
+    id: session_date
+    attributes:
+      label: Session Date
+      description: Date the CSC session was held
+      placeholder: "YYYY-MM-DD"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: session_type
+    attributes:
+      label: Session Type
+      description: Type of CSC session conducted
+      options:
+        - Regular committee CSC
+        - Special topic CSC
+        - Individual focused CSC
+        - General membership CSC
+        - Leadership body CSC
+    validations:
+      required: true
+
+  - type: input
+    id: participants_count
+    attributes:
+      label: Number of Participants
+      description: How many members participated in this session?
+      placeholder: "Number"
+    validations:
+      required: true
+
+  - type: textarea
+    id: session_themes
+    attributes:
+      label: Main Themes Addressed
+      description: Key political or organizational themes that emerged
+      placeholder: |
+        - Political errors in understanding
+        - Organizational discipline issues
+        - Work style problems
+        - Mass line implementation
+        - Security consciousness
+    validations:
+      required: true
+
+  - type: textarea
+    id: self_criticisms_summary
+    attributes:
+      label: Self-Criticisms Summary
+      description: Summary of self-criticisms offered (no names unless necessary)
+      placeholder: |
+        General patterns of self-criticism:
+        - Common errors acknowledged
+        - Theoretical weaknesses identified
+        - Practical mistakes recognized
+        - Commitments to improvement made
+    validations:
+      required: true
+
+  - type: textarea
+    id: constructive_criticisms
+    attributes:
+      label: Constructive Criticisms Offered
+      description: Summary of criticisms given to help comrades improve
+      placeholder: |
+        Types of criticism offered:
+        - Political line corrections
+        - Work method improvements
+        - Organizational discipline issues
+        - Communication problems
+        - Security lapses
+    validations:
+      required: true
+
+  - type: textarea
+    id: root_causes
+    attributes:
+      label: Root Cause Analysis
+      description: Deeper analysis of why errors occurred
+      placeholder: |
+        Identified root causes:
+        - Theoretical understanding gaps
+        - Material conditions impact
+        - Organizational structure issues
+        - Individual limitations
+        - Historical patterns
+    validations:
+      required: true
+
+  - type: textarea
+    id: collective_lessons
+    attributes:
+      label: Collective Lessons
+      description: What did the group learn collectively?
+      placeholder: |
+        - Theoretical insights gained
+        - Practical lessons learned
+        - Organizational improvements identified
+        - Unity strengthened in what ways
+    validations:
+      required: true
+
+  - type: textarea
+    id: action_commitments
+    attributes:
+      label: Action Commitments
+      description: Concrete commitments made for improvement
+      value: |
+        ## Organizational Commitments
+        - 
+        
+        ## Individual Commitments (summarized)
+        - 
+        
+        ## Follow-up Plans
+        - 
+    validations:
+      required: true
+
+  - type: textarea
+    id: theoretical_study_needs
+    attributes:
+      label: Theoretical Study Needs Identified
+      description: What theoretical study would address the issues raised?
+      placeholder: |
+        Recommended study materials:
+        - Specific texts or chapters
+        - Historical examples to examine
+        - Contemporary analysis needed
+    validations:
+      required: false
+
+  - type: dropdown
+    id: session_quality
+    attributes:
+      label: Session Quality Assessment
+      description: How effective was this CSC session?
+      options:
+        - Highly effective - Deep political development achieved
+        - Effective - Good progress on key issues
+        - Moderately effective - Some progress made
+        - Needs improvement - Surface level only
+    validations:
+      required: true
+
+  - type: textarea
+    id: facilitator_notes
+    attributes:
+      label: Facilitator Notes
+      description: Notes on the process and facilitation
+      placeholder: |
+        - Participation levels
+        - Resistance encountered
+        - Breakthroughs achieved
+        - Process improvements needed
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: principles_followed
+    attributes:
+      label: CSC Principles Confirmation
+      description: Confirm that core principles were followed
+      options:
+        - label: Criticism was constructive and aimed at improvement
+          required: true
+        - label: Self-criticism was honest and thorough
+          required: true
+        - label: Unity was strengthened through the process
+          required: true
+        - label: Concrete actions were identified for improvement
+          required: true
+        - label: Session maintained revolutionary purpose
+          required: true

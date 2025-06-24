@@ -1,0 +1,24 @@
+{
+  "action": "opened",
+  "issue": {
+    "number": 1,
+    "title": "[MASS REPORT] Test conditions in downtown",
+    "body": "### Security Classification\nL0 (Public)\n\n### Location\nDowntown District\n\n### Material Conditions\nRising rent prices affecting working families\n\n### Political Consciousness\nGrowing awareness of housing as a human right",
+    "labels": [
+      {
+        "name": "type:mass-report"
+      }
+    ],
+    "user": {
+      "login": "test-user"
+    },
+    "created_at": "2024-08-01T10:00:00Z",
+    "updated_at": "2024-08-01T10:00:00Z"
+  },
+  "repository": {
+    "name": ".github",
+    "owner": {
+      "login": "ks-sbc"
+    }
+  }
+}

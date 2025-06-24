@@ -1,0 +1,285 @@
+name: Meeting Minutes Processing
+
+on:
+  issues:
+    types: [closed]
+  issue_comment:
+    types: [created, edited]
+
+jobs:
+  process-meeting-minutes:
+    if: |
+      github.event_name == 'issues' && 
+      contains(github.event.issue.labels.*.name, 'meeting') &&
+      contains(github.event.issue.labels.*.name, 'status:scheduled')
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: write
+      pull-requests: write
+    
+    steps:
+      - name: Extract meeting data
+        id: extract
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const issue = context.payload.issue;
+            
+            // Extract meeting type from labels
+            const meetingType = issue.labels.find(l => 
+              ['general-body', 'committee', 'emergency', 'special'].includes(l.name)
+            )?.name || 'general';
+            
+            // Extract date from title
+            const dateMatch = issue.title.match(/\d{4}-\d{2}-\d{2}/);
+            const meetingDate = dateMatch ? dateMatch[0] : new Date().toISOString().split('T')[0];
+            
+            // Parse minutes from issue body
+            const body = issue.body || '';
+            const minutesSection = body.match(/### Minutes\n([\s\S]*?)(?=\n###|\n---|$)/);
+            const decisionsSection = body.match(/### Decisions Made\n([\s\S]*?)(?=\n###|\n---|$)/);
+            const actionItemsSection = body.match(/### Action Items\n([\s\S]*?)(?=\n###|\n---|$)/);
+            
+            core.setOutput('meeting_type', meetingType);
+            core.setOutput('meeting_date', meetingDate);
+            core.setOutput('has_minutes', !!minutesSection);
+            core.setOutput('has_decisions', !!decisionsSection);
+            core.setOutput('has_action_items', !!actionItemsSection);
+            core.setOutput('minutes', minutesSection ? minutesSection[1].trim() : '');
+            core.setOutput('decisions', decisionsSection ? decisionsSection[1].trim() : '');
+            core.setOutput('action_items', actionItemsSection ? actionItemsSection[1].trim() : '');
+      
+      - name: Create minutes archive
+        if: steps.extract.outputs.has_minutes == 'true'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const meetingType = '${{ steps.extract.outputs.meeting_type }}';
+            const meetingDate = '${{ steps.extract.outputs.meeting_date }}';
+            const minutes = `${{ steps.extract.outputs.minutes }}`;
+            const decisions = `${{ steps.extract.outputs.decisions }}`;
+            const actionItems = `${{ steps.extract.outputs.action_items }}`;
+            const issueNumber = context.payload.issue.number;
+            
+            // Create a comprehensive minutes document
+            const minutesTitle = `[MINUTES] ${meetingType.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())} - ${meetingDate}`;
+            
+            const minutesBody = `# Meeting Minutes
+            
+**Meeting**: ${meetingType.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+**Date**: ${meetingDate}
+**Original Issue**: #${issueNumber}
+
+## Minutes
+
+${minutes || '*No minutes recorded*'}
+
+## Decisions Made
+
+${decisions || '*No formal decisions recorded*'}
+
+## Action Items
+
+${actionItems || '*No action items recorded*'}
+
+## Metadata
+- **Meeting Closed**: ${new Date().toISOString()}
+- **Processed By**: Automated Minutes System
+
+---
+
+*These minutes are part of the permanent organizational record. Any corrections should be raised at the next meeting.*`;
+            
+            // Create minutes issue
+            const minutesIssue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: minutesTitle,
+              body: minutesBody,
+              labels: ['minutes', meetingType, 'archive'],
+              assignees: []
+            });
+            
+            console.log(`Created minutes archive #${minutesIssue.data.number}`);
+            
+            // Comment on original issue
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              body: `📄 Meeting minutes have been archived: #${minutesIssue.data.number}`
+            });
+      
+      - name: Process action items
+        if: steps.extract.outputs.has_action_items == 'true'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const actionItemsText = `${{ steps.extract.outputs.action_items }}`;
+            const meetingDate = '${{ steps.extract.outputs.meeting_date }}';
+            const issueNumber = context.payload.issue.number;
+            
+            // Parse action items (format: Task | Assignee | Deadline)
+            const lines = actionItemsText.split('\n').filter(line => line.includes('|'));
+            const actionItems = [];
+            
+            for (const line of lines) {
+              const parts = line.split('|').map(p => p.trim());
+              if (parts.length >= 2) {
+                actionItems.push({
+                  task: parts[0],
+                  assignee: parts[1] || null,
+                  deadline: parts[2] || null
+                });
+              }
+            }
+            
+            // Create issues for each action item
+            for (const item of actionItems) {
+              if (!item.task || item.task.startsWith('Task')) continue; // Skip header
+              
+              const title = `[ACTION] ${item.task}`;
+              const assigneeMatch = item.assignee?.match(/@(\w+)/);
+              const assigneeUsername = assigneeMatch ? assigneeMatch[1] : null;
+              
+              const body = `## Action Item from Meeting
+              
+**Task**: ${item.task}
+**Source**: Meeting on ${meetingDate} (#${issueNumber})
+**Assigned to**: ${item.assignee || 'TBD'}
+**Deadline**: ${item.deadline || 'TBD'}
+
+### Requirements
+- [ ] Complete assigned task
+- [ ] Document outcomes
+- [ ] Report back to committee/body
+
+### Notes
+*Add implementation notes here*
+
+---
+*This action item was automatically created from meeting minutes.*`;
+              
+              const labels = ['action-item', 'from-meeting', 'status:pending'];
+              
+              // Add priority based on deadline
+              if (item.deadline) {
+                const deadlineDate = new Date(item.deadline);
+                const today = new Date();
+                const daysUntilDue = Math.ceil((deadlineDate - today) / (1000 * 60 * 60 * 24));
+                
+                if (daysUntilDue <= 3) {
+                  labels.push('priority:high');
+                } else if (daysUntilDue <= 7) {
+                  labels.push('priority:medium');
+                }
+              }
+              
+              const assignees = assigneeUsername ? [assigneeUsername] : [];
+              
+              try {
+                const actionIssue = await github.rest.issues.create({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  title: title,
+                  body: body,
+                  labels: labels,
+                  assignees: assignees
+                });
+                
+                console.log(`Created action item #${actionIssue.data.number}: ${item.task}`);
+              } catch (error) {
+                console.error(`Failed to create action item: ${error.message}`);
+              }
+            }
+            
+            if (actionItems.length > 0) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                body: `✅ Created ${actionItems.length} action items from this meeting.`
+              });
+            }
+  
+  capture-minutes-update:
+    if: |
+      github.event_name == 'issue_comment' &&
+      github.event.issue.labels &&
+      contains(github.event.issue.labels.*.name, 'meeting') &&
+      contains(github.event.comment.body, '## Minutes Update')
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    
+    steps:
+      - name: Update meeting minutes
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const comment = context.payload.comment;
+            const issue = context.payload.issue;
+            
+            // Verify commenter has appropriate permissions
+            const commenterPerms = await github.rest.repos.getCollaboratorPermissionLevel({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              username: comment.user.login
+            });
+            
+            if (!['admin', 'maintain', 'write'].includes(commenterPerms.data.permission)) {
+              await github.rest.reactions.createForIssueComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: comment.id,
+                content: 'confused'
+              });
+              return;
+            }
+            
+            // Extract minutes update
+            const updateMatch = comment.body.match(/## Minutes Update\n([\s\S]+)/);
+            if (!updateMatch) return;
+            
+            const minutesUpdate = updateMatch[1];
+            
+            // Get current issue body
+            const currentBody = issue.body || '';
+            
+            // Find and update minutes section
+            const minutesPattern = /(### Minutes\n)([\s\S]*?)(?=\n###|\n---|$)/;
+            let newBody;
+            
+            if (minutesPattern.test(currentBody)) {
+              // Append to existing minutes
+              newBody = currentBody.replace(minutesPattern, (match, header, content) => {
+                const timestamp = new Date().toISOString().split('T')[1].split('.')[0];
+                return `${header}${content}\n\n**[${timestamp}]** ${minutesUpdate}`;
+              });
+            } else {
+              // Create minutes section if it doesn't exist
+              const insertPoint = currentBody.indexOf('---') || currentBody.length;
+              const timestamp = new Date().toISOString().split('T')[1].split('.')[0];
+              newBody = currentBody.slice(0, insertPoint) + 
+                `\n### Minutes\n\n**[${timestamp}]** ${minutesUpdate}\n\n` + 
+                currentBody.slice(insertPoint);
+            }
+            
+            // Update issue
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              body: newBody
+            });
+            
+            // Acknowledge update
+            await github.rest.reactions.createForIssueComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: comment.id,
+              content: '+1'
+            });
+            
+            console.log(`Updated minutes for meeting #${issue.number}`);

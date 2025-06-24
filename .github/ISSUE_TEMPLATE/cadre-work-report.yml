@@ -1,0 +1,171 @@
+name: Cadre Work Report
+description: Regular report on cadre work, achievements, and challenges
+title: "[CADRE REPORT] "
+labels: ["type:cadre-report", "process:review", "status:unprocessed"]
+assignees: [secretary]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        # Cadre Work Report
+        
+        This template is for cadre members to report on their work, progress on assigned tasks, and challenges faced. Regular reporting ensures accountability and enables collective problem-solving.
+
+  - type: dropdown
+    id: security_classification
+    attributes:
+      label: Security Classification
+      description: Cadre work reports typically contain sensitive information
+      options:
+        - L1 (Candidate)
+        - L2 (Cadre)
+      default: 1
+    validations:
+      required: true
+
+  - type: input
+    id: reporting_period
+    attributes:
+      label: Reporting Period
+      description: Time period covered by this report
+      placeholder: "YYYY-MM-DD to YYYY-MM-DD"
+    validations:
+      required: true
+
+  - type: input
+    id: committee_assignment
+    attributes:
+      label: Committee Assignment
+      description: Your primary committee assignment
+      placeholder: "Education Committee, Security Committee, etc."
+    validations:
+      required: true
+
+  - type: textarea
+    id: completed_tasks
+    attributes:
+      label: Completed Tasks
+      description: Tasks completed during this reporting period
+      value: |
+        ## Completed Tasks
+        
+        | Task | Related Issue | Completion Date | Outcomes |
+        |------|---------------|-----------------|----------|
+        | | | | |
+    validations:
+      required: true
+
+  - type: textarea
+    id: ongoing_work
+    attributes:
+      label: Ongoing Work
+      description: Tasks currently in progress
+      value: |
+        ## Ongoing Work
+        
+        | Task | Related Issue | Expected Completion | Current Status | Blockers |
+        |------|---------------|-------------------|----------------|----------|
+        | | | | | |
+    validations:
+      required: true
+
+  - type: textarea
+    id: political_education
+    attributes:
+      label: Political Education
+      description: Your political education activities this period
+      placeholder: |
+        - Texts studied
+        - Study groups attended/facilitated
+        - Political discussions
+        - Theory application in practice
+    validations:
+      required: true
+
+  - type: textarea
+    id: mass_work
+    attributes:
+      label: Mass Work
+      description: Engagement with masses and mass organizations
+      placeholder: |
+        - Direct organizing activities
+        - Mass education conducted
+        - Investigations performed
+        - Relationships developed
+    validations:
+      required: true
+
+  - type: textarea
+    id: organizational_development
+    attributes:
+      label: Organizational Development
+      description: Contributions to organizational growth and development
+      placeholder: |
+        - Recruitment activities
+        - Mentoring/training provided
+        - Process improvements suggested
+        - Documentation created
+    validations:
+      required: true
+
+  - type: textarea
+    id: challenges_errors
+    attributes:
+      label: Challenges and Errors
+      description: Difficulties faced and mistakes made (for collective learning)
+      placeholder: |
+        Be specific about:
+        - Obstacles encountered
+        - Errors in judgment or execution
+        - Resource constraints
+        - Skill gaps identified
+    validations:
+      required: true
+
+  - type: textarea
+    id: self_criticism
+    attributes:
+      label: Self-Criticism
+      description: Honest assessment of your own work and areas for improvement
+      placeholder: |
+        - What could have been done better?
+        - What political or practical errors were made?
+        - What lessons have been learned?
+        - What support is needed?
+    validations:
+      required: true
+
+  - type: textarea
+    id: recommendations
+    attributes:
+      label: Recommendations
+      description: Suggestions for organizational improvement based on your experience
+      placeholder: "Specific recommendations for committees or general body..."
+    validations:
+      required: false
+
+  - type: dropdown
+    id: next_period_capacity
+    attributes:
+      label: Capacity for Next Period
+      description: Your availability for work in the next period
+      options:
+        - Increased capacity
+        - Normal capacity
+        - Reduced capacity
+        - Temporary leave needed
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: accountability
+    attributes:
+      label: Accountability Confirmation
+      description: Confirm your commitment to organizational discipline
+      options:
+        - label: This report accurately reflects my work this period
+          required: true
+        - label: I am prepared to discuss this report in committee
+          required: true
+        - label: I accept criticism and guidance on my work
+          required: true

@@ -12,8 +12,50 @@ The aim is to provide a secure, efficient, and ideologically coherent system for
 
 The DRUIDS system is designed to embody and support the democratic centralist principles of the KSBC.
 
-**[Placeholder: Overview of Democratic Centralist Principles in DRUIDS]**
-*(This section will detail how DRUIDS workflows, security measures, and collaborative tools are intended to support principles such as political unity, cadre development, criticism/self-criticism, and the Theory -> Plan -> Practice -> Summation cycle. Specific examples related to DRUIDS features will be added here.)*
+### Core Principles Implementation
+
+1. **Freedom of Discussion, Unity of Action**
+   - GitHub Discussions and Issues enable thorough democratic debate
+   - Pull Request reviews ensure collective input on proposals  
+   - Once merged to `main`, decisions are binding and implemented uniformly
+   - Workflow automations enforce organizational decisions consistently
+
+2. **Subordination of Minority to Majority**
+   - Voting mechanisms in PR reviews and issue discussions
+   - Minority positions are recorded but majority decisions are executed
+   - Automated workflows implement decisions regardless of individual preferences
+
+3. **Lower Bodies Subordinate to Higher Bodies**
+   - Repository permissions reflect organizational hierarchy
+   - CODEOWNERS enforces committee review requirements
+   - Security classifications prevent unauthorized access to higher-level decisions
+
+4. **Theory → Plan → Practice → Summation Cycle**
+   - Issue templates guide theoretical development (Study Guides)
+   - Project boards track planning and implementation phases
+   - Report templates capture practice outcomes
+   - CSC templates enable systematic summation and improvement
+
+### Security as Revolutionary Discipline
+
+- Three-tier classification (L0/L1/L2) implements need-to-know principles
+- Automated security validation prevents information leaks
+- Secure routing of reports maintains operational security
+- GPG signing and encryption protect sensitive communications
+
+### Mass Line Integration
+
+- Mass conditions reports flow from sympathizers to cadre analysis
+- Automated processing preserves security while enabling synthesis
+- Public education materials return processed knowledge to masses
+- Bi-weekly study sessions build mass revolutionary consciousness
+
+### Criticism and Self-Criticism Automation
+
+- CSC report templates standardize the practice
+- Issue tracking ensures commitments are followed through
+- Project boards visualize progress on self-improvement
+- Historical archives enable pattern recognition and growth
 
 ## Repository Structure Overview
 
@@ -30,48 +72,49 @@ The DRUIDS system is designed to embody and support the democratic centralist pr
 
 ```text
 .github/
-├── ISSUE_TEMPLATE/                    🟨
-│   ├── config.yml                        # Issue template configuration
-│   ├── proposal-template.md              # Template for proposal issues
-│   ├── implementation-template.md        # Template for implementation issues
-│   ├── documentation-template.md         # Template for documentation issues
-│   ├── criticism-template.md             # Template for criticism issues
-│   └── security-report-template.md       # Template for security reports
+├── ISSUE_TEMPLATE/
+│   ├── config.yml                              # Issue template configuration
+│   ├── campaign-plan.yml                       # Campaign planning template
+│   ├── cadre-work-report.yml                   # Cadre work reporting
+│   ├── criticism-self-criticism-report.yml     # CSC session documentation
+│   ├── evaluation-framework.yml                # Evaluation templates
+│   ├── implementation-plan.yml                 # Implementation planning
+│   ├── implementation-task.yml                 # Task tracking
+│   ├── mass-conditions-report.yml              # Mass conditions reporting
+│   ├── poliitical-education.yml               # Political education planning
+│   ├── security-incident-report.yml            # Security incident reporting
+│   ├── study-guide.yml                         # Study guide creation
+│   ├── study-session-announcement.yml          # Session announcements
+│   └── timeline.yml                            # Timeline planning
 │
 ├── PULL_REQUEST_TEMPLATE/
-│   ├── proposal-pr.md                          # PR template for proposals
-│   ├── implementation-pr.md                    # PR template for implementation
-│   └── documentation-pr.md                     # PR template for documentation
+│   └── (templates for PR workflows)
 │
 ├── workflows/
-│   ├── security-validation.yml                 # Security classification validation
-│   ├── metadata-validation.yml                 # Frontmatter metadata validation
-│   ├── issue-to-obsidian.yml                   # Sync issues to Obsidian vault
-│   ├── branch-creation.yml                     # Democratic proposal branching
-│   ├── documentation-deploy.yml                # Documentation deployment
-│   ├── decision-implementation.yml             # Tracking implemented decisions
-│   └── security-audit.yml                      # Regular security audits
+│   ├── education/
+│   │   ├── schedule-study-sessions.yml         # Bi-weekly session scheduling
+│   │   └── study-session-reminder.yml          # Automated reminders
+│   ├── reports/
+│   │   ├── process-mass-report.yml             # Mass report processing
+│   │   ├── process-cadre-report.yml            # Cadre report processing
+│   │   └── security-classification.yml         # Security validation
+│   ├── create-proposal-branch.yml              # Democratic proposal branching
+│   ├── decision-implementation.yml             # Decision tracking
+│   ├── issue-management.yml                    # Issue automation
+│   ├── security-validation.yml                 # Security checks
+│   └── (other workflow files)
 │
 ├── CODEOWNERS                                  # Defines ownership for democratic review
-│
 ├── CODE_OF_CONDUCT.md                          # Organizational code of conduct
-│
 ├── CONTRIBUTING.md                             # Detailed contribution guidelines
-│
 ├── GOVERNANCE.md                               # Democratic centralist governance model
-│
 ├── SECURITY.md                                 # Security classification information
-│
-├── TEMPLATES/                                  # General templates for the organization
-│   ├── document-template.md                    # Standard document template
-│   ├── meeting-minutes-template.md             # Template for meeting minutes
-│   ├── decision-record-template.md             # Template for recording decisions
-│   └── criticism-session-template.md           # Template for criticism sessions
-│
-├── FUNDING.yml                                 # Sponsorship information if applicable
 │
 ├── profile/                                    # Organization profile
 │   └── README.md                               # Organization profile README (public)
+│
+├── documentation/                              # Additional documentation
+│   └── dataview_examples/                      # Dataview query examples
 │
 └── README.md                                   # Main repository README
 ```
@@ -104,10 +147,61 @@ graph TD
 
 ## Getting Started
 
-1.  **Clone the repository:** `git clone <repository_url>`
-2.  **Review the `OBSIDIAN_INTEGRATION_GUIDE.md`:** This guide provides detailed instructions on setting up your Obsidian environment to work with DRUIDS.
-3.  **Explore the `/content` directory:** Familiarize yourself with the security tier structure.
-4.  **Consult `CONTRIBUTING.md`:** For guidelines on how to contribute to the project.
+### Quick Setup
+
+1. **Clone the repository:** 
+   ```bash
+   git clone https://github.com/ks-sbc/.github.git
+   cd .github
+   ```
+
+2. **Enable GitHub Actions:**
+   - Go to Settings → Actions → General
+   - Enable "Allow all actions and reusable workflows"
+   - Save changes
+
+3. **Configure Teams (Organization Admins):**
+   - Create teams: `cadre`, `education-committee`, `security-committee`
+   - Assign appropriate members to each team
+   - Set repository permissions based on security levels
+
+4. **Set up Secrets:**
+   - Add `REPO_ACCESS_TOKEN` for cross-repository operations
+   - Configure GPG keys for encrypted reports (optional)
+
+### For Contributors
+
+1. **Review Documentation:**
+   - Start with [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines
+   - Read [SECURITY.md](SECURITY.md) to understand classification levels
+   - Check [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for community standards
+
+2. **Submitting Reports:**
+   - Use Issues → New Issue → Choose appropriate template
+   - Follow security classification guidelines
+   - Wait for automated processing and routing
+
+3. **Participating in Study Sessions:**
+   - Watch for study session announcements (labeled `type:study-session`)
+   - Sessions occur bi-weekly on Tuesdays and Fridays
+   - Access links distributed through secure channels
+
+### For Administrators
+
+1. **Workflow Configuration:**
+   - Review and customize workflow files in `.github/workflows/`
+   - Adjust cron schedules for your timezone
+   - Configure team assignments in workflows
+
+2. **Security Setup:**
+   - Ensure proper repository access controls
+   - Configure branch protection rules
+   - Set up audit logging
+
+3. **Integration Points:**
+   - Connect to Obsidian vaults for documentation
+   - Set up project boards for task tracking
+   - Configure discussion forums for democratic debate
 
 ## Contribution
 
@@ -115,8 +209,15 @@ Contributions to DRUIDS are welcome and vital for its development. Please see `C
 
 ## License
 
-**[Placeholder: License Information]**
-*(The KSBC team will determine and add the appropriate license for this project, e.g., MIT, GPL, CC-BY-SA, etc.)*
+This project is licensed under the GNU Affero General Public License v3.0 (AGPL-3.0) - see the [LICENSE](LICENSE) file for details.
+
+The AGPL-3.0 was chosen to ensure:
+- Freedom to use, study, modify, and distribute the software
+- Network use triggers source code sharing requirements
+- Modifications must remain open source
+- Protects against proprietary exploitation of our collective work
+
+For documentation and educational materials, we use Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0).
 
 ---
 

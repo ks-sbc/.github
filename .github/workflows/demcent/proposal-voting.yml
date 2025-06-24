@@ -1,0 +1,389 @@
+name: Democratic Proposal Voting
+
+on:
+  pull_request:
+    types: [opened, ready_for_review]
+    branches:
+      - main
+    paths-ignore:
+      - '.github/workflows/**'
+      - 'docs/**'
+      - '*.md'
+  
+  issue_comment:
+    types: [created]
+  
+  schedule:
+    # Check for voting deadlines daily at 9 AM UTC
+    - cron: '0 9 * * *'
+
+jobs:
+  initialize-voting:
+    if: |
+      github.event_name == 'pull_request' && 
+      !github.event.pull_request.draft &&
+      startsWith(github.event.pull_request.head.ref, 'proposal/')
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      issues: write
+    
+    steps:
+      - name: Set up voting
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const isUrgent = pr.labels.some(l => l.name === 'urgent' || l.name === 'priority:high');
+            
+            // Calculate voting deadline (72 hours standard, 24 hours for urgent)
+            const hoursToVote = isUrgent ? 24 : 72;
+            const deadline = new Date();
+            deadline.setHours(deadline.getHours() + hoursToVote);
+            
+            // Create voting comment
+            const votingInstructions = `## 🗳️ Democratic Voting Process Initiated
+            
+**Proposal**: ${pr.title}
+**Voting Deadline**: ${deadline.toISOString()} (${hoursToVote} hours)
+**Quorum Required**: ${isUrgent ? '60%' : '50%'} of eligible voters
+
+### How to Vote:
+- **For**: React with 👍 or comment "VOTE: FOR"
+- **Against**: React with 👎 or comment "VOTE: AGAINST"
+- **Abstain**: React with 😐 or comment "VOTE: ABSTAIN"
+
+### Voting Rules:
+1. Only members with merge permissions can vote
+2. Each member gets one vote
+3. Votes can be changed before the deadline
+4. Simple majority wins (unless specified otherwise)
+5. Quorum must be met for valid results
+
+### Discussion:
+Please provide reasoning for your vote to help build consensus. Remember our principles of democratic centralism - thorough discussion leads to unified action.
+
+---
+*Automated by Democratic Centralist Workflow*`;
+            
+            const comment = await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr.number,
+              body: votingInstructions
+            });
+            
+            // Add voting labels
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr.number,
+              labels: ['voting:active', `voting:deadline-${deadline.toISOString().split('T')[0]}`]
+            });
+            
+            // Store voting metadata
+            const metadata = {
+              votingCommentId: comment.data.id,
+              deadline: deadline.toISOString(),
+              quorum: isUrgent ? 0.6 : 0.5,
+              initiated: new Date().toISOString(),
+              type: isUrgent ? 'urgent' : 'standard'
+            };
+            
+            // Add metadata as PR comment (hidden)
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr.number,
+              body: `<!-- VOTING_METADATA: ${JSON.stringify(metadata)} -->`
+            });
+  
+  process-vote:
+    if: |
+      github.event_name == 'issue_comment' && 
+      github.event.issue.pull_request &&
+      contains(github.event.comment.body, 'VOTE:')
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      issues: write
+    
+    steps:
+      - name: Validate and record vote
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const comment = context.payload.comment;
+            const issue = context.payload.issue;
+            const voter = comment.user.login;
+            
+            // Check if user has voting rights (can merge PRs)
+            try {
+              const perms = await github.rest.repos.getCollaboratorPermissionLevel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                username: voter
+              });
+              
+              if (!['admin', 'maintain', 'write'].includes(perms.data.permission)) {
+                await github.rest.reactions.createForIssueComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: comment.id,
+                  content: 'confused'
+                });
+                
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  body: `@${voter} - You do not have voting rights on this proposal. Only members with repository write access can vote.`
+                });
+                return;
+              }
+            } catch (error) {
+              console.log(`User ${voter} not authorized to vote`);
+              return;
+            }
+            
+            // Parse vote
+            const voteMatch = comment.body.match(/VOTE:\s*(FOR|AGAINST|ABSTAIN)/i);
+            if (!voteMatch) {
+              return;
+            }
+            
+            const vote = voteMatch[1].toUpperCase();
+            
+            // Acknowledge vote
+            const reactions = {
+              'FOR': 'rocket',
+              'AGAINST': 'x',
+              'ABSTAIN': 'eyes'
+            };
+            
+            await github.rest.reactions.createForIssueComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: comment.id,
+              content: reactions[vote] || 'heart'
+            });
+            
+            // Check if voting is still active
+            const labels = issue.labels.map(l => l.name);
+            if (!labels.includes('voting:active')) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: `@${voter} - Voting has closed on this proposal.`
+              });
+              return;
+            }
+            
+            console.log(`Vote recorded: ${voter} voted ${vote} on PR #${issue.number}`);
+  
+  check-voting-deadlines:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      issues: write
+      contents: read
+    
+    steps:
+      - name: Process expired votes
+        uses: actions/github-script@v6
+        with:
+          script: |
+            // Get all PRs with active voting
+            const prs = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 100
+            });
+            
+            const now = new Date();
+            
+            for (const pr of prs.data) {
+              const labels = pr.labels.map(l => l.name);
+              
+              if (!labels.includes('voting:active')) {
+                continue;
+              }
+              
+              // Find deadline from labels
+              const deadlineLabel = labels.find(l => l.startsWith('voting:deadline-'));
+              if (!deadlineLabel) continue;
+              
+              const deadlineStr = deadlineLabel.replace('voting:deadline-', '');
+              const deadline = new Date(deadlineStr);
+              
+              if (now > deadline) {
+                // Voting period has expired, tally results
+                await processVoteResults(pr);
+              }
+            }
+            
+            async function processVoteResults(pr) {
+              // Get all comments to find votes
+              const comments = await github.paginate(github.rest.issues.listComments, {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                per_page: 100
+              });
+              
+              // Find metadata
+              let metadata = null;
+              for (const comment of comments) {
+                const match = comment.body.match(/<!-- VOTING_METADATA: (.*) -->/);
+                if (match) {
+                  metadata = JSON.parse(match[1]);
+                  break;
+                }
+              }
+              
+              if (!metadata) {
+                console.log(`No metadata found for PR #${pr.number}`);
+                return;
+              }
+              
+              // Count votes
+              const votes = { FOR: 0, AGAINST: 0, ABSTAIN: 0 };
+              const voters = new Set();
+              const voteDetails = [];
+              
+              // Get eligible voters (contributors with write access)
+              const collaborators = await github.paginate(github.rest.repos.listCollaborators, {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                permission: 'push',
+                per_page: 100
+              });
+              
+              const eligibleVoters = collaborators.length;
+              
+              // Process vote comments
+              for (const comment of comments) {
+                const voteMatch = comment.body.match(/VOTE:\s*(FOR|AGAINST|ABSTAIN)/i);
+                if (voteMatch && !voters.has(comment.user.login)) {
+                  const vote = voteMatch[1].toUpperCase();
+                  
+                  // Verify voting rights
+                  const isEligible = collaborators.some(c => c.login === comment.user.login);
+                  if (isEligible) {
+                    votes[vote]++;
+                    voters.add(comment.user.login);
+                    voteDetails.push({
+                      voter: comment.user.login,
+                      vote: vote,
+                      time: comment.created_at
+                    });
+                  }
+                }
+              }
+              
+              // Also check reactions on the voting comment
+              if (metadata.votingCommentId) {
+                const reactions = await github.rest.reactions.listForIssueComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: metadata.votingCommentId
+                });
+                
+                for (const reaction of reactions.data) {
+                  if (!voters.has(reaction.user.login)) {
+                    const isEligible = collaborators.some(c => c.login === reaction.user.login);
+                    if (isEligible) {
+                      if (reaction.content === '+1') {
+                        votes.FOR++;
+                        voters.add(reaction.user.login);
+                      } else if (reaction.content === '-1') {
+                        votes.AGAINST++;
+                        voters.add(reaction.user.login);
+                      } else if (reaction.content === 'confused') {
+                        votes.ABSTAIN++;
+                        voters.add(reaction.user.login);
+                      }
+                    }
+                  }
+                }
+              }
+              
+              const totalVotes = votes.FOR + votes.AGAINST + votes.ABSTAIN;
+              const participation = totalVotes / eligibleVoters;
+              const quorumMet = participation >= metadata.quorum;
+              const forPercentage = totalVotes > 0 ? (votes.FOR / (votes.FOR + votes.AGAINST) * 100).toFixed(1) : 0;
+              const passed = quorumMet && votes.FOR > votes.AGAINST;
+              
+              // Create results comment
+              const resultsBody = `## 📊 Voting Results
+              
+**Proposal**: ${pr.title}
+**Result**: ${passed ? '✅ PASSED' : '❌ FAILED'}
+
+### Vote Tally:
+- **For**: ${votes.FOR} votes
+- **Against**: ${votes.AGAINST} votes  
+- **Abstain**: ${votes.ABSTAIN} votes
+
+### Statistics:
+- **Total Votes**: ${totalVotes} / ${eligibleVoters} eligible voters
+- **Participation**: ${(participation * 100).toFixed(1)}%
+- **Quorum**: ${quorumMet ? '✅ Met' : '❌ Not met'} (required ${(metadata.quorum * 100)}%)
+- **Approval Rate**: ${forPercentage}% (of non-abstaining votes)
+
+### Next Steps:
+${passed ? 
+  `This proposal has been democratically approved and will be merged. As per democratic centralist principles, all members are now expected to unite in implementing this decision.` :
+  `This proposal has not received sufficient support. The proposer may:
+  1. Address concerns raised in discussion
+  2. Submit a revised proposal
+  3. Accept the democratic decision`
+}
+
+### Voting Record:
+<details>
+<summary>View detailed voting record</summary>
+
+${voteDetails.map(v => `- @${v.voter}: ${v.vote}`).join('\n')}
+
+</details>
+
+---
+*Unity of action follows democratic discussion. The decision is now binding on all members.*`;
+              
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                body: resultsBody
+              });
+              
+              // Update labels
+              await github.rest.issues.removeLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                name: 'voting:active'
+              });
+              
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                labels: [passed ? 'decision:approved' : 'decision:rejected', 'voting:complete']
+              });
+              
+              // If passed, approve PR for merging
+              if (passed) {
+                await github.rest.pulls.createReview({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_request_number: pr.number,
+                  event: 'APPROVE',
+                  body: 'Democratically approved by membership vote.'
+                });
+              }
+            }

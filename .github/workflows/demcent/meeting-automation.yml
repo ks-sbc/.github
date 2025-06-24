@@ -1,0 +1,439 @@
+name: Meeting Automation
+
+on:
+  schedule:
+    # Generate agenda on Fridays at 5 PM for Sunday meetings
+    - cron: '0 17 * * 5'
+    # Send reminder on Sunday at 12 PM
+    - cron: '0 12 * * 0'
+  workflow_dispatch:
+    inputs:
+      meeting_type:
+        description: 'Type of meeting'
+        required: false
+        default: 'general-body'
+        type: choice
+        options:
+          - general-body
+          - committee
+          - emergency
+          - special
+
+jobs:
+  generate-meeting-agenda:
+    if: github.event.schedule == '0 17 * * 5' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+      pull-requests: read
+    
+    steps:
+      - name: Gather agenda items
+        id: agenda
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const meetingType = '${{ inputs.meeting_type }}' || 'general-body';
+            const today = new Date();
+            const meetingDate = new Date(today);
+            
+            // Calculate next Sunday (or specified date)
+            if (meetingType === 'general-body') {
+              const daysUntilSunday = (7 - today.getDay()) % 7 || 7;
+              meetingDate.setDate(today.getDate() + daysUntilSunday);
+            } else {
+              meetingDate.setDate(today.getDate() + 2); // Default to 2 days out
+            }
+            
+            // Gather pending items for agenda
+            const pendingItems = {
+              decisions: [],
+              reports: [],
+              discussions: [],
+              actionItems: [],
+              proposals: []
+            };
+            
+            // Get open issues labeled for meeting discussion
+            const discussionIssues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: 'meeting:discuss',
+              state: 'open',
+              per_page: 50
+            });
+            
+            for (const issue of discussionIssues.data) {
+              pendingItems.discussions.push({
+                number: issue.number,
+                title: issue.title,
+                author: issue.user.login,
+                priority: issue.labels.some(l => l.name.includes('priority:high')) ? 'high' : 'normal'
+              });
+            }
+            
+            // Get pending decisions (proposal PRs)
+            const proposals = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 30
+            });
+            
+            for (const pr of proposals.data) {
+              if (pr.labels.some(l => l.name === 'voting:complete' && l.name === 'decision:approved')) {
+                pendingItems.decisions.push({
+                  number: pr.number,
+                  title: pr.title,
+                  author: pr.user.login
+                });
+              } else if (pr.head.ref.startsWith('proposal/')) {
+                pendingItems.proposals.push({
+                  number: pr.number,
+                  title: pr.title,
+                  author: pr.user.login
+                });
+              }
+            }
+            
+            // Get recent reports needing review
+            const reports = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: 'type:report',
+              state: 'open',
+              since: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+              per_page: 20
+            });
+            
+            for (const report of reports.data) {
+              const labels = report.labels.map(l => l.name);
+              if (labels.includes('needs:review') || labels.includes('security:incident')) {
+                pendingItems.reports.push({
+                  number: report.number,
+                  title: report.title,
+                  type: labels.find(l => l.startsWith('type:')) || 'general'
+                });
+              }
+            }
+            
+            // Get overdue action items
+            const actionItems = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: 'action-item,status:in-progress',
+              state: 'open',
+              per_page: 30
+            });
+            
+            for (const item of actionItems.data) {
+              // Check if overdue
+              const dueDateMatch = item.body.match(/\*\*Due Date\*\*:\s*(\d{4}-\d{2}-\d{2})/);
+              if (dueDateMatch) {
+                const dueDate = new Date(dueDateMatch[1]);
+                if (dueDate < today) {
+                  pendingItems.actionItems.push({
+                    number: item.number,
+                    title: item.title,
+                    assignees: item.assignees.map(a => a.login),
+                    daysOverdue: Math.floor((today - dueDate) / (1000 * 60 * 60 * 24))
+                  });
+                }
+              }
+            }
+            
+            core.setOutput('meeting_date', meetingDate.toISOString().split('T')[0]);
+            core.setOutput('meeting_type', meetingType);
+            core.setOutput('pending_items', JSON.stringify(pendingItems));
+      
+      - name: Create meeting issue with agenda
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const meetingDate = '${{ steps.agenda.outputs.meeting_date }}';
+            const meetingType = '${{ steps.agenda.outputs.meeting_type }}';
+            const pendingItems = JSON.parse('${{ steps.agenda.outputs.pending_items }}');
+            
+            const meetingTitles = {
+              'general-body': 'General Body Meeting',
+              'committee': 'Committee Meeting',
+              'emergency': 'Emergency Meeting',
+              'special': 'Special Meeting'
+            };
+            
+            const title = `${meetingTitles[meetingType]} - ${meetingDate}`;
+            
+            // Build dynamic agenda based on pending items
+            let agendaItems = [
+              '1. **Call to Order** (5 min)',
+              '   - Attendance and quorum verification',
+              '   - Adoption of agenda',
+              ''
+            ];
+            
+            // Add previous minutes review
+            agendaItems.push('2. **Review of Previous Minutes** (10 min)');
+            agendaItems.push('   - Corrections and approval');
+            agendaItems.push('   - Follow-up on action items');
+            agendaItems.push('');
+            
+            let itemNumber = 3;
+            
+            // Add pending decisions
+            if (pendingItems.decisions.length > 0) {
+              agendaItems.push(`${itemNumber}. **Pending Decisions** (${pendingItems.decisions.length * 5} min)`);
+              for (const decision of pendingItems.decisions) {
+                agendaItems.push(`   - #${decision.number}: ${decision.title} (@${decision.author})`);
+              }
+              agendaItems.push('');
+              itemNumber++;
+            }
+            
+            // Add committee reports
+            agendaItems.push(`${itemNumber}. **Committee Reports** (15 min)`);
+            agendaItems.push('   - Education Committee');
+            agendaItems.push('   - Organization Committee');
+            agendaItems.push('   - Security Committee');
+            agendaItems.push('   - Finance Committee (if applicable)');
+            agendaItems.push('');
+            itemNumber++;
+            
+            // Add reports requiring review
+            if (pendingItems.reports.length > 0) {
+              agendaItems.push(`${itemNumber}. **Reports Review** (${Math.min(pendingItems.reports.length * 3, 15)} min)`);
+              for (const report of pendingItems.reports.slice(0, 5)) {
+                agendaItems.push(`   - #${report.number}: ${report.title}`);
+              }
+              if (pendingItems.reports.length > 5) {
+                agendaItems.push(`   - *and ${pendingItems.reports.length - 5} more...*`);
+              }
+              agendaItems.push('');
+              itemNumber++;
+            }
+            
+            // Add overdue action items
+            if (pendingItems.actionItems.length > 0) {
+              agendaItems.push(`${itemNumber}. **⚠️ Overdue Action Items** (${pendingItems.actionItems.length * 2} min)`);
+              for (const item of pendingItems.actionItems) {
+                const assigneeText = item.assignees.length > 0 ? item.assignees.map(a => `@${a}`).join(', ') : 'Unassigned';
+                agendaItems.push(`   - #${item.number}: ${item.title} (${item.daysOverdue} days overdue) - ${assigneeText}`);
+              }
+              agendaItems.push('');
+              itemNumber++;
+            }
+            
+            // Add discussion items
+            if (pendingItems.discussions.length > 0) {
+              const highPriority = pendingItems.discussions.filter(d => d.priority === 'high');
+              const normalPriority = pendingItems.discussions.filter(d => d.priority === 'normal');
+              
+              agendaItems.push(`${itemNumber}. **Discussion Items** (${pendingItems.discussions.length * 5} min)`);
+              
+              if (highPriority.length > 0) {
+                agendaItems.push('   **High Priority:**');
+                for (const disc of highPriority) {
+                  agendaItems.push(`   - #${disc.number}: ${disc.title} (@${disc.author})`);
+                }
+              }
+              
+              if (normalPriority.length > 0) {
+                agendaItems.push('   **Normal Priority:**');
+                for (const disc of normalPriority.slice(0, 3)) {
+                  agendaItems.push(`   - #${disc.number}: ${disc.title} (@${disc.author})`);
+                }
+                if (normalPriority.length > 3) {
+                  agendaItems.push(`   - *${normalPriority.length - 3} more items queued*`);
+                }
+              }
+              agendaItems.push('');
+              itemNumber++;
+            }
+            
+            // Add new proposals
+            if (pendingItems.proposals.length > 0) {
+              agendaItems.push(`${itemNumber}. **New Proposals** (${pendingItems.proposals.length * 10} min)`);
+              for (const proposal of pendingItems.proposals) {
+                agendaItems.push(`   - PR #${proposal.number}: ${proposal.title} (@${proposal.author})`);
+              }
+              agendaItems.push('');
+              itemNumber++;
+            }
+            
+            // Add education segment
+            agendaItems.push(`${itemNumber}. **Political Education** (15 min)`);
+            agendaItems.push('   - Topic: TBD by Education Committee');
+            agendaItems.push('   - Discussion and application');
+            agendaItems.push('');
+            itemNumber++;
+            
+            // Add criticism and self-criticism
+            agendaItems.push(`${itemNumber}. **Criticism and Self-Criticism** (10 min)`);
+            agendaItems.push('   - Organizational reflection');
+            agendaItems.push('   - Individual contributions');
+            agendaItems.push('');
+            itemNumber++;
+            
+            // Add closing
+            agendaItems.push(`${itemNumber}. **Announcements and Closing** (5 min)`);
+            agendaItems.push('   - Next meeting date');
+            agendaItems.push('   - Solidarity and struggle');
+            
+            // Calculate total time
+            const timeMatches = agendaItems.join('\n').matchAll(/\((\d+) min\)/g);
+            let totalMinutes = 0;
+            for (const match of timeMatches) {
+              totalMinutes += parseInt(match[1]);
+            }
+            
+            const hours = Math.floor(totalMinutes / 60);
+            const minutes = totalMinutes % 60;
+            const duration = hours > 0 ? `${hours}h ${minutes}min` : `${minutes}min`;
+            
+            const body = `# ${title}
+            
+**Date**: ${meetingDate}
+**Time**: 7:00 PM
+**Location**: TBD
+**Estimated Duration**: ${duration}
+**Meeting Type**: ${meetingType.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+
+## 📋 Agenda
+
+${agendaItems.join('\n')}
+
+---
+
+## 📝 Meeting Minutes Template
+
+### Attendance
+- [ ] Quorum verified: ___/___
+- Present:
+- Excused:
+- Absent:
+
+### Minutes
+*To be filled during meeting by designated note-taker*
+
+### Decisions Made
+*List all votes and outcomes*
+
+### Action Items
+*Use format: Task | Assignee | Deadline*
+
+### Next Meeting
+- Date: 
+- Time:
+- Location:
+
+---
+
+## 🔗 Related Documents
+- [Previous Meeting Minutes](#)
+- [Committee Reports](#)
+- [Relevant Proposals](#)
+
+## 📌 Pre-Meeting Checklist
+- [ ] Review previous minutes
+- [ ] Read committee reports
+- [ ] Review proposals and discussion items
+- [ ] Prepare questions and contributions
+- [ ] Clear schedule for full duration
+
+---
+
+*This agenda was automatically generated based on pending organizational business. Democracy requires participation - prepare accordingly!*`;
+            
+            const issue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: title,
+              body: body,
+              labels: ['meeting', meetingType, 'status:scheduled'],
+              assignees: ['secretary', 'note-taker'],
+              milestone: null
+            });
+            
+            console.log(`Created meeting issue #${issue.data.number} with comprehensive agenda`);
+            
+            // Pin the meeting issue
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.data.number,
+              state_reason: 'pinned'
+            });
+  
+  send-meeting-reminder:
+    if: github.event.schedule == '0 12 * * 0'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    
+    steps:
+      - name: Find today's meeting
+        id: find_meeting
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const today = new Date().toISOString().split('T')[0];
+            
+            const meetings = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: 'meeting,status:scheduled',
+              state: 'open',
+              per_page: 10
+            });
+            
+            const todaysMeeting = meetings.data.find(issue => 
+              issue.title.includes(today)
+            );
+            
+            if (todaysMeeting) {
+              core.setOutput('meeting_number', todaysMeeting.number);
+              core.setOutput('meeting_title', todaysMeeting.title);
+              return true;
+            }
+            return false;
+      
+      - name: Post reminder
+        if: steps.find_meeting.outputs.meeting_number
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const meetingNumber = '${{ steps.find_meeting.outputs.meeting_number }}';
+            const meetingTitle = '${{ steps.find_meeting.outputs.meeting_title }}';
+            
+            const reminder = `## 🔔 Meeting Reminder
+            
+Today's ${meetingTitle} starts at **7:00 PM**.
+
+Please review the agenda and prepare for discussion: #${meetingNumber}
+
+**Remember:**
+- Review previous minutes
+- Prepare committee reports
+- Bring questions and proposals
+- Arrive on time for quorum
+
+See you there, comrades! ✊`;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: meetingNumber,
+              body: reminder
+            });
+            
+            // Also create a reminder issue
+            const reminderIssue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `[REMINDER] ${meetingTitle} - Today at 7 PM`,
+              body: reminder + `\n\n---\n*This reminder will be automatically closed after the meeting.*`,
+              labels: ['meeting', 'reminder', 'announcement'],
+              assignees: []
+            });
+            
+            console.log(`Posted reminder for meeting #${meetingNumber}`);

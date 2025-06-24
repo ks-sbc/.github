@@ -1,0 +1,380 @@
+name: Weekly Accountability Report
+
+on:
+  schedule:
+    # Every Monday at 8 AM UTC
+    - cron: '0 8 * * 1'
+  workflow_dispatch:
+    inputs:
+      report_type:
+        description: 'Type of report to generate'
+        required: false
+        default: 'weekly'
+        type: choice
+        options:
+          - weekly
+          - monthly
+          - quarterly
+
+jobs:
+  generate-report:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+      pull-requests: read
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
+      - name: Calculate reporting period
+        id: period
+        run: |
+          if [ "${{ inputs.report_type }}" == "monthly" ]; then
+            DAYS=30
+            PERIOD="Monthly"
+          elif [ "${{ inputs.report_type }}" == "quarterly" ]; then
+            DAYS=90
+            PERIOD="Quarterly"
+          else
+            DAYS=7
+            PERIOD="Weekly"
+          fi
+          
+          END_DATE=$(date -u +%Y-%m-%d)
+          START_DATE=$(date -u -d "$DAYS days ago" +%Y-%m-%d)
+          
+          echo "start_date=$START_DATE" >> $GITHUB_OUTPUT
+          echo "end_date=$END_DATE" >> $GITHUB_OUTPUT
+          echo "period=$PERIOD" >> $GITHUB_OUTPUT
+          echo "days=$DAYS" >> $GITHUB_OUTPUT
+      
+      - name: Gather organizational metrics
+        id: metrics
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const startDate = new Date('${{ steps.period.outputs.start_date }}');
+            const endDate = new Date('${{ steps.period.outputs.end_date }}');
+            
+            // Gather various metrics
+            const metrics = {
+              decisions: { total: 0, implemented: 0, pending: 0, overdue: 0 },
+              tasks: { created: 0, completed: 0, inProgress: 0, blocked: 0 },
+              participation: { contributors: new Set(), comments: 0, reviews: 0 },
+              education: { sessionsHeld: 0, attendance: 0, materialsCreated: 0 },
+              reports: { mass: 0, cadre: 0, csc: 0, security: 0 }
+            };
+            
+            // Get all issues in period
+            const issues = await github.paginate(github.rest.issues.listForRepo, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'all',
+              since: startDate.toISOString(),
+              per_page: 100
+            });
+            
+            // Get all PRs in period
+            const pulls = await github.paginate(github.rest.pulls.list, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'all',
+              sort: 'updated',
+              direction: 'desc',
+              per_page: 100
+            });
+            
+            // Process issues
+            for (const issue of issues) {
+              const labels = issue.labels.map(l => l.name);
+              const createdAt = new Date(issue.created_at);
+              const closedAt = issue.closed_at ? new Date(issue.closed_at) : null;
+              
+              // Track contributors
+              metrics.participation.contributors.add(issue.user.login);
+              
+              // Decision tracking
+              if (labels.includes('decision:approved')) {
+                metrics.decisions.total++;
+                if (labels.includes('status:completed')) {
+                  metrics.decisions.implemented++;
+                } else if (labels.includes('status:in-progress')) {
+                  metrics.decisions.pending++;
+                } else if (createdAt < new Date(Date.now() - 14 * 24 * 60 * 60 * 1000)) {
+                  metrics.decisions.overdue++;
+                }
+              }
+              
+              // Task tracking
+              if (labels.includes('action-item') || labels.includes('task')) {
+                if (createdAt >= startDate && createdAt <= endDate) {
+                  metrics.tasks.created++;
+                }
+                if (closedAt && closedAt >= startDate && closedAt <= endDate) {
+                  metrics.tasks.completed++;
+                } else if (labels.includes('status:in-progress')) {
+                  metrics.tasks.inProgress++;
+                } else if (labels.includes('blocked')) {
+                  metrics.tasks.blocked++;
+                }
+              }
+              
+              // Report tracking
+              if (labels.includes('type:mass-report')) metrics.reports.mass++;
+              if (labels.includes('type:cadre-report')) metrics.reports.cadre++;
+              if (labels.includes('type:csc-report')) metrics.reports.csc++;
+              if (labels.includes('type:security-incident')) metrics.reports.security++;
+              
+              // Education tracking
+              if (labels.includes('type:study-session')) {
+                metrics.education.sessionsHeld++;
+                // Extract attendance from comments if available
+                const comments = await github.rest.issues.listComments({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number
+                });
+                for (const comment of comments.data) {
+                  if (comment.body.includes('Attendance:')) {
+                    const match = comment.body.match(/Attendance:\s*(\d+)/);
+                    if (match) {
+                      metrics.education.attendance += parseInt(match[1]);
+                    }
+                  }
+                }
+              }
+            }
+            
+            // Process PRs
+            for (const pr of pulls) {
+              const updatedAt = new Date(pr.updated_at);
+              if (updatedAt >= startDate && updatedAt <= endDate) {
+                metrics.participation.contributors.add(pr.user.login);
+                if (pr.merged_at) {
+                  metrics.participation.reviews++;
+                }
+              }
+            }
+            
+            // Count comments in period
+            const recentIssues = issues.filter(i => {
+              const updated = new Date(i.updated_at);
+              return updated >= startDate && updated <= endDate;
+            });
+            
+            for (const issue of recentIssues) {
+              const comments = await github.rest.issues.listComments({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                since: startDate.toISOString()
+              });
+              metrics.participation.comments += comments.data.length;
+            }
+            
+            // Convert Set to array for output
+            metrics.participation.uniqueContributors = metrics.participation.contributors.size;
+            metrics.participation.contributorsList = Array.from(metrics.participation.contributors);
+            
+            core.setOutput('metrics', JSON.stringify(metrics));
+      
+      - name: Identify achievements and concerns
+        id: analysis
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const metrics = JSON.parse('${{ steps.metrics.outputs.metrics }}');
+            const period = '${{ steps.period.outputs.period }}';
+            const days = parseInt('${{ steps.period.outputs.days }}');
+            
+            const achievements = [];
+            const concerns = [];
+            const recommendations = [];
+            
+            // Analyze decision implementation
+            const decisionRate = metrics.decisions.total > 0 
+              ? (metrics.decisions.implemented / metrics.decisions.total * 100).toFixed(1)
+              : 0;
+            
+            if (decisionRate >= 80) {
+              achievements.push(`Strong decision implementation rate: ${decisionRate}%`);
+            } else if (decisionRate < 50) {
+              concerns.push(`Low decision implementation rate: ${decisionRate}%`);
+              recommendations.push('Review decision-making process and implementation capacity');
+            }
+            
+            if (metrics.decisions.overdue > 0) {
+              concerns.push(`${metrics.decisions.overdue} decisions overdue for implementation`);
+              recommendations.push('Prioritize overdue decisions in next meeting');
+            }
+            
+            // Analyze task completion
+            const taskCompletionRate = metrics.tasks.created > 0
+              ? (metrics.tasks.completed / metrics.tasks.created * 100).toFixed(1)
+              : 0;
+            
+            if (taskCompletionRate >= 70) {
+              achievements.push(`Good task completion rate: ${taskCompletionRate}%`);
+            } else if (metrics.tasks.created > 0 && taskCompletionRate < 40) {
+              concerns.push(`Low task completion rate: ${taskCompletionRate}%`);
+            }
+            
+            if (metrics.tasks.blocked > 0) {
+              concerns.push(`${metrics.tasks.blocked} tasks currently blocked`);
+              recommendations.push('Address blocked tasks in committee meetings');
+            }
+            
+            // Analyze participation
+            const avgContributorsPerDay = (metrics.participation.uniqueContributors / days).toFixed(1);
+            
+            if (metrics.participation.uniqueContributors >= 5) {
+              achievements.push(`Active participation: ${metrics.participation.uniqueContributors} contributors`);
+            } else if (metrics.participation.uniqueContributors < 3) {
+              concerns.push(`Low participation: only ${metrics.participation.uniqueContributors} contributors`);
+              recommendations.push('Implement outreach to increase member engagement');
+            }
+            
+            // Analyze education
+            const expectedSessions = period === 'Weekly' ? 2 : (period === 'Monthly' ? 8 : 24);
+            if (metrics.education.sessionsHeld >= expectedSessions) {
+              achievements.push(`All ${metrics.education.sessionsHeld} scheduled study sessions held`);
+            } else if (metrics.education.sessionsHeld < expectedSessions * 0.75) {
+              concerns.push(`Only ${metrics.education.sessionsHeld} of ${expectedSessions} study sessions held`);
+              recommendations.push('Review study session scheduling and attendance');
+            }
+            
+            // Analyze reporting
+            const totalReports = metrics.reports.mass + metrics.reports.cadre + 
+                               metrics.reports.csc + metrics.reports.security;
+            
+            if (totalReports > 0) {
+              achievements.push(`${totalReports} reports submitted (${metrics.reports.mass} mass, ${metrics.reports.cadre} cadre)`);
+            } else {
+              concerns.push('No reports submitted this period');
+              recommendations.push('Encourage regular reporting from all levels');
+            }
+            
+            if (metrics.reports.security > 0) {
+              concerns.push(`${metrics.reports.security} security incidents reported`);
+              recommendations.push('Security Committee to review all incidents');
+            }
+            
+            core.setOutput('achievements', JSON.stringify(achievements));
+            core.setOutput('concerns', JSON.stringify(concerns));
+            core.setOutput('recommendations', JSON.stringify(recommendations));
+      
+      - name: Create accountability report
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const metrics = JSON.parse('${{ steps.metrics.outputs.metrics }}');
+            const achievements = JSON.parse('${{ steps.analysis.outputs.achievements }}');
+            const concerns = JSON.parse('${{ steps.analysis.outputs.concerns }}');
+            const recommendations = JSON.parse('${{ steps.analysis.outputs.recommendations }}');
+            
+            const period = '${{ steps.period.outputs.period }}';
+            const startDate = '${{ steps.period.outputs.start_date }}';
+            const endDate = '${{ steps.period.outputs.end_date }}';
+            
+            const title = `[ACCOUNTABILITY] ${period} Organizational Report - ${endDate}`;
+            
+            const body = `# ${period} Accountability Report
+            
+*Period: ${startDate} to ${endDate}*
+
+## 📊 Executive Summary
+
+This ${period.toLowerCase()} accountability report provides a comprehensive overview of our organizational activities, achievements, and areas requiring attention.
+
+## 🎯 Key Metrics
+
+### Decision Making & Implementation
+- **Total Decisions**: ${metrics.decisions.total}
+- **Implemented**: ${metrics.decisions.implemented} ✅
+- **In Progress**: ${metrics.decisions.pending} 🔄
+- **Overdue**: ${metrics.decisions.overdue} ⚠️
+
+### Task Management
+- **Tasks Created**: ${metrics.tasks.created}
+- **Tasks Completed**: ${metrics.tasks.completed}
+- **In Progress**: ${metrics.tasks.inProgress}
+- **Blocked**: ${metrics.tasks.blocked}
+
+### Member Participation
+- **Active Contributors**: ${metrics.participation.uniqueContributors}
+- **Total Comments**: ${metrics.participation.comments}
+- **PR Reviews**: ${metrics.participation.reviews}
+
+### Political Education
+- **Study Sessions Held**: ${metrics.education.sessionsHeld}
+- **Total Attendance**: ${metrics.education.attendance}
+- **Materials Created**: ${metrics.education.materialsCreated}
+
+### Reporting & Intelligence
+- **Mass Conditions Reports**: ${metrics.reports.mass}
+- **Cadre Work Reports**: ${metrics.reports.cadre}
+- **CSC Sessions**: ${metrics.reports.csc}
+- **Security Incidents**: ${metrics.reports.security}
+
+## ✨ Achievements
+
+${achievements.length > 0 ? achievements.map(a => `- ${a}`).join('\n') : '- No significant achievements to report this period'}
+
+## 🔍 Areas of Concern
+
+${concerns.length > 0 ? concerns.map(c => `- ${c}`).join('\n') : '- No major concerns identified this period'}
+
+## 📋 Recommendations
+
+${recommendations.length > 0 ? recommendations.map(r => `1. ${r}`).join('\n') : '1. Continue current practices\n2. Maintain vigilance and discipline'}
+
+## 👥 Active Contributors
+
+This period's active contributors:
+${metrics.participation.contributorsList.slice(0, 10).map(c => `@${c}`).join(', ')}
+${metrics.participation.contributorsList.length > 10 ? `\n*and ${metrics.participation.contributorsList.length - 10} others*` : ''}
+
+## 📈 Trend Analysis
+
+*Note: Trend analysis requires historical data. This will be available in future reports.*
+
+## 🎬 Action Items
+
+Based on this report, the following actions are recommended:
+
+- [ ] Committee secretaries review their respective metrics
+- [ ] Address any overdue decisions immediately
+- [ ] Unblock any stalled tasks
+- [ ] Follow up on all recommendations
+- [ ] Present this report at the next general body meeting
+
+---
+
+*This report was automatically generated to ensure organizational accountability and transparency. All members are encouraged to review and act on the findings.*
+
+**Remember: From each according to their ability, to each according to their needs. Our collective success depends on individual accountability.**
+
+✊ In solidarity and struggle`;
+            
+            const issue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: title,
+              body: body,
+              labels: ['accountability', 'report', `report:${period.toLowerCase()}`, 'priority:high'],
+              assignees: ['secretary', 'org-secretary']
+            });
+            
+            console.log(`Created ${period} accountability report #${issue.data.number}`);
+            
+            // Pin important reports
+            if (period === 'Monthly' || period === 'Quarterly') {
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.data.number,
+                state_reason: 'pinned'
+              });
+            }

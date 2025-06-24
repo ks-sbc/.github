@@ -1,0 +1,356 @@
+name: Schedule Bi-Weekly Study Sessions
+
+on:
+  schedule:
+    # Runs every other Tuesday and Friday at 10 AM UTC
+    # This creates issues for sessions 1 week in advance
+    - cron: '0 10 * * 2'  # Tuesday
+    - cron: '0 10 * * 5'  # Friday
+  workflow_dispatch:
+    inputs:
+      session_date_override:
+        description: 'Override session date (YYYY-MM-DD)'
+        required: false
+      create_tuesday:
+        description: 'Create Tuesday session'
+        type: boolean
+        default: true
+      create_friday:
+        description: 'Create Friday session'
+        type: boolean
+        default: true
+
+jobs:
+  check-schedule:
+    runs-on: ubuntu-latest
+    outputs:
+      should_create_tuesday: ${{ steps.check.outputs.tuesday }}
+      should_create_friday: ${{ steps.check.outputs.friday }}
+      session_date: ${{ steps.check.outputs.session_date }}
+    steps:
+      - name: Check if we should create sessions
+        id: check
+        run: |
+          # Get current date
+          CURRENT_DATE=$(date +%Y-%m-%d)
+          CURRENT_DAY=$(date +%u)  # 1=Monday, 7=Sunday
+          CURRENT_WEEK=$(date +%V)
+          
+          # Check if this is an even or odd week (for bi-weekly schedule)
+          if [ $((CURRENT_WEEK % 2)) -eq 0 ]; then
+            WEEK_TYPE="even"
+          else
+            WEEK_TYPE="odd"
+          fi
+          
+          # For manual triggers
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "tuesday=${{ github.event.inputs.create_tuesday }}" >> $GITHUB_OUTPUT
+            echo "friday=${{ github.event.inputs.create_friday }}" >> $GITHUB_OUTPUT
+            if [[ -n "${{ github.event.inputs.session_date_override }}" ]]; then
+              echo "session_date=${{ github.event.inputs.session_date_override }}" >> $GITHUB_OUTPUT
+            else
+              echo "session_date=$(date -d '+1 week' +%Y-%m-%d)" >> $GITHUB_OUTPUT
+            fi
+          else
+            # For scheduled runs (only create on even weeks)
+            if [[ "$WEEK_TYPE" == "even" ]]; then
+              if [[ "$CURRENT_DAY" == "2" ]]; then
+                echo "tuesday=true" >> $GITHUB_OUTPUT
+                echo "friday=false" >> $GITHUB_OUTPUT
+              elif [[ "$CURRENT_DAY" == "5" ]]; then
+                echo "tuesday=false" >> $GITHUB_OUTPUT
+                echo "friday=true" >> $GITHUB_OUTPUT
+              fi
+            else
+              echo "tuesday=false" >> $GITHUB_OUTPUT
+              echo "friday=false" >> $GITHUB_OUTPUT
+            fi
+            # Session date is 1 week from now
+            echo "session_date=$(date -d '+1 week' +%Y-%m-%d)" >> $GITHUB_OUTPUT
+          fi
+
+  create-tuesday-session:
+    needs: check-schedule
+    if: needs.check-schedule.outputs.should_create_tuesday == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
+      - name: Get study material from rotation
+        id: material
+        run: |
+          # Simple rotation of classic texts
+          WEEK_NUM=$(date +%V)
+          ROTATION=$((WEEK_NUM % 8))
+          
+          case $ROTATION in
+            0) MATERIAL="Marx - Wage Labour and Capital"
+               CHAPTERS="Complete text"
+               LEVEL="L0"
+               ;;
+            1) MATERIAL="Lenin - State and Revolution"
+               CHAPTERS="Chapters 1-2"
+               LEVEL="L0"
+               ;;
+            2) MATERIAL="Lenin - State and Revolution"
+               CHAPTERS="Chapters 3-4"
+               LEVEL="L0"
+               ;;
+            3) MATERIAL="Mao - On Contradiction"
+               CHAPTERS="Sections I-III"
+               LEVEL="L0"
+               ;;
+            4) MATERIAL="Mao - On Contradiction"
+               CHAPTERS="Sections IV-VI"
+               LEVEL="L0"
+               ;;
+            5) MATERIAL="Engels - Socialism: Utopian and Scientific"
+               CHAPTERS="Chapters 1-2"
+               LEVEL="L0"
+               ;;
+            6) MATERIAL="Marx - Value, Price and Profit"
+               CHAPTERS="Sections 1-7"
+               LEVEL="L0"
+               ;;
+            7) MATERIAL="Lenin - What Is To Be Done?"
+               CHAPTERS="Chapter 1"
+               LEVEL="L1"
+               ;;
+          esac
+          
+          echo "material=$MATERIAL" >> $GITHUB_OUTPUT
+          echo "chapters=$CHAPTERS" >> $GITHUB_OUTPUT
+          echo "level=$LEVEL" >> $GITHUB_OUTPUT
+          echo "session_date=${{ needs.check-schedule.outputs.session_date }}" >> $GITHUB_OUTPUT
+      
+      - name: Create Tuesday study session issue
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const sessionDate = '${{ steps.material.outputs.session_date }}';
+            const material = '${{ steps.material.outputs.material }}';
+            const chapters = '${{ steps.material.outputs.chapters }}';
+            const level = '${{ steps.material.outputs.level }}';
+            
+            const title = `[STUDY SESSION] Tuesday Political Education - ${sessionDate}`;
+            
+            const body = `# Study Session Announcement
+            
+            Use this template to announce upcoming political education study sessions. This helps members prepare and ensures consistent scheduling.
+            
+            **Session Date**: ${sessionDate}
+            
+            **Session Time**: 7:00 PM EST
+            
+            **Session Type**: Regular bi-weekly session
+            
+            **Security Level**: ${level} (${level === 'L0' ? 'Public - Open to all' : 'Candidate - Members and candidates'})
+            
+            **Primary Text/Material**: ${material} - ${chapters}
+            
+            **Preparation Required**:
+            - Read ${chapters} of ${material}
+            - Review guide questions posted in study channel
+            - Prepare at least one question or observation for discussion
+            - Complete any supplementary readings if provided
+            
+            **Session Facilitator**: @education-committee
+            
+            **Session Goals**:
+            By the end of this session, participants will:
+            - Understand key theoretical concepts from the reading
+            - Connect theory to current material conditions
+            - Develop practical applications of theoretical insights
+            - Strengthen collective understanding through discussion
+            
+            **Key Discussion Questions**:
+            1. What are the main arguments presented in this section?
+            2. How do these concepts apply to our current conditions?
+            3. What contradictions does the author identify and how are they resolved?
+            4. How can we apply these lessons to our organizing work?
+            
+            **Meeting Link/Location**: Link will be shared via secure channels
+            
+            **Accessibility Information**:
+            - Session will be recorded for those who cannot attend live
+            - Closed captions available during session
+            - Reading materials available in PDF and accessible formats
+            - Contact @education-committee for specific accommodation needs
+            
+            **Additional Resources**:
+            - Study guide will be posted 3 days before session
+            - Supplementary readings available in education repository
+            - Previous session recordings in member portal
+            
+            ---
+            *This session is part of our regular political education program. Consistent attendance helps build collective understanding and revolutionary capacity.*`;
+            
+            const issue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: title,
+              body: body,
+              labels: ['type:study-session', 'education', 'announcement', `security:${level}`, 'scheduled'],
+              assignees: ['education-secretary']
+            });
+            
+            console.log(`Created Tuesday study session issue #${issue.data.number}`);
+
+  create-friday-session:
+    needs: check-schedule
+    if: needs.check-schedule.outputs.should_create_friday == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
+      - name: Get study material from rotation
+        id: material
+        run: |
+          # Friday sessions focus on contemporary analysis and practical application
+          WEEK_NUM=$(date +%V)
+          ROTATION=$((WEEK_NUM % 4))
+          
+          case $ROTATION in
+            0) MATERIAL="Current Events Analysis"
+               TOPIC="Applying Marxist analysis to this week's developments"
+               LEVEL="L0"
+               TYPE="Practice workshop"
+               ;;
+            1) MATERIAL="Organizational Study"
+               TOPIC="Democratic Centralism in Practice"
+               LEVEL="L1"
+               TYPE="Theory intensive"
+               ;;
+            2) MATERIAL="Mass Line Workshop"
+               TOPIC="Collecting and synthesizing mass experiences"
+               LEVEL="L1"
+               TYPE="Practice workshop"
+               ;;
+            3) MATERIAL="Political Economy Study"
+               TOPIC="Local economic conditions and class analysis"
+               LEVEL="L0"
+               TYPE="Special topic session"
+               ;;
+          esac
+          
+          echo "material=$MATERIAL" >> $GITHUB_OUTPUT
+          echo "topic=$TOPIC" >> $GITHUB_OUTPUT
+          echo "level=$LEVEL" >> $GITHUB_OUTPUT
+          echo "type=$TYPE" >> $GITHUB_OUTPUT
+          echo "session_date=$(date -d '${{ needs.check-schedule.outputs.session_date }} +3 days' +%Y-%m-%d)" >> $GITHUB_OUTPUT
+      
+      - name: Create Friday study session issue
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const sessionDate = '${{ steps.material.outputs.session_date }}';
+            const material = '${{ steps.material.outputs.material }}';
+            const topic = '${{ steps.material.outputs.topic }}';
+            const level = '${{ steps.material.outputs.level }}';
+            const sessionType = '${{ steps.material.outputs.type }}';
+            
+            const title = `[STUDY SESSION] Friday ${material} - ${sessionDate}`;
+            
+            const body = `# Study Session Announcement
+            
+            Use this template to announce upcoming political education study sessions. This helps members prepare and ensures consistent scheduling.
+            
+            **Session Date**: ${sessionDate}
+            
+            **Session Time**: 7:00 PM EST
+            
+            **Session Type**: ${sessionType}
+            
+            **Security Level**: ${level} (${level === 'L0' ? 'Public - Open to all' : 'Candidate - Members and candidates'})
+            
+            **Primary Text/Material**: ${material}
+            
+            **Session Topic**: ${topic}
+            
+            **Preparation Required**:
+            ${material === 'Current Events Analysis' ? `- Review this week's news through provided sources
+            - Identify 1-2 events for collective analysis
+            - Consider the class forces at play` : 
+            material === 'Organizational Study' ? `- Review organizational documents on democratic centralism
+            - Reflect on recent organizational decisions and their implementation
+            - Consider how to strengthen our practice` :
+            material === 'Mass Line Workshop' ? `- Review notes from recent mass work
+            - Prepare to share experiences and observations
+            - Think about patterns in mass consciousness` :
+            `- Review local economic data provided
+            - Observe conditions in your area
+            - Prepare questions about class composition`}
+            
+            **Session Facilitator**: @education-committee
+            
+            **Session Goals**:
+            By the end of this session, participants will:
+            ${material === 'Current Events Analysis' ? `- Apply Marxist analysis to current events
+            - Identify class contradictions in contemporary struggles
+            - Develop agitational talking points
+            - Connect local events to global capitalist crisis` :
+            material === 'Organizational Study' ? `- Deepen understanding of democratic centralism
+            - Identify areas for organizational improvement
+            - Strengthen commitment to organizational discipline
+            - Develop concrete proposals for better practice` :
+            material === 'Mass Line Workshop' ? `- Practice the "from the masses, to the masses" method
+            - Synthesize collected experiences into political insights
+            - Develop concrete plans for mass work
+            - Improve investigation techniques` :
+            `- Understand local class composition
+            - Identify key contradictions in the local economy
+            - Develop organizing strategies based on conditions
+            - Connect local analysis to broader political economy`}
+            
+            **Key Discussion Questions**:
+            ${material === 'Current Events Analysis' ? `1. What are the main class forces in this week's major events?
+            2. How do these events reflect the crisis of capitalism?
+            3. What opportunities for organization do these events present?
+            4. How should we explain these events to the masses?` :
+            material === 'Organizational Study' ? `1. How well are we implementing democratic centralism?
+            2. Where do we see liberalism or ultra-democracy in our practice?
+            3. How can we strengthen unity of will and action?
+            4. What concrete changes should we make?` :
+            material === 'Mass Line Workshop' ? `1. What patterns are emerging from our mass work?
+            2. What are the main concerns and struggles of the masses?
+            3. How do we transform these experiences into political line?
+            4. What mass campaigns should we consider?` :
+            `1. Who are the main classes in our area?
+            2. What are the principal contradictions?
+            3. Which sections are most ready for organization?
+            4. How do local conditions reflect broader trends?`}
+            
+            **Meeting Link/Location**: Link will be shared via secure channels
+            
+            **Accessibility Information**:
+            - Session will be recorded for those who cannot attend live
+            - Materials available in multiple formats
+            - Contact @education-committee for accommodations
+            
+            **Additional Resources**:
+            - Preparation materials will be shared 3 days before
+            - Relevant readings in education repository
+            - Workshop materials for hands-on activities
+            
+            ---
+            *Friday sessions focus on practical application and contemporary analysis. Come ready to engage!*`;
+            
+            const issue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: title,
+              body: body,
+              labels: ['type:study-session', 'education', 'announcement', `security:${level}`, 'scheduled', sessionType.toLowerCase().replace(/\s+/g, '-')],
+              assignees: ['education-secretary']
+            });
+            
+            console.log(`Created Friday study session issue #${issue.data.number}`);

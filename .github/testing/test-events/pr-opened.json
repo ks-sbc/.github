@@ -1,0 +1,27 @@
+{
+  "action": "opened",
+  "pull_request": {
+    "number": 1,
+    "title": "Test Democratic Voting",
+    "body": "This is a test proposal for the voting workflow",
+    "head": {
+      "ref": "proposal/test-voting"
+    },
+    "base": {
+      "ref": "main"
+    },
+    "draft": false,
+    "labels": [],
+    "user": {
+      "login": "test-user"
+    },
+    "created_at": "2024-08-01T10:00:00Z",
+    "updated_at": "2024-08-01T10:00:00Z"
+  },
+  "repository": {
+    "name": ".github",
+    "owner": {
+      "login": "ks-sbc"
+    }
+  }
+}

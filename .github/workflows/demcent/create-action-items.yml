@@ -1,0 +1,249 @@
+name: Create Action Items from Decisions
+
+on:
+  issues:
+    types: [opened, edited]
+  issue_comment:
+    types: [created]
+
+jobs:
+  parse-action-items:
+    if: |
+      (github.event_name == 'issues' && contains(github.event.issue.labels.*.name, 'decision:approved')) ||
+      (github.event_name == 'issue_comment' && contains(github.event.issue.labels.*.name, 'decision:approved'))
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+    
+    steps:
+      - name: Check for action items
+        id: parse
+        uses: actions/github-script@v6
+        with:
+          script: |
+            let text = '';
+            
+            if (context.eventName === 'issues') {
+              text = context.payload.issue.body || '';
+            } else {
+              text = context.payload.comment.body || '';
+              // Only process comments that include action items
+              if (!text.includes('ACTION:') && !text.includes('TASK:') && !text.includes('TODO:')) {
+                console.log('No action items found in comment');
+                return;
+              }
+            }
+            
+            // Parse action items with various formats
+            const actionPatterns = [
+              /ACTION:\s*(.+?)(?:\n|$)/gi,
+              /TASK:\s*(.+?)(?:\n|$)/gi,
+              /TODO:\s*(.+?)(?:\n|$)/gi,
+              /- \[[ ]\]\s*(.+?)(?:\n|$)/gi
+            ];
+            
+            const actionItems = [];
+            
+            for (const pattern of actionPatterns) {
+              const matches = text.matchAll(pattern);
+              for (const match of matches) {
+                const item = match[1].trim();
+                
+                // Parse assignee if specified with @
+                const assigneeMatch = item.match(/@(\w+)/);
+                const assignee = assigneeMatch ? assigneeMatch[1] : null;
+                
+                // Parse due date if specified
+                const dueDateMatch = item.match(/\bdue:?\s*(\d{4}-\d{2}-\d{2})/i);
+                const dueDate = dueDateMatch ? dueDateMatch[1] : null;
+                
+                // Parse priority if specified
+                const priorityMatch = item.match(/\b(P0|P1|P2|HIGH|MEDIUM|LOW)\b/i);
+                const priority = priorityMatch ? priorityMatch[1].toUpperCase() : 'MEDIUM';
+                
+                // Clean the task description
+                let description = item
+                  .replace(/@\w+/g, '')
+                  .replace(/\bdue:?\s*\d{4}-\d{2}-\d{2}/gi, '')
+                  .replace(/\b(P0|P1|P2|HIGH|MEDIUM|LOW)\b/i, '')
+                  .trim();
+                
+                if (description) {
+                  actionItems.push({
+                    description,
+                    assignee,
+                    dueDate,
+                    priority
+                  });
+                }
+              }
+            }
+            
+            core.setOutput('action_items', JSON.stringify(actionItems));
+            core.setOutput('has_items', actionItems.length > 0);
+            core.setOutput('source_type', context.eventName);
+            core.setOutput('source_number', context.payload.issue.number);
+      
+      - name: Create action item issues
+        if: steps.parse.outputs.has_items == 'true'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const actionItems = JSON.parse('${{ steps.parse.outputs.action_items }}');
+            const sourceNumber = '${{ steps.parse.outputs.source_number }}';
+            const sourceType = '${{ steps.parse.outputs.source_type }}';
+            const sourceIssue = context.payload.issue;
+            
+            const createdIssues = [];
+            
+            for (const item of actionItems) {
+              // Determine labels based on priority
+              const labels = ['action-item', 'implementation'];
+              
+              switch(item.priority) {
+                case 'P0':
+                case 'HIGH':
+                  labels.push('priority:high');
+                  break;
+                case 'P1':
+                case 'MEDIUM':
+                  labels.push('priority:medium');
+                  break;
+                case 'P2':
+                case 'LOW':
+                  labels.push('priority:low');
+                  break;
+              }
+              
+              // Add security label from parent issue
+              const parentLabels = sourceIssue.labels.map(l => l.name);
+              const securityLabel = parentLabels.find(l => l.startsWith('security:'));
+              if (securityLabel) {
+                labels.push(securityLabel);
+              }
+              
+              // Create the action item issue
+              const title = `[ACTION] ${item.description.substring(0, 100)}${item.description.length > 100 ? '...' : ''}`;
+              
+              const body = `## Action Item
+              
+              **Description**: ${item.description}
+              **Source**: Decision in #${sourceNumber}
+              **Priority**: ${item.priority}
+              ${item.dueDate ? `**Due Date**: ${item.dueDate}` : ''}
+              ${item.assignee ? `**Assigned to**: @${item.assignee}` : '**Assigned to**: TBD'}
+              
+              ### Context
+              This action item was extracted from ${sourceType === 'issues' ? 'issue' : 'a comment in'} #${sourceNumber}.
+              
+              ### Acceptance Criteria
+              - [ ] Task completed as described
+              - [ ] Results documented
+              - [ ] Relevant parties notified
+              - [ ] Decision tracking updated
+              
+              ### Implementation Notes
+              *Add implementation details here as work progresses*
+              
+              ---
+              *This issue was automatically created from a decision. Ensure implementation follows democratic centralist principles.*`;
+              
+              const assignees = item.assignee ? [item.assignee] : [];
+              
+              try {
+                const issue = await github.rest.issues.create({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  title: title,
+                  body: body,
+                  labels: labels,
+                  assignees: assignees
+                });
+                
+                createdIssues.push({
+                  number: issue.data.number,
+                  description: item.description,
+                  assignee: item.assignee
+                });
+                
+                console.log(`Created action item #${issue.data.number}`);
+              } catch (error) {
+                console.error(`Failed to create action item: ${error.message}`);
+              }
+            }
+            
+            // Comment on the source issue with created action items
+            if (createdIssues.length > 0) {
+              const commentBody = `## ✅ Action Items Created
+              
+              The following action items have been extracted and created:
+              
+              ${createdIssues.map(i => 
+                `- #${i.number}: ${i.description}${i.assignee ? ` (assigned to @${i.assignee})` : ''}`
+              ).join('\n')}
+              
+              Track progress on these items to ensure decision implementation.`;
+              
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: parseInt(sourceNumber),
+                body: commentBody
+              });
+            }
+
+  link-action-items:
+    if: github.event_name == 'issues' && contains(github.event.issue.title, '[ACTION]')
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      projects: write
+    
+    steps:
+      - name: Add to project board
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const issue = context.payload.issue;
+            
+            // Add to implementation project board
+            // This requires project board to be set up first
+            console.log(`Would add issue #${issue.number} to implementation project board`);
+            
+            // Add metadata
+            const labels = issue.labels.map(l => l.name);
+            
+            // Add status label if not present
+            if (!labels.some(l => l.startsWith('status:'))) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                labels: ['status:pending']
+              });
+            }
+            
+            // Set up due date reminder if specified
+            const dueDateMatch = issue.body.match(/\*\*Due Date\*\*:\s*(\d{4}-\d{2}-\d{2})/);
+            if (dueDateMatch) {
+              const dueDate = new Date(dueDateMatch[1]);
+              const today = new Date();
+              const daysUntilDue = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+              
+              if (daysUntilDue <= 7 && daysUntilDue > 0) {
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  labels: ['due:soon']
+                });
+              } else if (daysUntilDue <= 0) {
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  labels: ['due:overdue']
+                });
+              }
+            }

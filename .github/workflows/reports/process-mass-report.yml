@@ -1,0 +1,201 @@
+name: Process Mass Conditions Report
+
+on:
+  issues:
+    types: [opened, labeled]
+
+jobs:
+  process-mass-report:
+    if: contains(github.event.issue.labels.*.name, 'type:mass-report')
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
+      - name: Extract report metadata
+        id: metadata
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const body = issue.body || '';
+            
+            // Extract security classification
+            const securityMatch = body.match(/Security Classification[\s\S]*?(?:L0 \(Public\)|L1 \(Candidate\))/);
+            const securityLevel = securityMatch ? 
+              (securityMatch[0].includes('L0') ? 'L0' : 'L1') : 'L0';
+            
+            // Extract location
+            const locationMatch = body.match(/Location\/Sector[\s\S]*?\n(.+)/);
+            const location = locationMatch ? locationMatch[1].trim() : 'Unknown';
+            
+            // Set outputs
+            core.setOutput('security_level', securityLevel);
+            core.setOutput('location', location);
+            core.setOutput('report_date', new Date().toISOString().split('T')[0]);
+            
+            // Add security label
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              labels: [`security:${securityLevel}`]
+            });
+      
+      - name: Validate security classification
+        run: |
+          if [[ "${{ steps.metadata.outputs.security_level }}" == "L0" ]]; then
+            echo "✅ Report classified as L0 (Public)"
+          elif [[ "${{ steps.metadata.outputs.security_level }}" == "L1" ]]; then
+            echo "⚠️ Report classified as L1 (Candidate) - restricted distribution"
+          else
+            echo "❌ Invalid security classification"
+            exit 1
+          fi
+      
+      - name: Create tracking comment
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const metadata = ${{ toJSON(steps.metadata.outputs) }};
+            
+            const comment = `## Report Processing Status
+            
+            - **Security Level**: ${metadata.security_level}
+            - **Location**: ${metadata.location}
+            - **Processing Date**: ${metadata.report_date}
+            - **Status**: 🔄 Processing
+            
+            ### Next Steps
+            1. Security review by appropriate committee
+            2. Extract actionable intelligence
+            3. Route to relevant working groups
+            4. Archive in appropriate repository
+            
+            ---
+            *This report will be automatically routed based on its security classification.*`;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.issue.number,
+              body: comment
+            });
+      
+      - name: Create processed report document
+        id: create-document
+        run: |
+          REPORT_DATE="${{ steps.metadata.outputs.report_date }}"
+          LOCATION=$(echo "${{ steps.metadata.outputs.location }}" | sed 's/[^a-zA-Z0-9-]/_/g')
+          FILENAME="mass-report-${REPORT_DATE}-${LOCATION}.md"
+          
+          # Create report document
+          cat > $FILENAME << 'EOF'
+          ---
+          title: "Mass Conditions Report - ${{ steps.metadata.outputs.location }}"
+          date: ${{ steps.metadata.outputs.report_date }}
+          type: mass-report
+          security: ${{ steps.metadata.outputs.security_level }}
+          location: "${{ steps.metadata.outputs.location }}"
+          source_issue: ${{ github.event.issue.number }}
+          status: unprocessed
+          tags:
+            - mass-line
+            - conditions-report
+            - ${{ steps.metadata.outputs.security_level }}
+          ---
+          
+          # Mass Conditions Report
+          
+          **Location**: ${{ steps.metadata.outputs.location }}  
+          **Report Date**: ${{ steps.metadata.outputs.report_date }}  
+          **Source**: Issue #${{ github.event.issue.number }}
+          
+          ${{ github.event.issue.body }}
+          
+          ---
+          
+          ## Processing Notes
+          
+          *To be completed by reviewing committee*
+          
+          ### Key Findings
+          - 
+          
+          ### Actionable Intelligence
+          - 
+          
+          ### Recommended Actions
+          - 
+          
+          ### Follow-up Required
+          - 
+          EOF
+          
+          echo "filename=$FILENAME" >> $GITHUB_OUTPUT
+      
+      - name: Route to appropriate repository
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const securityLevel = '${{ steps.metadata.outputs.security_level }}';
+            const filename = '${{ steps.create-document.outputs.filename }}';
+            
+            // Determine target repository based on security level
+            let targetRepo;
+            if (securityLevel === 'L0') {
+              targetRepo = 'ksbc-public';
+            } else if (securityLevel === 'L1') {
+              targetRepo = 'ksbc-candidate';
+            }
+            
+            const comment = `### 📋 Report Routing
+            
+            This report has been classified as **${securityLevel}** and will be routed to the \`${targetRepo}\` repository.
+            
+            **Document**: \`${filename}\`
+            
+            The report will be reviewed by the appropriate committee before publication.`;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.issue.number,
+              body: comment
+            });
+            
+            // Add routing label
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.issue.number,
+              labels: [`routed:${targetRepo}`]
+            });
+      
+      - name: Update issue status
+        uses: actions/github-script@v6
+        with:
+          script: |
+            // Update labels to show processing complete
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.issue.number,
+              labels: ['status:processed', 'awaiting:review']
+            });
+            
+            // Remove unprocessed label
+            try {
+              await github.rest.issues.removeLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.issue.number,
+                name: 'status:unprocessed'
+              });
+            } catch (error) {
+              console.log('Could not remove unprocessed label:', error.message);
+            }

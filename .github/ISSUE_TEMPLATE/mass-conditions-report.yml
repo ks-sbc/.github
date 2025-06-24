@@ -1,0 +1,143 @@
+name: Mass Conditions Report
+description: Report on conditions, struggles, and consciousness among the masses
+title: "[MASS REPORT] "
+labels: ["type:mass-report", "process:collection", "status:unprocessed"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        # Mass Conditions Report
+        
+        This template is for reporting observations about conditions, struggles, and political consciousness among the masses. These reports help inform our mass line practice and political work.
+
+  - type: dropdown
+    id: security_classification
+    attributes:
+      label: Security Classification
+      description: Most mass conditions reports should be L0 (Public) unless they contain sensitive tactical information
+      options:
+        - L0 (Public)
+        - L1 (Candidate)
+      default: 0
+    validations:
+      required: true
+
+  - type: input
+    id: location
+    attributes:
+      label: Location/Sector
+      description: Geographic area or sector being reported on (be as specific as security allows)
+      placeholder: "City, workplace type, community, etc."
+    validations:
+      required: true
+
+  - type: input
+    id: date_range
+    attributes:
+      label: Reporting Period
+      description: Time period covered by this report
+      placeholder: "YYYY-MM-DD to YYYY-MM-DD"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: reporter_type
+    attributes:
+      label: Reporter Type
+      description: Your relationship to the organization
+      options:
+        - Sympathizer
+        - Candidate Member
+        - Cadre Member
+    validations:
+      required: true
+
+  - type: textarea
+    id: material_conditions
+    attributes:
+      label: Material Conditions
+      description: Describe the economic and social conditions in this area/sector
+      placeholder: |
+        - Employment situation
+        - Housing conditions
+        - Cost of living changes
+        - Access to services
+        - Infrastructure issues
+    validations:
+      required: true
+
+  - type: textarea
+    id: struggles_conflicts
+    attributes:
+      label: Current Struggles and Conflicts
+      description: What issues are people facing? What struggles are emerging?
+      placeholder: |
+        - Labor disputes
+        - Housing struggles
+        - Community conflicts
+        - Political issues
+        - Social contradictions
+    validations:
+      required: true
+
+  - type: textarea
+    id: political_consciousness
+    attributes:
+      label: Political Consciousness Assessment
+      description: How do people understand their conditions? What is their political awareness?
+      placeholder: |
+        - How people explain their problems
+        - Attitudes toward capitalism/socialism
+        - Level of organization
+        - Receptiveness to political education
+    validations:
+      required: true
+
+  - type: textarea
+    id: organizational_presence
+    attributes:
+      label: Organizational Presence
+      description: What organizations are active? What is their influence?
+      placeholder: |
+        - Labor unions
+        - Community organizations
+        - Political groups
+        - Religious organizations
+        - State/NGO presence
+    validations:
+      required: true
+
+  - type: textarea
+    id: opportunities
+    attributes:
+      label: Opportunities for Work
+      description: Based on these conditions, what opportunities exist for political work?
+      placeholder: |
+        - Potential for political education
+        - Organizing opportunities
+        - Coalition possibilities
+        - Immediate actions needed
+    validations:
+      required: true
+
+  - type: textarea
+    id: recommendations
+    attributes:
+      label: Recommendations
+      description: What actions should the organization consider based on this report?
+      placeholder: "Specific, actionable recommendations..."
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: verification
+    attributes:
+      label: Verification
+      description: Confirm the accuracy of this report
+      options:
+        - label: This report is based on direct observation and investigation
+          required: true
+        - label: I have verified sensitive information before including it
+          required: true
+        - label: I have considered security implications of this report
+          required: true

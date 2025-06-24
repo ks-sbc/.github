@@ -1,0 +1,155 @@
+name: Security Incident Report
+description: Report security incidents, breaches, or concerns requiring immediate attention
+title: "[SECURITY] "
+labels: ["type:security-incident", "priority:urgent", "status:unprocessed"]
+assignees: [security-committee]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        # ⚠️ Security Incident Report
+        
+        **IMPORTANT**: This template is for reporting security incidents that may compromise organizational safety. 
+        - For immediate threats, use secure communication channels first
+        - Do not include names or identifying information unless absolutely necessary
+        - Consider using encrypted communication for highly sensitive details
+
+  - type: dropdown
+    id: security_classification
+    attributes:
+      label: Security Classification
+      description: Security incidents are typically L2 (Cadre) level
+      options:
+        - L2 (Cadre)
+      default: 0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: incident_severity
+    attributes:
+      label: Incident Severity
+      description: Assess the severity of this incident
+      options:
+        - Critical - Immediate threat to member safety
+        - High - Potential compromise of operations
+        - Medium - Security protocol violation
+        - Low - Minor security concern
+    validations:
+      required: true
+
+  - type: dropdown
+    id: incident_type
+    attributes:
+      label: Incident Type
+      description: Category of security incident
+      options:
+        - Digital security breach
+        - Physical security compromise
+        - Information leak
+        - Infiltration suspicion
+        - Operational security failure
+        - Communication compromise
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: incident_datetime
+    attributes:
+      label: Incident Date/Time
+      description: When did this incident occur or was discovered?
+      placeholder: "YYYY-MM-DD HH:MM"
+    validations:
+      required: true
+
+  - type: textarea
+    id: incident_description
+    attributes:
+      label: Incident Description
+      description: Describe what happened (avoid using real names)
+      placeholder: |
+        Provide a clear, factual description:
+        - What was observed or discovered
+        - How the incident was detected
+        - Who is aware of the incident
+    validations:
+      required: true
+
+  - type: textarea
+    id: affected_elements
+    attributes:
+      label: Affected Elements
+      description: What organizational elements may be compromised?
+      placeholder: |
+        - Systems or platforms affected
+        - Number of members potentially impacted
+        - Operations that may be compromised
+        - Information that may be exposed
+    validations:
+      required: true
+
+  - type: textarea
+    id: immediate_actions
+    attributes:
+      label: Immediate Actions Taken
+      description: What steps have already been taken to contain the incident?
+      placeholder: |
+        - Emergency measures implemented
+        - Members notified (by role, not name)
+        - Systems secured or shut down
+        - Evidence preserved
+    validations:
+      required: true
+
+  - type: textarea
+    id: recommended_response
+    attributes:
+      label: Recommended Response
+      description: What additional actions should be taken?
+      placeholder: |
+        - Immediate security measures needed
+        - Investigation requirements
+        - Communication protocols to follow
+        - Operational changes required
+    validations:
+      required: true
+
+  - type: textarea
+    id: lessons_indicators
+    attributes:
+      label: Lessons and Indicators
+      description: What can we learn? What warning signs were there?
+      placeholder: |
+        - Warning signs that were missed
+        - Procedural failures
+        - Training gaps identified
+        - Systemic improvements needed
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: containment_status
+    attributes:
+      label: Containment Status
+      description: Current status of incident containment
+      options:
+        - label: Incident is fully contained
+        - label: Containment is in progress
+        - label: Incident is ongoing/expanding
+        - label: Unknown if fully contained
+
+  - type: checkboxes
+    id: reporting_confirmation
+    attributes:
+      label: Reporting Confirmation
+      description: Confirm security protocols have been followed
+      options:
+        - label: Secure channels used for sensitive details
+          required: true
+        - label: No unnecessary identifying information included
+          required: true
+        - label: Security committee has been notified through secure means
+          required: true
+        - label: Evidence has been preserved where possible
+          required: true

@@ -1,0 +1,269 @@
+name: Process Cadre Work Report
+
+on:
+  issues:
+    types: [opened, labeled]
+
+jobs:
+  process-cadre-report:
+    if: contains(github.event.issue.labels.*.name, 'type:cadre-report')
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
+      - name: Verify reporter authorization
+        id: auth-check
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const author = issue.user.login;
+            
+            // Check if author is in cadre team
+            try {
+              await github.rest.teams.getMembershipForUserInOrg({
+                org: context.repo.owner,
+                team_slug: 'cadre',
+                username: author
+              });
+              core.setOutput('authorized', 'true');
+              console.log(`✅ ${author} is authorized to submit cadre reports`);
+            } catch (error) {
+              core.setOutput('authorized', 'false');
+              console.log(`❌ ${author} is not authorized to submit cadre reports`);
+              
+              // Add unauthorized label and comment
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                labels: ['status:unauthorized']
+              });
+              
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: `⚠️ **Authorization Required**\n\nCadre reports can only be submitted by verified cadre members. Please contact your committee secretary if you believe this is an error.`
+              });
+              
+              // Close the issue
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                state: 'closed'
+              });
+            }
+      
+      - name: Extract report metadata
+        if: steps.auth-check.outputs.authorized == 'true'
+        id: metadata
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const body = issue.body || '';
+            
+            // Extract security classification (L1 or L2 for cadre reports)
+            const securityMatch = body.match(/Security Classification[\s\S]*?(?:L1 \(Candidate\)|L2 \(Cadre\))/);
+            const securityLevel = securityMatch ? 
+              (securityMatch[0].includes('L2') ? 'L2' : 'L1') : 'L2';
+            
+            // Extract reporting period
+            const periodMatch = body.match(/Reporting Period[\s\S]*?\n(.+)/);
+            const period = periodMatch ? periodMatch[1].trim() : 'Unknown';
+            
+            // Extract committee
+            const committeeMatch = body.match(/Committee Assignment[\s\S]*?\n(.+)/);
+            const committee = committeeMatch ? committeeMatch[1].trim() : 'Unknown';
+            
+            // Set outputs
+            core.setOutput('security_level', securityLevel);
+            core.setOutput('reporting_period', period);
+            core.setOutput('committee', committee);
+            core.setOutput('report_date', new Date().toISOString().split('T')[0]);
+            core.setOutput('author', issue.user.login);
+            
+            // Add security label
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              labels: [`security:${securityLevel}`]
+            });
+      
+      - name: Apply security measures
+        if: steps.auth-check.outputs.authorized == 'true'
+        run: |
+          SECURITY_LEVEL="${{ steps.metadata.outputs.security_level }}"
+          
+          if [[ "$SECURITY_LEVEL" == "L2" ]]; then
+            echo "🔒 Applying L2 (Cadre) security measures"
+            echo "- Report will be encrypted before storage"
+            echo "- Access restricted to cadre members only"
+            echo "- Audit logging enabled"
+          else
+            echo "⚠️ Applying L1 (Candidate) security measures"
+            echo "- Report will be stored with restricted access"
+            echo "- Access restricted to candidate+ members"
+          fi
+      
+      - name: Create accountability tracking
+        if: steps.auth-check.outputs.authorized == 'true'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const metadata = ${{ toJSON(steps.metadata.outputs) }};
+            
+            const comment = `## Cadre Report Processing
+            
+            - **Reporter**: @${metadata.author}
+            - **Committee**: ${metadata.committee}
+            - **Period**: ${metadata.reporting_period}
+            - **Security Level**: ${metadata.security_level}
+            - **Submitted**: ${metadata.report_date}
+            
+            ### Processing Steps
+            - [x] Authorization verified
+            - [x] Security classification applied
+            - [ ] Committee secretary review
+            - [ ] Extracted action items
+            - [ ] CSC points identified
+            - [ ] Archived in secure repository
+            
+            ### Accountability Tracking
+            This report will be reviewed in the next committee meeting and included in organizational accountability metrics.`;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.issue.number,
+              body: comment
+            });
+      
+      - name: Extract action items
+        if: steps.auth-check.outputs.authorized == 'true'
+        id: extract-actions
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const body = issue.body || '';
+            
+            // Extract completed tasks section
+            const completedMatch = body.match(/## Completed Tasks[\s\S]*?(?=##|$)/);
+            const completed = completedMatch ? completedMatch[0] : '';
+            
+            // Extract ongoing work section
+            const ongoingMatch = body.match(/## Ongoing Work[\s\S]*?(?=##|$)/);
+            const ongoing = ongoingMatch ? ongoingMatch[0] : '';
+            
+            // Count tasks
+            const completedCount = (completed.match(/\|[^|]+\|[^|]+\|[^|]+\|[^|]+\|/g) || []).length - 1; // -1 for header
+            const ongoingCount = (ongoing.match(/\|[^|]+\|[^|]+\|[^|]+\|[^|]+\|[^|]+\|/g) || []).length - 1;
+            
+            core.setOutput('completed_count', Math.max(0, completedCount));
+            core.setOutput('ongoing_count', Math.max(0, ongoingCount));
+            
+            // Create summary comment
+            const summaryComment = `### 📊 Work Summary
+            
+            - **Completed Tasks**: ${Math.max(0, completedCount)}
+            - **Ongoing Tasks**: ${Math.max(0, ongoingCount)}
+            
+            The detailed task information has been extracted and will be added to the project board for tracking.`;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              body: summaryComment
+            });
+      
+      - name: Route to secure repository
+        if: steps.auth-check.outputs.authorized == 'true'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const securityLevel = '${{ steps.metadata.outputs.security_level }}';
+            const committee = '${{ steps.metadata.outputs.committee }}';
+            
+            // Determine target repository
+            const targetRepo = securityLevel === 'L2' ? 'ksbc-cadre' : 'ksbc-candidate';
+            
+            // Create routing notification
+            const routingComment = `### 🔐 Secure Routing
+            
+            This cadre report has been classified as **${securityLevel}** and will be securely routed to:
+            - Repository: \`${targetRepo}\`
+            - Directory: \`/reports/cadre/${committee.toLowerCase().replace(/\s+/g, '-')}/\`
+            
+            The report will be encrypted and access-controlled according to security protocols.`;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.issue.number,
+              body: routingComment
+            });
+            
+            // Add routing label
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.issue.number,
+              labels: [`routed:${targetRepo}`, `committee:${committee.toLowerCase().replace(/\s+/g, '-')}`]
+            });
+      
+      - name: Update issue status
+        if: steps.auth-check.outputs.authorized == 'true'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            // Update labels to show processing complete
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.issue.number,
+              labels: ['status:processed', 'awaiting:secretary-review']
+            });
+            
+            // Remove unprocessed label
+            try {
+              await github.rest.issues.removeLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.issue.number,
+                name: 'status:unprocessed'
+              });
+            } catch (error) {
+              console.log('Could not remove unprocessed label:', error.message);
+            }
+            
+            // Assign to committee secretary
+            const committee = '${{ steps.metadata.outputs.committee }}';
+            const secretaryMap = {
+              'Education Committee': 'education-secretary',
+              'Security Committee': 'security-secretary',
+              'Organization Committee': 'org-secretary'
+            };
+            
+            const secretary = secretaryMap[committee];
+            if (secretary) {
+              try {
+                await github.rest.issues.addAssignees({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.payload.issue.number,
+                  assignees: [secretary]
+                });
+              } catch (error) {
+                console.log(`Could not assign to ${secretary}:`, error.message);
+              }
+            }

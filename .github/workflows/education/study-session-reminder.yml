@@ -1,0 +1,264 @@
+name: Study Session Reminders
+
+on:
+  schedule:
+    # Run daily at 10 AM UTC to check for upcoming sessions
+    - cron: '0 10 * * *'
+  workflow_dispatch:
+
+jobs:
+  send-reminders:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
+      - name: Find upcoming study sessions
+        id: find-sessions
+        uses: actions/github-script@v6
+        with:
+          script: |
+            // Get all open study session issues
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: 'type:study-session',
+              state: 'open',
+              per_page: 100
+            });
+            
+            const today = new Date();
+            const threeDaysFromNow = new Date(today);
+            threeDaysFromNow.setDate(today.getDate() + 3);
+            
+            const oneDayFromNow = new Date(today);
+            oneDayFromNow.setDate(today.getDate() + 1);
+            
+            const upcomingSessions = [];
+            
+            for (const issue of issues.data) {
+              // Extract session date from issue body
+              const dateMatch = issue.body.match(/\*\*Session Date\*\*:\s*(\d{4}-\d{2}-\d{2})/);
+              if (dateMatch) {
+                const sessionDate = new Date(dateMatch[1]);
+                
+                // Calculate days until session
+                const daysUntil = Math.ceil((sessionDate - today) / (1000 * 60 * 60 * 24));
+                
+                // Send reminders 3 days and 1 day before
+                if (daysUntil === 3 || daysUntil === 1) {
+                  upcomingSessions.push({
+                    number: issue.number,
+                    title: issue.title,
+                    date: dateMatch[1],
+                    daysUntil: daysUntil,
+                    url: issue.html_url,
+                    labels: issue.labels.map(l => l.name)
+                  });
+                }
+              }
+            }
+            
+            core.setOutput('sessions', JSON.stringify(upcomingSessions));
+            return upcomingSessions;
+      
+      - name: Send 3-day reminders
+        if: steps.find-sessions.outputs.sessions != '[]'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const sessions = JSON.parse('${{ steps.find-sessions.outputs.sessions }}');
+            
+            for (const session of sessions.filter(s => s.daysUntil === 3)) {
+              // Check if we already sent a 3-day reminder
+              const comments = await github.rest.issues.listComments({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: session.number
+              });
+              
+              const hasThreeDayReminder = comments.data.some(c => 
+                c.body.includes('📚 **3-Day Reminder**')
+              );
+              
+              if (!hasThreeDayReminder) {
+                const reminder = `## 📚 **3-Day Reminder**
+                
+                Our study session is coming up in **3 days** on **${session.date}**!
+                
+                ### 🎯 Preparation Checklist:
+                - [ ] Complete the required reading
+                - [ ] Review the discussion questions
+                - [ ] Prepare your own questions or observations
+                - [ ] Check for any supplementary materials
+                
+                ### 📖 Study Tips:
+                - Take notes while reading - jot down questions and key concepts
+                - Try to connect the material to current conditions
+                - Think about practical applications for our work
+                - Review any previous session notes for continuity
+                
+                ### 🔗 Resources:
+                - Study guides are available in the education repository
+                - Reach out to @education-committee if you need materials in alternative formats
+                - Join the pre-session discussion in our study channel
+                
+                Looking forward to our collective study! Remember, political education is the foundation of revolutionary practice.
+                
+                *If you cannot attend, please notify the facilitator. Sessions are recorded for those who miss.*`;
+                
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: session.number,
+                  body: reminder
+                });
+                
+                // Add reminder label
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: session.number,
+                  labels: ['reminder:3-day']
+                });
+              }
+            }
+      
+      - name: Send 1-day reminders
+        if: steps.find-sessions.outputs.sessions != '[]'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const sessions = JSON.parse('${{ steps.find-sessions.outputs.sessions }}');
+            
+            for (const session of sessions.filter(s => s.daysUntil === 1)) {
+              // Check if we already sent a 1-day reminder
+              const comments = await github.rest.issues.listComments({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: session.number
+              });
+              
+              const hasOneDayReminder = comments.data.some(c => 
+                c.body.includes('⏰ **Tomorrow\'s Study Session**')
+              );
+              
+              if (!hasOneDayReminder) {
+                const reminder = `## ⏰ **Tomorrow's Study Session**
+                
+                **Reminder: Our study session is TOMORROW!**
+                
+                ### 📋 Final Checklist:
+                - [ ] Completed the reading?
+                - [ ] Reviewed discussion questions?
+                - [ ] Prepared your contributions?
+                - [ ] Know how to access the session?
+                
+                ### 🕖 Session Details:
+                - **Time**: 7:00 PM EST (check your local time!)
+                - **Duration**: Approximately 90 minutes
+                - **Format**: Discussion-based with collective analysis
+                
+                ### 💡 Last-Minute Tips:
+                - Even if you haven't finished all the reading, please attend - collective discussion aids understanding
+                - Bring specific passages or quotes you'd like to discuss
+                - Have paper and pen ready for notes
+                - Test your connection beforehand if joining online
+                
+                ### 🔐 Access Information:
+                - Meeting links have been sent via secure channels
+                - Contact @education-committee if you haven't received access info
+                - Ensure you're using secure connection methods
+                
+                See you tomorrow, comrades! Let's learn together and strengthen our theoretical foundation.
+                
+                *Remember: "Without revolutionary theory there can be no revolutionary movement" - Lenin*`;
+                
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: session.number,
+                  body: reminder
+                });
+                
+                // Add reminder label
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: session.number,
+                  labels: ['reminder:1-day']
+                });
+              }
+            }
+      
+      - name: Create reminder summary
+        if: steps.find-sessions.outputs.sessions != '[]'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const sessions = JSON.parse('${{ steps.find-sessions.outputs.sessions }}');
+            
+            if (sessions.length > 0) {
+              // Create or update a pinned issue with upcoming sessions
+              const pinnedTitle = '📚 Upcoming Study Sessions This Week';
+              
+              // Look for existing pinned summary
+              const existingIssues = await github.rest.issues.listForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                labels: 'education,pinned',
+                state: 'open'
+              });
+              
+              const summaryBody = `# 📚 Upcoming Study Sessions This Week
+              
+              *Last updated: ${new Date().toISOString().split('T')[0]}*
+              
+              ## Scheduled Sessions:
+              
+              ${sessions.map(s => `### ${s.title}
+              - **Date**: ${s.date} (in ${s.daysUntil} days)
+              - **Security Level**: ${s.labels.find(l => l.startsWith('security:')) || 'L0'}
+              - **Details**: See #${s.number}
+              `).join('\n')}
+              
+              ## How to Prepare:
+              1. Check the session issue for required readings
+              2. Review discussion questions in advance
+              3. Join pre-session discussions in study channels
+              4. Contact @education-committee with any questions
+              
+              ## Study Resources:
+              - 📖 [Education Repository](https://github.com/ks-sbc/education)
+              - 📝 [Study Guides](https://github.com/ks-sbc/education/guides)
+              - 🎥 [Previous Sessions](https://github.com/ks-sbc/education/recordings)
+              
+              ---
+              *Political education is essential for building revolutionary consciousness. Regular participation strengthens our collective understanding and capacity.*`;
+              
+              if (existingIssues.data.length > 0) {
+                // Update existing summary
+                await github.rest.issues.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: existingIssues.data[0].number,
+                  body: summaryBody
+                });
+              } else {
+                // Create new summary
+                const newIssue = await github.rest.issues.create({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  title: pinnedTitle,
+                  body: summaryBody,
+                  labels: ['education', 'pinned', 'announcement']
+                });
+                
+                // Pin the issue (requires additional permissions)
+                console.log(`Created summary issue #${newIssue.data.number} - manually pin if needed`);
+              }
+            }

@@ -1,0 +1,235 @@
+name: Track Decision Implementation
+
+on:
+  issues:
+    types: [labeled, closed]
+  pull_request:
+    types: [closed]
+  schedule:
+    # Weekly accountability check
+    - cron: '0 9 * * 1'  # Monday at 9 AM UTC
+
+jobs:
+  track-pr-decisions:
+    if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+    
+    steps:
+      - name: Extract decision from PR
+        id: extract
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const labels = pr.labels.map(l => l.name);
+            
+            // Check if this was a decision PR
+            if (!labels.includes('decision:approved')) {
+              console.log('Not a decision PR, skipping');
+              return;
+            }
+            
+            // Extract decision details
+            const title = pr.title;
+            const body = pr.body || '';
+            const number = pr.number;
+            const mergedBy = pr.merged_by.login;
+            const mergedAt = pr.merged_at;
+            
+            // Look for implementation requirements in PR body
+            const implementationMatch = body.match(/## Implementation Requirements[\s\S]*?(?=##|$)/);
+            const requirements = implementationMatch ? implementationMatch[0] : '';
+            
+            core.setOutput('has_decision', 'true');
+            core.setOutput('title', title);
+            core.setOutput('requirements', requirements);
+            core.setOutput('pr_number', number);
+            core.setOutput('merged_by', mergedBy);
+            core.setOutput('merged_at', mergedAt);
+      
+      - name: Create implementation tracking issue
+        if: steps.extract.outputs.has_decision == 'true'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const title = `[IMPLEMENTATION] ${{ steps.extract.outputs.title }}`;
+            const prNumber = '${{ steps.extract.outputs.pr_number }}';
+            const mergedBy = '${{ steps.extract.outputs.merged_by }}';
+            const mergedAt = '${{ steps.extract.outputs.merged_at }}';
+            const requirements = `${{ steps.extract.outputs.requirements }}`;
+            
+            const body = `## Decision Implementation Tracking
+            
+            This issue tracks the implementation of the decision made in PR #${prNumber}.
+            
+            **Decision**: ${title}
+            **Approved by**: @${mergedBy}
+            **Approved on**: ${mergedAt}
+            
+            ### Implementation Requirements
+            ${requirements || 'No specific requirements documented.'}
+            
+            ### Implementation Checklist
+            - [ ] Review decision requirements
+            - [ ] Assign implementation tasks
+            - [ ] Create sub-issues for complex tasks
+            - [ ] Update relevant documentation
+            - [ ] Notify affected committees/members
+            - [ ] Complete implementation
+            - [ ] Verify implementation meets requirements
+            - [ ] Report completion to general body
+            
+            ### Accountability
+            - **Responsible Committee**: TBD
+            - **Implementation Lead**: TBD
+            - **Target Completion**: TBD
+            
+            ---
+            *This issue was automatically created to ensure democratic decisions are properly implemented.*`;
+            
+            const issue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: title,
+              body: body,
+              labels: ['implementation', 'decision:tracking', 'status:pending-assignment'],
+              assignees: []
+            });
+            
+            console.log(`Created implementation tracking issue #${issue.data.number}`);
+            
+            // Link back to the original PR
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body: `✅ **Decision Merged**\n\nImplementation is now being tracked in #${issue.data.number}`
+            });
+
+  weekly-accountability-check:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+    
+    steps:
+      - name: Check implementation status
+        uses: actions/github-script@v6
+        with:
+          script: |
+            // Get all open implementation issues
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: 'implementation,decision:tracking',
+              state: 'open',
+              per_page: 100
+            });
+            
+            const today = new Date();
+            const oneWeekAgo = new Date(today);
+            oneWeekAgo.setDate(today.getDate() - 7);
+            
+            const overdue = [];
+            const inProgress = [];
+            const notStarted = [];
+            
+            for (const issue of issues.data) {
+              const labels = issue.labels.map(l => l.name);
+              const createdAt = new Date(issue.created_at);
+              const daysSinceCreation = Math.floor((today - createdAt) / (1000 * 60 * 60 * 24));
+              
+              if (labels.includes('status:pending-assignment') && daysSinceCreation > 3) {
+                notStarted.push({
+                  number: issue.number,
+                  title: issue.title,
+                  created: issue.created_at,
+                  daysSince: daysSinceCreation
+                });
+              } else if (labels.includes('status:in-progress')) {
+                // Check last update
+                const lastUpdate = new Date(issue.updated_at);
+                const daysSinceUpdate = Math.floor((today - lastUpdate) / (1000 * 60 * 60 * 24));
+                
+                if (daysSinceUpdate > 7) {
+                  overdue.push({
+                    number: issue.number,
+                    title: issue.title,
+                    lastUpdate: issue.updated_at,
+                    daysSince: daysSinceUpdate,
+                    assignees: issue.assignees.map(a => a.login)
+                  });
+                } else {
+                  inProgress.push({
+                    number: issue.number,
+                    title: issue.title,
+                    assignees: issue.assignees.map(a => a.login)
+                  });
+                }
+              }
+            }
+            
+            // Create accountability report
+            const reportTitle = `[ACCOUNTABILITY] Weekly Implementation Report - ${today.toISOString().split('T')[0]}`;
+            
+            const reportBody = `# Weekly Implementation Accountability Report
+            
+            *Generated: ${today.toISOString().split('T')[0]}*
+            
+            ## Summary
+            - **Total Open Implementations**: ${issues.data.length}
+            - **Not Started**: ${notStarted.length}
+            - **In Progress**: ${inProgress.length}
+            - **Overdue for Update**: ${overdue.length}
+            
+            ## 🔴 Requires Immediate Attention
+            
+            ### Not Started (>3 days)
+            ${notStarted.length > 0 ? notStarted.map(i => 
+              `- #${i.number}: ${i.title} (${i.daysSince} days since decision)`
+            ).join('\n') : '*None - all decisions have been assigned*'}
+            
+            ### Overdue for Update (>7 days)
+            ${overdue.length > 0 ? overdue.map(i => 
+              `- #${i.number}: ${i.title}\n  - Last update: ${i.daysSince} days ago\n  - Assigned to: ${i.assignees.length > 0 ? i.assignees.map(a => `@${a}`).join(', ') : 'Unassigned'}`
+            ).join('\n\n') : '*None - all implementations are actively updated*'}
+            
+            ## 🟡 In Progress
+            ${inProgress.length > 0 ? inProgress.map(i => 
+              `- #${i.number}: ${i.title} (${i.assignees.length > 0 ? i.assignees.map(a => `@${a}`).join(', ') : 'Unassigned'})`
+            ).join('\n') : '*No implementations currently in progress*'}
+            
+            ## Required Actions
+            
+            1. **Committee Secretaries**: Review unassigned decisions and allocate to appropriate members
+            2. **Implementation Leads**: Provide updates on overdue items
+            3. **General Body**: Review this report in next meeting
+            
+            ---
+            
+            *This report ensures democratic decisions are implemented with proper accountability. Unity in action requires follow-through.*`;
+            
+            const report = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: reportTitle,
+              body: reportBody,
+              labels: ['accountability', 'report', 'implementation'],
+              assignees: ['secretary', 'org-secretary']
+            });
+            
+            console.log(`Created accountability report #${report.data.number}`);
+            
+            // Comment on overdue issues
+            for (const issue of overdue) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: `⚠️ **Update Required**\n\nThis implementation has not been updated in ${issue.daysSince} days. Please provide a status update or request assistance if blocked.\n\nSee accountability report #${report.data.number}`
+              });
+            }

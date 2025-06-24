@@ -1,0 +1,155 @@
+name: Study Session Announcement
+description: Announce an upcoming political education study session
+title: "[STUDY SESSION] "
+labels: ["type:study-session", "education", "announcement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        # Study Session Announcement
+        
+        Use this template to announce upcoming political education study sessions. This helps members prepare and ensures consistent scheduling.
+
+  - type: input
+    id: session_date
+    attributes:
+      label: Session Date
+      description: Date of the study session
+      placeholder: "YYYY-MM-DD"
+    validations:
+      required: true
+
+  - type: input
+    id: session_time
+    attributes:
+      label: Session Time
+      description: Time of the session (include timezone)
+      placeholder: "7:00 PM EST"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: session_type
+    attributes:
+      label: Session Type
+      description: Type of study session
+      options:
+        - Regular bi-weekly session
+        - Special topic session
+        - Book club meeting
+        - Theory intensive
+        - Practice workshop
+    validations:
+      required: true
+
+  - type: dropdown
+    id: security_level
+    attributes:
+      label: Security Level
+      description: Who can attend this session?
+      options:
+        - L0 (Public - Open to all)
+        - L1 (Candidate - Members and candidates)
+        - L2 (Cadre - Cadre only)
+      default: 0
+    validations:
+      required: true
+
+  - type: input
+    id: primary_text
+    attributes:
+      label: Primary Text/Material
+      description: Main material to be studied
+      placeholder: "State and Revolution, Chapter 3"
+    validations:
+      required: true
+
+  - type: textarea
+    id: preparation_work
+    attributes:
+      label: Preparation Required
+      description: What should participants do before the session?
+      placeholder: |
+        - Read Chapter 3 of State and Revolution
+        - Review previous session notes
+        - Prepare one question for discussion
+    validations:
+      required: true
+
+  - type: input
+    id: facilitator
+    attributes:
+      label: Session Facilitator
+      description: Who will facilitate this session?
+      placeholder: "@username"
+    validations:
+      required: true
+
+  - type: textarea
+    id: session_goals
+    attributes:
+      label: Session Goals
+      description: What will participants learn/accomplish?
+      placeholder: |
+        By the end of this session, participants will:
+        - Understand Lenin's critique of opportunism
+        - Apply concepts to current conditions
+        - Develop concrete action items
+    validations:
+      required: true
+
+  - type: textarea
+    id: discussion_questions
+    attributes:
+      label: Key Discussion Questions
+      description: Main questions to guide discussion
+      placeholder: |
+        1. How does Lenin define the state?
+        2. What is the relationship between the state and class struggle?
+        3. How do we apply this analysis to our current conditions?
+    validations:
+      required: true
+
+  - type: input
+    id: meeting_link
+    attributes:
+      label: Meeting Link/Location
+      description: Where will the session take place?
+      placeholder: "Link will be shared via secure channels"
+    validations:
+      required: true
+
+  - type: textarea
+    id: accessibility
+    attributes:
+      label: Accessibility Information
+      description: Accessibility accommodations available
+      placeholder: |
+        - Closed captions available
+        - Materials available in alternative formats
+        - Contact facilitator for specific needs
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional_resources
+    attributes:
+      label: Additional Resources
+      description: Supplementary materials (optional)
+      placeholder: |
+        - Lenin's "What Is To Be Done?" for context
+        - Contemporary analysis by...
+        - Previous session recording
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Pre-Session Checklist
+      description: Confirm session preparation
+      options:
+        - label: Reading material is accessible to target audience
+        - label: Facilitator has prepared session plan
+        - label: Meeting logistics are confirmed
+        - label: Reminder system is set up

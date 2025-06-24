@@ -1,0 +1,296 @@
+name: Security Classification Validation
+
+on:
+  issues:
+    types: [opened, edited, labeled]
+  pull_request:
+    types: [opened, edited, labeled]
+
+jobs:
+  validate-security:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+      contents: read
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
+      - name: Determine item type
+        id: item-type
+        run: |
+          if [[ "${{ github.event_name }}" == "issues" ]]; then
+            echo "type=issue" >> $GITHUB_OUTPUT
+            echo "number=${{ github.event.issue.number }}" >> $GITHUB_OUTPUT
+          else
+            echo "type=pr" >> $GITHUB_OUTPUT
+            echo "number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Extract security classification
+        id: security-check
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const itemType = '${{ steps.item-type.outputs.type }}';
+            const item = itemType === 'issue' ? context.payload.issue : context.payload.pull_request;
+            const body = item.body || '';
+            const labels = item.labels.map(l => l.name);
+            
+            // Check for security classification in body
+            const securityMatch = body.match(/Security Classification[\s\S]*?(?:L0 \(Public\)|L1 \(Candidate\)|L2 \(Cadre\))/);
+            let bodySecurityLevel = null;
+            if (securityMatch) {
+              if (securityMatch[0].includes('L0')) bodySecurityLevel = 'L0';
+              else if (securityMatch[0].includes('L1')) bodySecurityLevel = 'L1';
+              else if (securityMatch[0].includes('L2')) bodySecurityLevel = 'L2';
+            }
+            
+            // Check for security labels
+            let labelSecurityLevel = null;
+            if (labels.includes('security:L0')) labelSecurityLevel = 'L0';
+            else if (labels.includes('security:L1')) labelSecurityLevel = 'L1';
+            else if (labels.includes('security:L2')) labelSecurityLevel = 'L2';
+            
+            // Check item type for default security
+            let defaultSecurity = 'L0';
+            if (labels.includes('type:cadre-report') || labels.includes('type:security-incident')) {
+              defaultSecurity = 'L2';
+            } else if (labels.includes('type:csc-report')) {
+              defaultSecurity = 'L1';
+            }
+            
+            core.setOutput('body_security', bodySecurityLevel || 'none');
+            core.setOutput('label_security', labelSecurityLevel || 'none');
+            core.setOutput('default_security', defaultSecurity);
+            core.setOutput('has_classification', bodySecurityLevel || labelSecurityLevel ? 'true' : 'false');
+      
+      - name: Validate security consistency
+        id: validate
+        run: |
+          BODY_SEC="${{ steps.security-check.outputs.body_security }}"
+          LABEL_SEC="${{ steps.security-check.outputs.label_security }}"
+          DEFAULT_SEC="${{ steps.security-check.outputs.default_security }}"
+          HAS_CLASS="${{ steps.security-check.outputs.has_classification }}"
+          
+          VALID="true"
+          MESSAGE=""
+          
+          # Check if classification exists
+          if [[ "$HAS_CLASS" == "false" ]]; then
+            VALID="false"
+            MESSAGE="No security classification found. Defaulting to $DEFAULT_SEC."
+            FINAL_SECURITY="$DEFAULT_SEC"
+          elif [[ "$BODY_SEC" != "none" && "$LABEL_SEC" != "none" && "$BODY_SEC" != "$LABEL_SEC" ]]; then
+            VALID="false"
+            MESSAGE="Security classification mismatch: Body says $BODY_SEC but label says $LABEL_SEC"
+            FINAL_SECURITY="$LABEL_SEC"  # Label takes precedence
+          else
+            # Use whichever is set
+            if [[ "$BODY_SEC" != "none" ]]; then
+              FINAL_SECURITY="$BODY_SEC"
+            else
+              FINAL_SECURITY="$LABEL_SEC"
+            fi
+            MESSAGE="Security classification validated: $FINAL_SECURITY"
+          fi
+          
+          echo "valid=$VALID" >> $GITHUB_OUTPUT
+          echo "message=$MESSAGE" >> $GITHUB_OUTPUT
+          echo "final_security=$FINAL_SECURITY" >> $GITHUB_OUTPUT
+      
+      - name: Apply security label
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const itemType = '${{ steps.item-type.outputs.type }}';
+            const itemNumber = parseInt('${{ steps.item-type.outputs.number }}');
+            const finalSecurity = '${{ steps.validate.outputs.final_security }}';
+            const isValid = '${{ steps.validate.outputs.valid }}' === 'true';
+            const message = '${{ steps.validate.outputs.message }}';
+            
+            // Remove any existing security labels
+            const labels = context.payload[itemType].labels.map(l => l.name);
+            const securityLabels = labels.filter(l => l.startsWith('security:'));
+            
+            for (const label of securityLabels) {
+              try {
+                if (itemType === 'issue') {
+                  await github.rest.issues.removeLabel({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: itemNumber,
+                    name: label
+                  });
+                } else {
+                  await github.rest.issues.removeLabel({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: itemNumber,
+                    name: label
+                  });
+                }
+              } catch (error) {
+                console.log(`Could not remove label ${label}:`, error.message);
+              }
+            }
+            
+            // Apply correct security label
+            const addLabels = itemType === 'issue' ? 
+              github.rest.issues.addLabels :
+              github.rest.issues.addLabels;
+            
+            await addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: itemNumber,
+              labels: [`security:${finalSecurity}`]
+            });
+            
+            // Add validation status label
+            if (!isValid) {
+              await addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: itemNumber,
+                labels: ['security:needs-review']
+              });
+            }
+      
+      - name: Post security status comment
+        if: steps.validate.outputs.valid == 'false'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const itemType = '${{ steps.item-type.outputs.type }}';
+            const itemNumber = parseInt('${{ steps.item-type.outputs.number }}');
+            const message = '${{ steps.validate.outputs.message }}';
+            const finalSecurity = '${{ steps.validate.outputs.final_security }}';
+            
+            const comment = `## 🔐 Security Classification Notice
+            
+            ${message}
+            
+            **Applied Classification**: \`${finalSecurity}\`
+            
+            ### Security Level Guidelines:
+            - **L0 (Public)**: Information that can be freely shared
+            - **L1 (Candidate)**: Information for candidate members and above
+            - **L2 (Cadre)**: Restricted information for cadre members only
+            
+            Please ensure your content matches the security classification. If you need to change the classification, update both the issue/PR body and request a label change.`;
+            
+            const createComment = itemType === 'issue' ?
+              github.rest.issues.createComment :
+              github.rest.pulls.createReview;
+            
+            if (itemType === 'issue') {
+              await createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: itemNumber,
+                body: comment
+              });
+            } else {
+              await createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: itemNumber,
+                body: comment,
+                event: 'COMMENT'
+              });
+            }
+      
+      - name: Check content against classification
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const itemType = '${{ steps.item-type.outputs.type }}';
+            const item = itemType === 'issue' ? context.payload.issue : context.payload.pull_request;
+            const body = item.body || '';
+            const finalSecurity = '${{ steps.validate.outputs.final_security }}';
+            
+            // Define sensitive keywords by security level
+            const sensitivePatterns = {
+              L1: [
+                /member\s+names?/i,
+                /internal\s+structure/i,
+                /recruitment/i,
+                /candidate\s+list/i
+              ],
+              L2: [
+                /real\s+names?/i,
+                /address(es)?/i,
+                /phone\s+number/i,
+                /security\s+protocol/i,
+                /operational\s+details/i,
+                /cadre\s+identity/i
+              ]
+            };
+            
+            // Check for sensitive content in lower classification
+            const warnings = [];
+            
+            if (finalSecurity === 'L0') {
+              // Check for L1 and L2 content
+              for (const pattern of [...sensitivePatterns.L1, ...sensitivePatterns.L2]) {
+                if (pattern.test(body)) {
+                  warnings.push(`Potential L1+ content detected: ${pattern.source}`);
+                }
+              }
+            } else if (finalSecurity === 'L1') {
+              // Check for L2 content
+              for (const pattern of sensitivePatterns.L2) {
+                if (pattern.test(body)) {
+                  warnings.push(`Potential L2 content detected: ${pattern.source}`);
+                }
+              }
+            }
+            
+            if (warnings.length > 0) {
+              const warningComment = `## ⚠️ Security Content Warning
+              
+              The following potentially sensitive content was detected that may require a higher security classification:
+              
+              ${warnings.map(w => `- ${w}`).join('\n')}
+              
+              **Current Classification**: \`${finalSecurity}\`
+              
+              Please review and either:
+              1. Remove or redact the sensitive content
+              2. Request a higher security classification
+              3. Confirm that the content is appropriately classified
+              
+              *This is an automated check and may have false positives. Human review is required.*`;
+              
+              const createComment = itemType === 'issue' ?
+                github.rest.issues.createComment :
+                github.rest.pulls.createReview;
+              
+              if (itemType === 'issue') {
+                await createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: parseInt('${{ steps.item-type.outputs.number }}'),
+                  body: warningComment
+                });
+              } else {
+                await createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: parseInt('${{ steps.item-type.outputs.number }}'),
+                  body: warningComment,
+                  event: 'COMMENT'
+                });
+              }
+              
+              // Add warning label
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: parseInt('${{ steps.item-type.outputs.number }}'),
+                labels: ['security:content-warning']
+              });
+            }
