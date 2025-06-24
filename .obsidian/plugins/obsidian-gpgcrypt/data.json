@@ -1,9 +1,0 @@
-{
-  "gpgPath": "/usr/bin/gpg",
-  "defaultKey": "",
-  "armor": true,
-  "showNotifications": true,
-  "selectKeyForEncryption": true,
-  "rememberKeyChoice": true,
-  "keyChoiceTimeoutMinutes": 5
-}
