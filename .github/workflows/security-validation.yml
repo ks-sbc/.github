@@ -1,0 +1,95 @@
+name: Security Classification Validation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: 
+      - main
+      - L1-internal # TODO: Adjust to your actual L1 branch name
+      - L2-secure   # TODO: Adjust to your actual L2 branch name
+      # Add any other branches that should be subject to these checks
+
+permissions:
+  contents: read
+  # pull-requests: read # Not strictly needed if only failing the job for feedback
+
+jobs:
+  validate_security_classification:
+    name: Validate Security Classification
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout PR Branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }} # Checkout the specific commit being evaluated in the PR
+
+      - name: Get changed markdown files
+        id: changed_markdown_files
+        uses: tj-actions/changed-files@v44 # Use a specific version
+        with:
+          files: | # Only consider markdown files
+            **.md
+          # This action should correctly list files changed in the PR against the base.
+          # It provides outputs like 'all_changed_files' (space-separated string).
+
+      - name: Determine target branch security level
+        id: target_branch_security
+        run: |
+          target_branch="${{ github.base_ref }}"
+          max_level=99 # Default to a high level that would cause failure if branch isn't matched
+          echo "Target branch for this PR is: $target_branch"
+          if [[ "$target_branch" == "main" ]]; then
+            max_level=0
+          elif [[ "$target_branch" == "L1-internal" ]]; then # IMPORTANT: Ensure this matches your actual L1 branch name
+            max_level=1
+          elif [[ "$target_branch" == "L2-secure" ]]; then # IMPORTANT: Ensure this matches your actual L2 branch name
+            max_level=2
+          else
+            # Behavior for PRs to other branches (not main, L1, L2)
+            # Option 1: Fail them by keeping max_level=99 (or a specific error)
+            # Option 2: Allow them by setting max_level to a high permissive value (e.g., 2 or 3)
+            # Option 3: Default to L0 for safety.
+            echo "Warning: Target branch '$target_branch' does not have a specific security level rule in the workflow. Defaulting to L0 rules for safety. If this branch ('$target_branch') should allow higher classifications, please update the 'security-validation.yml' workflow."
+            max_level=0 # Defaulting to L0 for safety for undefined branches
+          fi
+          echo "Maximum allowed classification level for '$target_branch' is L${max_level}."
+          echo "max_allowed_level=${max_level}" >> $GITHUB_OUTPUT
+
+      - name: Setup Python
+        if: steps.changed_markdown_files.outputs.any_changed == 'true' && steps.target_branch_security.outputs.max_allowed_level != '99'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install PyYAML (for frontmatter parsing)
+        if: steps.changed_markdown_files.outputs.any_changed == 'true' && steps.target_branch_security.outputs.max_allowed_level != '99'
+        run: pip install PyYAML
+
+      - name: Validate classifications in changed files
+        if: steps.changed_markdown_files.outputs.any_changed == 'true' && steps.target_branch_security.outputs.max_allowed_level != '99'
+        run: |
+          echo "Files to check: ${{ steps.changed_markdown_files.outputs.all_changed_files }}"
+          python .github/scripts/validate_classifications.py \
+            "${{ steps.changed_markdown_files.outputs.all_changed_files }}" \
+            "${{ steps.target_branch_security.outputs.max_allowed_level }}"
+      
+      - name: No markdown files changed
+        if: steps.changed_markdown_files.outputs.any_changed != 'true'
+        run: echo "No markdown files were changed in this PR. Skipping classification validation."
+
+      - name: Untracked branch for security validation
+        if: steps.target_branch_security.outputs.max_allowed_level == '99' # Only if target branch wasn't matched
+        run: |
+          echo "Error: The target branch '${{ github.base_ref }}' is not explicitly configured for security validation rules in the workflow. Failing due to undefined security policy for this branch."
+          exit 1
+      
+      - name: Send Slack Notification on Failure
+        if: failure()
+        uses: rtCamp/action-slack-notify@v2.4.0
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_USERNAME: "Security Bot"
+          SLACK_ICON_EMOJI: ":shield:"
+          SLACK_COLOR: "danger"
+          SLACK_MESSAGE: "Security validation FAILED for PR <${{ github.event.pull_request.html_url }}|#${{ github.event.pull_request.number }} ${{ github.event.pull_request.title }}>. Classification violations found. Review checks: ${{ github.server_url }}/${{ github.repository }}/pull/${{ github.event.pull_request.number }}/checks"
