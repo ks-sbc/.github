@@ -1,117 +1,123 @@
 # KSBC .github Repository
 
-This repository contains organization-wide configurations, templates, workflows, and community health files for the Kansas Socialist Book Club (KSBC).
+This repository houses the core components of the DRUIDS system, including:
+- Obsidian vault configurations and content structure.
+- Documentation templates and content.
+- Workflow automation scripts.
+- Guidelines for content creation, security, and collaboration.
 
-## 📁 Repository Contents
+The aim is to provide a secure, efficient, and ideologically coherent system for managing the KSBC's collective knowledge and operational documentation.
+
+## Democratic Centralist Principles in DRUIDS
+
+The DRUIDS system is designed to embody and support the democratic centralist principles of the KSBC.
+
+**[Placeholder: Overview of Democratic Centralist Principles in DRUIDS]**
+*(This section will detail how DRUIDS workflows, security measures, and collaborative tools are intended to support principles such as political unity, cadre development, criticism/self-criticism, and the Theory -> Plan -> Practice -> Summation cycle. Specific examples related to DRUIDS features will be added here.)*
+
+## Repository Structure Overview
+
+- **/content**: Contains the main documentation and content, organized by security tiers:
+    - `content/L0_public/`: Publicly accessible materials.
+    - `content/L1_candidate/`: Materials for candidates and administrative functions.
+    - `content/L2_cadre/`: Restricted materials for cadre members.
+- **/.github**: Contains issue templates, pull request templates, and (eventually) GitHub Actions workflows.
+- **/.obsidian**: (To be created) Will contain Obsidian-specific configuration files for vault setup, plugins, themes, etc.
+- **/templates**: (To be created) Will house document templates for use with Obsidian's Templater plugin.
+- `OBSIDIAN_INTEGRATION_GUIDE.md`: Comprehensive guide for setting up and using Obsidian with this system.
+
+### Directory Mapping
 
 ```text
 .github/
-├── ISSUE_TEMPLATE/               # Issue creation templates
-├── PULL_REQUEST_TEMPLATE/        # PR templates
-├── workflows/                    # GitHub Actions workflows
-├── profile/                      # Organization profile (public-facing)
-├── docs/                         # Organization documentation
-│   ├── guides/                   # GitHub usage guides
-│   └── Issue_99_Metadata_Summary.md
-├── CODEOWNERS                    # Democratic review assignments
-├── CODE_OF_CONDUCT.md           # Community standards
-├── CONTRIBUTING.md              # Contribution guidelines
-├── GOVERNANCE.md                # Democratic centralist model
-├── SECURITY.md                  # Security policies
-├── REPOSITORY_STRUCTURE.md      # Repo relationships
-└── CLAUDE.md                    # AI assistant context
+├── ISSUE_TEMPLATE/                    🟨
+│   ├── config.yml                        # Issue template configuration
+│   ├── proposal-template.md              # Template for proposal issues
+│   ├── implementation-template.md        # Template for implementation issues
+│   ├── documentation-template.md         # Template for documentation issues
+│   ├── criticism-template.md             # Template for criticism issues
+│   └── security-report-template.md       # Template for security reports
+│
+├── PULL_REQUEST_TEMPLATE/
+│   ├── proposal-pr.md                          # PR template for proposals
+│   ├── implementation-pr.md                    # PR template for implementation
+│   └── documentation-pr.md                     # PR template for documentation
+│
+├── workflows/
+│   ├── security-validation.yml                 # Security classification validation
+│   ├── metadata-validation.yml                 # Frontmatter metadata validation
+│   ├── issue-to-obsidian.yml                   # Sync issues to Obsidian vault
+│   ├── branch-creation.yml                     # Democratic proposal branching
+│   ├── documentation-deploy.yml                # Documentation deployment
+│   ├── decision-implementation.yml             # Tracking implemented decisions
+│   └── security-audit.yml                      # Regular security audits
+│
+├── CODEOWNERS                                  # Defines ownership for democratic review
+│
+├── CODE_OF_CONDUCT.md                          # Organizational code of conduct
+│
+├── CONTRIBUTING.md                             # Detailed contribution guidelines
+│
+├── GOVERNANCE.md                               # Democratic centralist governance model
+│
+├── SECURITY.md                                 # Security classification information
+│
+├── TEMPLATES/                                  # General templates for the organization
+│   ├── document-template.md                    # Standard document template
+│   ├── meeting-minutes-template.md             # Template for meeting minutes
+│   ├── decision-record-template.md             # Template for recording decisions
+│   └── criticism-session-template.md           # Template for criticism sessions
+│
+├── FUNDING.yml                                 # Sponsorship information if applicable
+│
+├── profile/                                    # Organization profile
+│   └── README.md                               # Organization profile README (public)
+│
+└── README.md                                   # Main repository README
 ```
 
-## 🎯 Purpose
+### GitHub Projects Board
 
-This repository serves as the governance and configuration hub for the entire KSBC GitHub organization. It contains:
++-------------------+---------------+----------------+------------------+
+| Democratic        | Decision      | Unity of       | Evaluation       |
+| Discussion        | Making        | Action         |                  |
++-------------------+---------------+----------------+------------------+
+| • Theory debates  | • Consensus   | • Tasks being  | • Completed work |
+| • Study materials | formation     | implemented    | • CSC process    |
+| • Investigations  | • Voting      | • Assignments  | • Lessons learned|
++-------------------+---------------+----------------+------------------+
 
-- **Templates**: Standardized issue and PR templates ensuring consistent metadata
-- **Workflows**: Automated processes for security validation and organizational tasks
-- **Documentation**: Central location for organization-wide policies and guides
-- **Community Health**: Files that appear across all repositories
+### WORKFLOW
 
-## 🔧 Key Features
+```mermaid
+graph TD
+    A[GitHub Discussions] -->|Debate & Discussion| B[Pull Request]
+    B -->|Cadre Vote| F((Decision))
+    F ==>|Denied| E[Close Discussion]
+    F ==>|Approved| C[GitHub Issues]
+    C -->|Implementation Work| D[GitHub Projects]
+    D -->|Coordination| C
+    A -.->|Creates| C
+    C -.->|Conditions| A
+    D -.->|Organizes| C
+```
 
-### Issue & PR Templates
-- Enforce complete metadata (type, priority, time, security, etc.)
-- Guide democratic centralist workflow
-- Ensure proper documentation and relationships
+## Getting Started
 
-### Automated Workflows
-- Security classification validation
-- Metadata completeness checks
-- Issue-to-project automation
-- Documentation deployment
+1.  **Clone the repository:** `git clone <repository_url>`
+2.  **Review the `OBSIDIAN_INTEGRATION_GUIDE.md`:** This guide provides detailed instructions on setting up your Obsidian environment to work with DRUIDS.
+3.  **Explore the `/content` directory:** Familiarize yourself with the security tier structure.
+4.  **Consult `CONTRIBUTING.md`:** For guidelines on how to contribute to the project.
 
-### Governance Documentation
-- Democratic centralist principles
-- Committee structure and ownership
-- Security classification system
-- Contribution guidelines
+## Contribution
 
-## 📚 Documentation
+Contributions to DRUIDS are welcome and vital for its development. Please see `CONTRIBUTING.md` for detailed information on the contribution process, coding standards, and democratic centralist workflow.
 
-### For New Members
-- [Contributing Guidelines](CONTRIBUTING.md) - How to contribute
-- [Quick Reference](docs/guides/KSBC_Quick_Reference.md) - Common commands
-- [Where to Post Guide](docs/guides/KSBC_Where_to_Post_Guide.md) - Communication channels
+## License
 
-### For Active Contributors  
-- [GitHub Guide](docs/guides/KSBC_GitHub_Guide.md) - Detailed GitHub usage
-- [Repository Structure](REPOSITORY_STRUCTURE.md) - How repos connect
-- [Issue Hierarchy](docs/guides/KSBC_Issue_Hierarchy.md) - Parent-child relationships
-
-### For Maintainers
-- [Governance Model](GOVERNANCE.md) - Decision-making process
-- [Security Policy](SECURITY.md) - Classification and handling
-- [CODEOWNERS](CODEOWNERS) - Review assignments
-
-## 🚀 Current Status (May 2025)
-
-### Active Work
-- **Organization Cleanup** (#99): Phases 1-3 complete, 4-6 in progress
-- **Template System** (#95): Standardizing all templates
-- **Obsidian Integration** (#97): Connecting GitHub with documentation vault
-- **Security Implementation** (#45, #85, #91): Three-tier classification
-
-### Open PRs
-- #95: Org-Wide Templating
-- #97: Obsidian guide enhancements
-
-### Critical Issues
-- #52: Configure GitHub settings
-- #58: Enable 2FA requirement  
-- #71: Invite initial members
-- #86: CSC System implementation
-
-## 🤝 Getting Started
-
-1. **Review Documentation**: Start with [CONTRIBUTING.md](CONTRIBUTING.md)
-2. **Understand Structure**: Read [REPOSITORY_STRUCTURE.md](REPOSITORY_STRUCTURE.md)
-3. **Learn Workflow**: Check the [guides](docs/guides/) directory
-4. **Join Discussion**: Visit [GitHub Discussions](https://github.com/ks-sbc/.github/discussions)
-
-## 🛡️ Security
-
-This repository follows our [Security Policy](SECURITY.md):
-- All documents must include security classification
-- Access is controlled via GitHub teams
-- Sensitive operations require committee approval
-
-## 📊 Metrics
-
-- **Open Issues**: 57 (all properly labeled and organized)
-- **Active Projects**: 2 (DRUIDS Implementation, Cadre Security)
-- **Milestones**: 7 active categories
-- **Contributors**: Growing democratic participation
-
-## 🔗 Related Repositories
-
-- [os](https://github.com/ks-sbc/os) - KSBC operating system
-- [public-repo](https://github.com/ks-sbc/public-repo) - Obsidian documentation vault
-- [quartz-website](https://github.com/ks-sbc/quartz-website) - Public website
+**[Placeholder: License Information]**
+*(The KSBC team will determine and add the appropriate license for this project, e.g., MIT, GPL, CC-BY-SA, etc.)*
 
 ---
 
-*This repository is maintained by the KSBC Technical Committee. For questions or concerns, create an issue with full metadata or start a discussion.*
+*This README is a living document and will evolve as the DRUIDS project progresses.*
