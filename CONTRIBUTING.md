@@ -1,18 +1,88 @@
 # Contributing to DRUIDS
 
-Thank you for your interest in contributing to the Kansas Socialist Book Club's Distributed, Reproducible, Unifying, Ideological Documentation System (DRUIDS). This document outlines our contribution process, which follows democratic centralist principles and welcomes contributions from people with all levels of technical expertise.
+Thank you for your interest in contributing to the Distributed, Reproducible, Unifying, Ideological Documentation System (DRUIDS) for the Kansas Socialist Book Club (KSBC). Your participation is valuable to the success of this project.
 
 ## Table of Contents
-- [Democratic Centralist Workflow](#democratic-centralist-workflow)
-- [Security Classification System](#security-classification-system)
-- [Getting Started](#getting-started)
-- [Technical Contributions](#technical-contributions)
-- [Non-Technical Contributions](#non-technical-contributions)
-- [Contribution Process](#contribution-process)
-- [Commit Guidelines](#commit-guidelines)
-- [Documentation Standards](#documentation-standards)
-- [Review Process](#review-process)
-- [Code of Conduct](#code-of-conduct)
+
+- [Contributing to DRUIDS](#contributing-to-druids)
+  - [Table of Contents](#table-of-contents)
+  - [General Contribution Workflow](#general-contribution-workflow)
+  - [Democratic Centralist Contribution Workflow](#democratic-centralist-contribution-workflow)
+  - [Setting up Your Development Environment](#setting-up-your-development-environment)
+  - [Code of Conduct](#code-of-conduct)
+  - [Questions?](#questions)
+  - [Democratic Centralist Workflow](#democratic-centralist-workflow)
+  - [Getting Started](#getting-started)
+  - [Technical Contributions](#technical-contributions)
+  - [Non-Technical Contributions](#non-technical-contributions)
+    - [Documentation \& Content Creation](#documentation--content-creation)
+    - [Testing \& User Experience](#testing--user-experience)
+    - [Organization \& Metadata](#organization--metadata)
+    - [Training Materials](#training-materials)
+  - [Contribution Process](#contribution-process)
+    - [1. Identify an Area for Contribution](#1-identify-an-area-for-contribution)
+    - [2. Create an Issue](#2-create-an-issue)
+    - [3. Branch Creation](#3-branch-creation)
+    - [4. Development Work](#4-development-work)
+    - [5. Pull Request](#5-pull-request)
+  - [Documentation Standards](#documentation-standards)
+  - [Review Process](#review-process)
+  - [Code of Conduct](#code-of-conduct-1)
+  - [Questions?](#questions-1)
+
+## General Contribution Workflow
+
+We follow a standard GitHub flow for contributions:
+
+1. **Fork the Repository:** Create your own fork of the main DRUIDS repository.
+2. **Create a Branch:** For any new feature, bug fix, or documentation change, create a new branch in your fork, usually from the `main` branch.
+    - Branch naming convention: `feature/your-feature-name`, `fix/bug-description`, `docs/topic-update`.
+3. **Make Your Changes:** Implement your changes, write code, or update documentation.
+    - Ensure your work aligns with the project's goals and coding/style guidelines (to be documented).
+4. **Commit Your Changes:** Write clear, concise commit messages. We encourage signing your commits.
+    - Example commit message: `feat: Add initial structure for L0 content`
+5. **Push to Your Fork:** Push your branch to your forked repository.
+6. **Open a Pull Request (PR):**
+    - Navigate to the main DRUIDS repository and open a Pull Request from your branch to the `main` branch of the DRUIDS repository.
+    - Fill out the PR template with details about your changes.
+    - Ensure your PR references any relevant issues (e.g., "Fixes #123" or "Implements #456").
+
+## Democratic Centralist Contribution Workflow
+
+Beyond the standard GitHub flow, DRUIDS adheres to specific democratic centralist principles in its development and contribution process.
+
+**[Placeholder: Detailed Democratic Centralist Workflow]**
+
+*(This section will be expanded with specific details on how democratic centralist principles (e.g., Theory -> Plan -> Practice -> Summation, criticism/self-criticism, collective decision-making on significant changes) are implemented in the DRUIDS contribution process. This may include:
+
+- How proposals for major changes are discussed and approved.
+- The role of different member tiers (if applicable to contribution rights).
+- Processes for review and summation of contributions from an ideological and practical standpoint.
+- How feedback and criticism are integrated into the development cycle.)*
+
+For now, please ensure that your contributions are well-motivated and clearly explained in your Pull Request descriptions, considering their potential impact on the project's goals and usability.
+
+## Setting up Your Development Environment
+
+**[Placeholder: Development Environment Setup]**
+
+*(This section will include specific instructions for setting up a local development environment, including any necessary tools, Obsidian configuration, or scripts. Refer to `OBSIDIAN_INTEGRATION_GUIDE.md` for initial Obsidian setup.)*
+
+## Code of Conduct
+
+All contributors are expected to adhere to the KSBC Code of Conduct.
+
+**[Placeholder: Link to or text of Code of Conduct]**
+*(Ensure a `CODE_OF_CONDUCT.md` file is created or link to an existing one.)*
+
+## Questions?
+
+If you have questions about contributing, please:
+
+- Check existing issues and discussions.
+- Ask in the project's designated communication channels (see `README.md`).
+
+---
 
 ## Democratic Centralist Workflow
 
@@ -25,26 +95,6 @@ Our contribution process follows a democratic centralist model:
 
 Once a decision has been made through proper channels, all members are expected to work toward its implementation regardless of their position during the discussion phase.
 
-## Security Classification System
-
-We operate with a three-tier security classification system:
-
-### Public (L0)
-- General educational content and resources
-- Available in public repositories
-- Can be shared freely
-
-### Candidate (L1)
-- Development materials for potential cadre
-- Limited to contributors with appropriate clearance
-- Not for public distribution
-
-### Cadre (L2)
-- Strategic and operational documentation
-- Strict need-to-know basis
-- Highly restricted access
-
-**Always verify the appropriate security classification before contributing content.**
 
 ## Getting Started
 
@@ -118,28 +168,32 @@ There are many valuable ways to contribute without technical expertise:
 ### 1. Identify an Area for Contribution
 
 Before creating a proposal or implementation issue, determine:
-  - The political need being addressed
-  - The appropriate security classification
-  - The relevant committee for review
+
+- The political need being addressed
+- The appropriate security classification
+- The relevant committee for review
 
 ### 2. Create an Issue
 
 Use the appropriate issue template:
-  - **Proposal**: For new ideas requiring discussion
-  - **Implementation**: For executing approved proposals
-  - **Documentation**: For improvements to existing documentation
-  - **Criticism**: For constructive criticism of existing work
+
+- **Proposal**: For new ideas requiring discussion
+- **Implementation**: For executing approved proposals
+- **Documentation**: For improvements to existing documentation
+- **Criticism**: For constructive criticism of existing work
 
 ### 3. Branch Creation
 
 Branches follow our naming conventions:
-  - `proposal/[issue-topic]`: For proposal development
-  - `implement/[issue-topic]`: For implementation work
-  - `contributor/[username]`: For personal development work
+
+- `proposal/[issue-topic]`: For proposal development
+- `implement/[issue-topic]`: For implementation work
+- `contributor/[username]`: For personal development work
 
 ### 4. Development Work
 
 When working on content:
+
 - Follow our documentation standards
 - Include appropriate frontmatter with security classification
 - Use the established tag taxonomy
@@ -148,36 +202,20 @@ When working on content:
 ### 5. Pull Request
 
 Submit your work using the appropriate PR template:
+
 - Link to the original issue
 - Summarize the changes
 - Indicate the security classification
 - Request review from appropriate committee(s)
 
-## Commit Guidelines
 
-All commits should follow this format:
-```
-[TYPE]: Short summary (50 chars or less)
-
-More detailed explanatory text, if necessary. Wrap to about 72
-characters. The blank line separating the summary from the body
-is critical.
-
-Closes #123
-```
-
-Types include:
-- `[DOCS]`: Documentation changes
-- `[PROP]`: Proposal development
-- `[IMPL]`: Implementation of approved proposal
-- `[CRIT]`: Criticism or self-criticism
-- `[TECH]`: Technical infrastructure changes
 
 ## Documentation Standards
 
 All documentation must include:
 
 1. **YAML Frontmatter**:
+
    ```yaml
    ---
    title: "Document Title"
@@ -214,6 +252,7 @@ All documentation must include:
 5. **Implementation**: Merging into appropriate branch
 
 Reviewers will check for:
+
 - Political alignment with organizational principles
 - Technical correctness and standards compliance
 - Security classification appropriateness
@@ -222,6 +261,7 @@ Reviewers will check for:
 ## Code of Conduct
 
 All contributors are expected to follow our [Code of Conduct](CODE_OF_CONDUCT.md), which emphasizes:
+
 - Comradely behavior
 - Constructive criticism
 - Political development

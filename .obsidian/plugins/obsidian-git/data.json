@@ -1,0 +1,21 @@
+{
+  "commitMessage": "[AUTO] Vault backup: {{date}}",
+  "commitDateFormat": "YYYY-MM-DD HH:mm:ss",
+  "autoSaveInterval": 0,
+  "autoPullInterval": 0,
+  "autoPushInterval": 0,
+  "autoPullOnBoot": false,
+  "disablePush": false,
+  "pullBeforePush": true,
+  "disablePopups": false,
+  "listChangedFilesInMessageBody": true,
+  "showStatusBar": true,
+  "updateSubmodules": true,
+  "gitPath": "",
+  "signedCommits": "false",
+  "changedFilesStatusBar": true,
+  "remote": "origin",
+  "showBranchStatusBar": true,
+  "actionsInStatusBar": true,
+  "currentBranch": ""
+}
