@@ -1,8 +1,5 @@
-name: Theoretical Position
-description: Develop a theoretical position for discussion and approval
 title: "[THEORY] "
 labels: ["type:theoretical-position", "process:discussion", "status:draft"]
-assignees: [cadre1, cadre2]
 body:
   - type: markdown
     attributes:

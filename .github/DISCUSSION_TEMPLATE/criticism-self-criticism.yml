@@ -1,8 +1,5 @@
-name: Criticism and Self-Criticism
-description: Document for criticism and self-criticism process
 title: "[CSC] "
 labels: ["type:csc", "process:evaluation", "status:draft"]
-assignees: [cadre1, cadre2]
 body:
   - type: markdown
     attributes:
@@ -78,7 +75,7 @@ body:
       label: Criticisms
       description: Specific criticisms of the work or practice
       value: |
-        ## Primary Contradictions
+        ## Contradictions
         
         1. **Contradiction**: [Description]
            - **Evidence**: [Supporting evidence]
@@ -87,12 +84,7 @@ body:
         2. **Contradiction**: [Description]
            - **Evidence**: [Supporting evidence]
            - **Impact**: [Effect on work or organization]
-        
-        ## Secondary Contradictions
-        
-        1. **Contradiction**: [Description]
-           - **Evidence**: [Supporting evidence]
-           - **Impact**: [Effect on work or organization]
+
     validations:
       required: true
 
@@ -112,7 +104,7 @@ body:
       description: Recognition of own role in contradictions
       placeholder: "Acknowledge personal or collective responsibility..."
     validations:
-      required: true
+      required: false
 
   - type: textarea
     id: proposed_corrections
