@@ -11,6 +11,7 @@ This directory contains testing resources for the KS-SBC GitHub Actions workflow
 ## Quick Start
 
 ### 1. Prerequisites
+
 ```bash
 # Install GitHub CLI
 brew install gh  # macOS
@@ -24,6 +25,7 @@ brew install act
 ```
 
 ### 2. Run Automated Tests
+
 ```bash
 # Make script executable
 chmod +x test-workflows.sh
@@ -33,9 +35,11 @@ chmod +x test-workflows.sh
 ```
 
 ### 3. Manual Testing
+
 Follow the procedures in `workflow-testing-guide.md` for comprehensive testing.
 
 ### 4. Local Testing with act
+
 ```bash
 # Test specific workflow with event
 act issues -W ../.github/workflows/reports/process-mass-report.yml \

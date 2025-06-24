@@ -22,6 +22,7 @@
 ## Prerequisites
 
 ### Required Access
+
 - **Repository Permissions**: Write access to the test repository
 - **Team Memberships**: Member of relevant teams (@cadre, @education-committee, @security-committee)
 - **GitHub CLI**: Installed and authenticated (`gh auth login`)
@@ -30,12 +31,14 @@
   - Team assignments configured in repository settings
 
 ### Tools Required
+
 - GitHub CLI (`gh`) - [Installation guide](https://cli.github.com/)
 - Git command line tools
 - Text editor for creating test files
 - (Optional) `act` for local testing - [Installation guide](https://github.com/nektos/act)
 
 ### Knowledge Requirements
+
 - Basic understanding of GitHub Actions
 - Familiarity with YAML syntax
 - Understanding of KS-SBC organizational structure
@@ -46,6 +49,7 @@
 ## Testing Environment Setup
 
 ### 1. Create Test Repository (Optional)
+
 For safe testing without affecting production:
 
 ```bash
@@ -60,18 +64,21 @@ git remote add upstream https://github.com/ks-sbc/.github.git
 ```
 
 ### 2. Enable GitHub Actions
+
 1. Go to Settings → Actions → General
 2. Select "Allow all actions and reusable workflows"
 3. Under "Workflow permissions", select "Read and write permissions"
 4. Save changes
 
 ### 3. Configure Required Secrets
+
 ```bash
 # Add repository access token
 gh secret set REPO_ACCESS_TOKEN --body "$YOUR_PAT"
 ```
 
 ### 4. Create Test Teams (if using test repo)
+
 ```bash
 # Create required teams
 gh api /orgs/{org}/teams -X POST -f name="cadre" -f privacy="closed"
@@ -179,12 +186,14 @@ gh api /orgs/{org}/teams -X POST -f name="security-committee" -f privacy="closed
 ### End-to-End Scenarios
 
 #### Scenario 1: Complete Report Flow
+
 1. Create mass conditions report (L1)
 2. Verify security classification
 3. Check routing to appropriate repository
 4. Confirm tracking in project board
 
 #### Scenario 2: Decision Implementation
+
 1. Create proposal PR
 2. Complete voting process
 3. Merge decision
@@ -193,6 +202,7 @@ gh api /orgs/{org}/teams -X POST -f name="security-committee" -f privacy="closed
 6. Review in accountability report
 
 #### Scenario 3: Meeting Cycle
+
 1. Generate meeting agenda
 2. Add discussion items
 3. Complete meeting (close issue)
