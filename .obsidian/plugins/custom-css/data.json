@@ -1,8 +1,0 @@
-{
-  "enabled": true,
-  "cssFiles": [
-    "obsidian.css"
-  ],
-  "useSafemode": false,
-  "preserveVars": false
-}

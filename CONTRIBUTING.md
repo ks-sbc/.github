@@ -1,281 +1,252 @@
-# Contributing to DRUIDS
+# Contributing to KSBC
 
-Thank you for your interest in contributing to the Distributed, Reproducible, Unifying, Ideological Documentation System (DRUIDS) for the Kansas Socialist Book Club (KSBC). Your participation is valuable to the success of this project.
+Thank you for your interest in contributing to the Kansas Socialist Book Club! We follow democratic centralist principles where all members can participate in discussion, and we act unified after decisions are made.
 
-## Table of Contents
+## 🌟 Getting Started
 
-- [Contributing to DRUIDS](#contributing-to-druids)
-  - [Table of Contents](#table-of-contents)
-  - [General Contribution Workflow](#general-contribution-workflow)
-  - [Democratic Centralist Contribution Workflow](#democratic-centralist-contribution-workflow)
-  - [Setting up Your Development Environment](#setting-up-your-development-environment)
-  - [Code of Conduct](#code-of-conduct)
-  - [Questions?](#questions)
-  - [Democratic Centralist Workflow](#democratic-centralist-workflow)
-  - [Getting Started](#getting-started)
-  - [Technical Contributions](#technical-contributions)
-  - [Non-Technical Contributions](#non-technical-contributions)
-    - [Documentation \& Content Creation](#documentation--content-creation)
-    - [Testing \& User Experience](#testing--user-experience)
-    - [Organization \& Metadata](#organization--metadata)
-    - [Training Materials](#training-materials)
-  - [Contribution Process](#contribution-process)
-    - [1. Identify an Area for Contribution](#1-identify-an-area-for-contribution)
-    - [2. Create an Issue](#2-create-an-issue)
-    - [3. Branch Creation](#3-branch-creation)
-    - [4. Development Work](#4-development-work)
-    - [5. Pull Request](#5-pull-request)
-  - [Documentation Standards](#documentation-standards)
-  - [Review Process](#review-process)
-  - [Code of Conduct](#code-of-conduct-1)
-  - [Questions?](#questions-1)
+### Prerequisites
+1. GitHub account with [two-factor authentication enabled](https://github.com/settings/security)
+2. Git installed locally
+3. Familiarity with our [Key Principles](#key-principles)
+4. Review our [Code of Conduct](CODE_OF_CONDUCT.md)
 
-## General Contribution Workflow
+### Key Principles
+- **Democratic Centralism**: Free discussion, unified action
+- **Mass Line**: From the masses, to the masses
+- **Criticism & Self-Criticism**: Continuous improvement
+- **Security Consciousness**: Respect classification levels
 
-We follow a standard GitHub flow for contributions:
+## 🔄 Contribution Workflow
 
-1. **Fork the Repository:** Create your own fork of the main DRUIDS repository.
-2. **Create a Branch:** For any new feature, bug fix, or documentation change, create a new branch in your fork, usually from the `main` branch.
-    - Branch naming convention: `feature/your-feature-name`, `fix/bug-description`, `docs/topic-update`.
-3. **Make Your Changes:** Implement your changes, write code, or update documentation.
-    - Ensure your work aligns with the project's goals and coding/style guidelines (to be documented).
-4. **Commit Your Changes:** Write clear, concise commit messages. We encourage signing your commits.
-    - Example commit message: `feat: Add initial structure for L0 content`
-5. **Push to Your Fork:** Push your branch to your forked repository.
-6. **Open a Pull Request (PR):**
-    - Navigate to the main DRUIDS repository and open a Pull Request from your branch to the `main` branch of the DRUIDS repository.
-    - Fill out the PR template with details about your changes.
-    - Ensure your PR references any relevant issues (e.g., "Fixes #123" or "Implements #456").
+### 1. Find or Create an Issue
+- Check existing issues in the relevant repository
+- For new ideas, create a discussion first in [.github Discussions](https://github.com/ks-sbc/.github/discussions)
+- Once consensus reached, create an issue with FULL metadata
 
-## Democratic Centralist Contribution Workflow
+### 2. Create Issues with Complete Metadata
 
-Beyond the standard GitHub flow, DRUIDS adheres to specific democratic centralist principles in its development and contribution process.
+**REQUIRED for ALL issues:**
 
-**[Placeholder: Detailed Democratic Centralist Workflow]**
+```bash
+gh issue create -R ks-sbc/[REPO] \
+  --title "Clear, specific title" \
+  --label "type:task,priority:p3,status:todo,time:M,security:public,issue:tech:github" \
+  --milestone "Tech Infrastructure" \
+  --body "$(cat <<'EOF'
+## Description
+[Clear description of the task/issue]
 
-*(This section will be expanded with specific details on how democratic centralist principles (e.g., Theory -> Plan -> Practice -> Summation, criticism/self-criticism, collective decision-making on significant changes) are implemented in the DRUIDS contribution process. This may include:
+## Related Issues
+- Parent: #XX (if applicable)
+- Related to: #YY
 
-- How proposals for major changes are discussed and approved.
-- The role of different member tiers (if applicable to contribution rights).
-- Processes for review and summation of contributions from an ideological and practical standpoint.
-- How feedback and criticism are integrated into the development cycle.)*
+## Acceptance Criteria
+- [ ] Specific measurable outcome
+- [ ] Another specific outcome
 
-For now, please ensure that your contributions are well-motivated and clearly explained in your Pull Request descriptions, considering their potential impact on the project's goals and usability.
+## Implementation Notes
+[Technical details or considerations]
+EOF
+)"
 
-## Setting up Your Development Environment
+# Then add to project
+gh project item-add 12 --owner ks-sbc --url [ISSUE_URL]
+```
 
-**[Placeholder: Development Environment Setup]**
+**Label Requirements:**
+- **Type** (required): `type:task`, `type:document`, `type:training`, `type:event`, `type:reference`, `type:theory`
+- **Priority** (required): `priority:p0` through `priority:p5` (p5 = most urgent)
+- **Status** (required): `status:todo`, `status:doing`, `status:review`, `status:blocked`, `status:done`
+- **Time** (required): `time:XS` (0-15min), `time:S` (15-60min), `time:M` (1-3hr), `time:L` (3-8hr), `time:XL` (8+hr)
+- **Security** (if applicable): `security:public`, `security:candidate`, `security:cadre`
+- **Technical area** (if applicable): `issue:tech:github`, `issue:tech:obsidian`, etc.
 
-*(This section will include specific instructions for setting up a local development environment, including any necessary tools, Obsidian configuration, or scripts. Refer to `OBSIDIAN_INTEGRATION_GUIDE.md` for initial Obsidian setup.)*
+### 3. Work on Your Contribution
 
-## Code of Conduct
+#### Clone and Branch
+```bash
+# Clone the repository
+git clone https://github.com/ks-sbc/[REPOSITORY].git
+cd [REPOSITORY]
 
-All contributors are expected to adhere to the KSBC Code of Conduct.
+# Create a feature branch
+git checkout -b [ISSUE_NUMBER]-brief-description
+```
 
-**[Placeholder: Link to or text of Code of Conduct]**
-*(Ensure a `CODE_OF_CONDUCT.md` file is created or link to an existing one.)*
+#### Make Your Changes
+- Follow repository-specific guidelines (see below)
+- Write clear, purposeful commit messages
+- Include issue number in commits: `fix: resolve auth bug (#123)`
+- Test your changes thoroughly
 
-## Questions?
+#### Commit with Metadata
+```bash
+# Stage your changes
+git add .
 
-If you have questions about contributing, please:
+# Commit with clear message
+git commit -m "type: clear description (#ISSUE_NUMBER)
 
-- Check existing issues and discussions.
-- Ask in the project's designated communication channels (see `README.md`).
+Detailed explanation of what changed and why.
+
+Resolves #ISSUE_NUMBER"
+```
+
+### 4. Submit Pull Request
+
+#### Push Your Branch
+```bash
+git push origin [ISSUE_NUMBER]-brief-description
+```
+
+#### Create PR with Template
+```bash
+gh pr create \
+  --title "type: clear description (#ISSUE_NUMBER)" \
+  --body "$(cat <<'EOF'
+## Summary
+Brief description of changes
+
+## Related Issues
+Resolves #ISSUE_NUMBER
+
+## Type of Change
+- [ ] Bug fix (non-breaking change)
+- [ ] New feature (non-breaking change)
+- [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
+- [ ] Documentation update
+
+## Testing
+- [ ] Tests pass locally
+- [ ] Added new tests for changes
+- [ ] Updated documentation
+
+## Security Classification
+- [ ] Changes maintain appropriate security levels
+- [ ] No sensitive information exposed
+
+## Checklist
+- [ ] Code follows repository style guidelines
+- [ ] Self-review completed
+- [ ] Comments added for complex logic
+- [ ] Documentation updated
+- [ ] No merge conflicts
+EOF
+)"
+```
+
+### 5. Review Process
+- CODEOWNERS automatically assigns reviewers
+- Address review feedback promptly
+- Maintain respectful discussion
+- Once approved, maintainers will merge
+
+## 📚 Repository-Specific Guidelines
+
+### `.github` Repository
+- Changes to organization-wide policies require Steering Committee review
+- Template changes need testing in multiple contexts
+- Workflow changes must include documentation
+
+### `public-repo` Repository  
+- Use Obsidian templates from `_templates/`
+- Include security classification in frontmatter
+- Follow naming conventions for document types
+- Test that documents render correctly
+
+### `os` Repository
+- Follow Tails development guidelines
+- Include tests for new features
+- Update documentation in `/wiki/src/`
+- Ensure changes work in offline mode
+
+### `quartz-website` Repository
+- Test builds locally with `npm run build`
+- Verify only L0 content is published
+- Check responsive design
+- Follow Neobrutalist style guide
+
+## 🛡️ Security Considerations
+
+### Classification Levels
+- **L0 (Public)**: Educational materials, public statements
+- **L1 (Candidate)**: Member resources, development docs
+- **L2 (Cadre)**: Strategic planning, sensitive operations
+
+### Security Best Practices
+- Never commit secrets or credentials
+- Respect document classification levels
+- Report security issues via [SECURITY.md](SECURITY.md)
+- Use GPG signing for sensitive commits
+
+## 🤝 Community
+
+### Getting Help
+- Check repository documentation and README files
+- Search existing issues and discussions
+- Ask in [GitHub Discussions](https://github.com/ks-sbc/.github/discussions)
+- Reference our [guides](/) for common tasks
+
+### Code of Conduct
+We follow our [Code of Conduct](CODE_OF_CONDUCT.md). Key points:
+- Respectful communication
+- Constructive criticism
+- Solidarity with all oppressed peoples
+- No tolerance for oppressive behavior
+
+## 🎯 What We Need
+
+### High Priority Contributions
+1. Documentation improvements
+2. Test coverage increases
+3. Accessibility enhancements
+4. Security reviews
+5. Template development
+
+### Good First Issues
+Look for issues labeled `good-first-issue` or `help-wanted`
+
+## 📋 Development Setup
+
+### General Requirements
+```bash
+# Install Git
+sudo apt-get install git
+
+# Configure Git
+git config --global user.name "Your Name"
+git config --global user.email "your.email@example.com"
+
+# Install GitHub CLI
+sudo apt-get install gh
+
+# Authenticate
+gh auth login
+```
+
+### Repository-Specific Setup
+Each repository has specific setup instructions in its README.md
+
+## ✅ Pull Request Checklist
+
+Before submitting a PR, ensure:
+- [ ] Issue exists with full metadata
+- [ ] Branch follows naming convention
+- [ ] All tests pass
+- [ ] Documentation updated
+- [ ] Commit messages are clear
+- [ ] PR template completed
+- [ ] No merge conflicts
+- [ ] Security classification respected
+
+## 📊 Recognition
+
+Contributors are recognized through:
+- Commit history (permanent record)
+- CONTRIBUTORS.md file updates  
+- Issue/PR assignments
+- Committee membership eligibility
 
 ---
 
-## Democratic Centralist Workflow
-
-Our contribution process follows a democratic centralist model:
-
-1. **Discussion Phase**: Open and thorough discussion of issues and proposals
-2. **Decision Phase**: Formal decision through democratic process
-3. **Implementation Phase**: Unified action to implement decisions
-4. **Review Phase**: Critical evaluation of implementation
-
-Once a decision has been made through proper channels, all members are expected to work toward its implementation regardless of their position during the discussion phase.
-
-
-## Getting Started
-
-1. **Familiarize yourself with our structure**:
-   - Review our repositories and documentation
-   - Understand our democratic centralist workflow
-   - Learn about our security model
-
-2. **Set up your environment**:
-   - Install Obsidian with required plugins
-   - Configure standard linting and formatting rules
-   - Set up Git with appropriate credentials
-
-3. **Understand our standards**:
-   - Review documentation templates
-   - Familiarize yourself with our YAML frontmatter requirements
-   - Learn our tag taxonomy
-
-## Technical Contributions
-
-If you have technical skills, consider helping with:
-
-- GitHub Actions workflow development
-- Obsidian plugin configuration and scripting
-- Security model implementation
-- Documentation system automation
-
-Technical contributors should consult our [Development Guide](./docs/development.md) for coding standards and technical requirements.
-
-## Non-Technical Contributions
-
-There are many valuable ways to contribute without technical expertise:
-
-### Documentation & Content Creation
-
-- **Create Document Templates**  
-  Design Markdown templates for frequently used document types with clear placeholder text.
-
-- **Develop Visual Security Classification Guide**  
-  Create visual explanations of our three-tier security model (L0/L1/L2) with examples.
-
-- **Create Step-by-Step Workflow Guides**  
-  Develop user-friendly guides showing common workflows with screenshots.
-
-### Testing & User Experience
-
-- **Conduct Usability Testing**  
-  Test the system by following specific scenarios and document your experience.
-
-- **Create Glossary of Terms**  
-  Compile and define terms used throughout the system.
-
-### Organization & Metadata
-
-- **Organize Tag Taxonomy**  
-  Help organize and structure the hierarchical tag system.
-
-- **Review and Improve Error Messages**  
-  Suggest more user-friendly alternatives to current error messages.
-
-### Training Materials
-
-- **Create FAQ Document**  
-  Compile common questions and answers about using the system.
-
-- **Develop Training Scenarios**  
-  Create realistic scenarios for training exercises.
-
-## Contribution Process
-
-### 1. Identify an Area for Contribution
-
-Before creating a proposal or implementation issue, determine:
-
-- The political need being addressed
-- The appropriate security classification
-- The relevant committee for review
-
-### 2. Create an Issue
-
-Use the appropriate issue template:
-
-- **Proposal**: For new ideas requiring discussion
-- **Implementation**: For executing approved proposals
-- **Documentation**: For improvements to existing documentation
-- **Criticism**: For constructive criticism of existing work
-
-### 3. Branch Creation
-
-Branches follow our naming conventions:
-
-- `proposal/[issue-topic]`: For proposal development
-- `implement/[issue-topic]`: For implementation work
-- `contributor/[username]`: For personal development work
-
-### 4. Development Work
-
-When working on content:
-
-- Follow our documentation standards
-- Include appropriate frontmatter with security classification
-- Use the established tag taxonomy
-- Run linting tools before submission
-
-### 5. Pull Request
-
-Submit your work using the appropriate PR template:
-
-- Link to the original issue
-- Summarize the changes
-- Indicate the security classification
-- Request review from appropriate committee(s)
-
-
-
-## Documentation Standards
-
-All documentation must include:
-
-1. **YAML Frontmatter**:
-
-   ```yaml
-   ---
-   title: "Document Title"
-   date: YYYY-MM-DD
-   lastmod: YYYY-MM-DD
-   draft: boolean
-   security_classification: "public|candidate|cadre"
-   version: "X.Y.Z"
-   document_id: "DEPT-TYPE-YEARSEQ-SECURITY"
-   tags:
-     - type/document-type
-     - security/level
-     - function/area
-     - status/draft
-   ---
-   ```
-
-2. **Standard Headers**:
-   - H1 for document title
-   - H2 for major sections
-   - H3 for subsections
-   - Proper heading incrementing
-
-3. **Security Markings**:
-   - Each section should indicate its security level: `## Section Title (L0)`
-   - Higher classification sections must come after lower ones
-
-## Review Process
-
-1. **Initial Review**: Technical validation of format, structure, and security
-2. **Committee Review**: Evaluation by appropriate committee(s)
-3. **Feedback Phase**: Contributors address feedback
-4. **Approval**: Formal acceptance through committee decision
-5. **Implementation**: Merging into appropriate branch
-
-Reviewers will check for:
-
-- Political alignment with organizational principles
-- Technical correctness and standards compliance
-- Security classification appropriateness
-- Documentation quality and completeness
-
-## Code of Conduct
-
-All contributors are expected to follow our [Code of Conduct](CODE_OF_CONDUCT.md), which emphasizes:
-
-- Comradely behavior
-- Constructive criticism
-- Political development
-- Collective accountability
-
-## Questions?
-
-If you have questions about contributing, please:
-
-1. Check existing documentation
-2. Review past issues and discussions
-3. Create a new issue using the "question" template
-4. Reach out to the appropriate committee
-
-Remember, contributing to DRUIDS isn't just about technical skills—it's about contributing to a system that enhances our collective organizing capacity. Every contribution, regardless of technical complexity, has value in our revolutionary documentation effort.
-
-Thank you for contributing to our collective work!
+*Thank you for contributing to building revolutionary organizational memory! Your work helps ensure our movement survives and thrives beyond any individual participant.*
