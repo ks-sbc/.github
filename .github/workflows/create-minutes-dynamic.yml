@@ -1,0 +1,57 @@
+name: Create Meeting Minutes Discussion (Dynamic)
+
+on:
+  workflow_dispatch:
+    inputs:
+      meeting_date:
+        description: 'Date of meeting (YYYY-MM-DD)'
+        required: true
+      meeting_type:
+        description: 'Type of meeting'
+        required: true
+        default: 'General Meeting'
+      security_level:
+        description: 'Security classification'
+        required: true
+        default: 'candidate'
+        type: choice
+        options:
+          - public
+          - candidate
+          - cadre
+        
+jobs:
+  create-minutes-discussion:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests python-dateutil
+          
+      - name: Create meeting minutes discussion
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INPUT_MEETING_TYPE: ${{ github.event.inputs.meeting_type }}
+          INPUT_MEETING_DATE: ${{ github.event.inputs.meeting_date }}
+          INPUT_SECURITY_LEVEL: ${{ github.event.inputs.security_level }}
+        run: |
+          cd development/workflows/meeting-minutes/src
+          python github_action_wrapper.py
+          
+      - name: Summary
+        if: success()
+        run: |
+          echo "## Meeting Minutes Created! 📝" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Type**: ${{ github.event.inputs.meeting_type }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Date**: ${{ github.event.inputs.meeting_date }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Security**: ${{ github.event.inputs.security_level }}" >> $GITHUB_STEP_SUMMARY
