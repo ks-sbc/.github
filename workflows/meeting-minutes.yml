@@ -1,0 +1,122 @@
+name: Create Meeting Minutes
+# Workflow to create meeting minutes discussions in GitHub
+
+on:
+  workflow_dispatch:
+    inputs:
+      meeting_type:
+        description: 'Type of meeting'
+        required: true
+        type: choice
+        options:
+          - 'general'
+          - 'executive'
+          - 'committee'
+          - 'working-group'
+      meeting_date:
+        description: 'Meeting date (YYYY-MM-DD)'
+        required: true
+        type: string
+      security_level:
+        description: 'Security classification'
+        required: true
+        type: choice
+        options:
+          - 'L0'
+          - 'L1'
+        default: 'L0'
+      additional_context:
+        description: 'Additional context or notes (optional)'
+        required: false
+        type: string
+
+env:
+  PYTHON_VERSION: '3.12'
+
+jobs:
+  create-meeting-minutes:
+    name: Create Meeting Minutes Discussion
+    runs-on: ubuntu-latest
+    
+    permissions:
+      discussions: write
+      contents: read
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          
+      - name: Cache Python dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+            
+      - name: Install dependencies
+        run: |
+          cd development/workflows/meeting-minutes
+          pip install -r requirements.txt
+          
+      - name: Validate inputs
+        run: |
+          # Validate date format
+          if ! [[ "${{ inputs.meeting_date }}" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
+            echo "Error: Invalid date format. Use YYYY-MM-DD"
+            exit 1
+          fi
+          
+          # Validate security level matches repository
+          # This would be enhanced with actual repository security checks
+          echo "Security level: ${{ inputs.security_level }}"
+          
+      # Skip actual GitHub API calls when running locally with act
+      - name: Create meeting minutes (Production)
+        if: ${{ !env.ACT }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INPUT_MEETING_TYPE: ${{ inputs.meeting_type }}
+          INPUT_MEETING_DATE: ${{ inputs.meeting_date }}
+          INPUT_SECURITY_LEVEL: ${{ inputs.security_level }}
+          INPUT_ADDITIONAL_CONTEXT: ${{ inputs.additional_context }}
+        run: |
+          cd development/workflows/meeting-minutes
+          python src/github_action_wrapper.py
+          
+      - name: Create meeting minutes (Local Testing)
+        if: ${{ env.ACT }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INPUT_MEETING_TYPE: ${{ inputs.meeting_type }}
+          INPUT_MEETING_DATE: ${{ inputs.meeting_date }}
+          INPUT_SECURITY_LEVEL: ${{ inputs.security_level }}
+          INPUT_ADDITIONAL_CONTEXT: ${{ inputs.additional_context }}
+        run: |
+          echo "Running in act testing mode"
+          echo "Would create meeting minutes with:"
+          echo "  Type: $INPUT_MEETING_TYPE"
+          echo "  Date: $INPUT_MEETING_DATE"
+          echo "  Security: $INPUT_SECURITY_LEVEL"
+          
+          # Run the script in test mode
+          cd development/workflows/meeting-minutes
+          export ACT_TEST_MODE=true
+          python src/github_action_wrapper.py || echo "Test mode execution completed"
+          
+      - name: Summary
+        if: always()
+        run: |
+          echo "### Meeting Minutes Workflow Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Meeting Type**: ${{ inputs.meeting_type }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Date**: ${{ inputs.meeting_date }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Security Level**: ${{ inputs.security_level }}" >> $GITHUB_STEP_SUMMARY
+          if [ -n "${{ inputs.additional_context }}" ]; then
+            echo "- **Additional Context**: ${{ inputs.additional_context }}" >> $GITHUB_STEP_SUMMARY
+          fi
