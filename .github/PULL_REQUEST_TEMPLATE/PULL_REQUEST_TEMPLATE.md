@@ -1,50 +1,162 @@
 ---
-name: Default Pull Request
-about: Standard PR template for changes
+name: DRUIDS Pull Request
+about: Democratic centralist PR workflow for DRUIDS system changes
 ---
+
+<!-- 
+This PR template supports the DRUIDS democratic centralist workflow.
+For PRs drafted in Obsidian: Check the "Obsidian-Git Workflow Notes" section
+For proposal branches: Focus on the "Proposal Details" section
+For implementation branches: Complete all sections
+-->
+
+## Branch Type and Security Classification
+
+**Branch Type**: 
+- [ ] `proposal/*` - Democratic discussion and deliberation
+- [ ] `implement/*` - Executing decided work
+- [ ] `contributor/*` - Personal development
+- [ ] `hotfix/*` - Critical security or bug fixes
+
+**Security Classification**:
+- [ ] L0 (Public) - Educational materials, public statements
+- [ ] L1 (Member) - Internal documentation, development resources
+- [ ] L2 (Cadre) - Strategic planning (requires special handling)
 
 ## Description
 
-Please include a summary of the change and which issue is fixed or implemented. Please also include relevant motivation and context. List any dependencies that are required for this change.
+<!-- For Obsidian users: This section can be drafted in your vault and copied here -->
+<!-- Include motivation, context, and link to any proposal discussions -->
 
-Fixes # (issue) / Implements # (issue)
+### Summary of Changes
+<!-- Brief overview of what this PR accomplishes -->
 
-## Type of change
+### Related Issues/Proposals
+- Fixes #
+- Implements proposal #
+- Related to discussion #
 
-Please delete options that are not relevant.
+## Proposal Details (For `proposal/*` branches)
 
-- [ ] Bug fix (non-breaking change which fixes an issue)
-- [ ] New feature (non-breaking change which adds functionality)
-- [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
-- [ ] This change requires a documentation update
-- [ ] Technical debt reduction (refactoring, code cleanup, etc.)
-- [ ] Other (please describe):
+### Democratic Process Stage
+- [ ] Stage 1: Proposal Creation
+- [ ] Stage 2: Submission for Review
+- [ ] Stage 3: Democratic Discussion
+- [ ] Stage 4: Decision Making
+- [ ] Stage 5: Implementation Planning
+- [ ] Stage 6: Evaluation Criteria
 
-## How Has This Been Tested?
+### Proposal Metadata
+```yaml
+proposal_id: # e.g., PROP-2024-001
+author: # GitHub username or pseudonym
+date_proposed: # YYYY-MM-DD
+voting_deadline: # YYYY-MM-DD
+min_approvals_required: # Usually 2-3 for proposals
+```
 
-Please describe the tests that you ran to verify your changes. Provide instructions so we can reproduce. Please also list any relevant details for your test configuration.
+### Voting Record
+<!-- Updated as reviews come in -->
+| Member | Vote | Comments |
+|--------|------|----------|
+| @reviewer1 | ⬜ Pending | |
+| @reviewer2 | ⬜ Pending | |
 
-- [ ] Test A
-- [ ] Test B
+## Implementation Details (For `implement/*` branches)
 
-**Test Configuration**:
-* OS:
-* Obsidian Version:
-* Other Software:
+### Type of Change
+- [ ] Bug fix (non-breaking)
+- [ ] New feature (non-breaking)
+- [ ] Breaking change
+- [ ] Documentation update
+- [ ] Security enhancement
+- [ ] Workflow automation
+- [ ] Infrastructure change
 
-## Checklist:
+### Implementation Checklist
+- [ ] Links to approved proposal PR: #
+- [ ] Implements agreed-upon specifications
+- [ ] Maintains backward compatibility (or documents breaking changes)
+- [ ] Includes necessary migrations or upgrade paths
 
-- [ ] My code follows the style guidelines of this project
-- [ ] I have performed a self-review of my own code
-- [ ] I have commented my code, particularly in hard-to-understand areas
-- [ ] I have made corresponding changes to the documentation
-- [ ] My changes generate no new warnings
-- [ ] I have added tests that prove my fix is effective or that my feature works
-- [ ] New and existing unit tests pass locally with my changes
-- [ ] Any dependent changes have been merged and published in downstream modules
+## Testing and Validation
 
-## Adherence to Democratic Centralist Principles
+### Local Testing (Obsidian Environment)
+- [ ] Changes work correctly in Obsidian
+- [ ] Obsidian-Git syncs without conflicts
+- [ ] Security classifications are maintained
 
-Please briefly explain how this change aligns with and supports the project's democratic centralist principles (e.g., enhancing political unity, cadre development, criticism/self-criticism, or specific workflow stages like Theory -> Plan -> Practice -> Summation).
+### GitHub Actions Testing
+- [ ] Workflows pass with `act` local testing
+- [ ] CI/CD pipelines pass
+- [ ] Security validation checks pass
+
+### Test Details
+```bash
+# Commands used for testing
+# Include act commands, pytest results, etc.
+```
+
+## Documentation and Communication
+
+### Documentation Updates
+- [ ] README.md updated (if needed)
+- [ ] Wiki documentation updated
+- [ ] API/Interface changes documented
+- [ ] Security implications documented
+
+### Member Communication
+- [ ] Changes announced in appropriate channels
+- [ ] Training materials updated (if needed)
+- [ ] Migration guide provided (for breaking changes)
+
+## Democratic Centralist Principles Adherence
+
+### TPPS Cycle Alignment
+Explain how this change supports the Theory → Plan → Practice → Summation cycle:
+- **Theory**: What theoretical understanding does this implement?
+- **Plan**: How does this fit into our strategic plans?
+- **Practice**: What practical problem does this solve?
+- **Summation**: How will we evaluate success?
+
+### Collective Benefit
+- [ ] Enhances democratic participation
+- [ ] Improves security and compartmentalization
+- [ ] Facilitates member development
+- [ ] Strengthens organizational unity
+
+## Security and Compliance
+
+### Security Checklist
+- [ ] No hardcoded secrets or credentials
+- [ ] Proper access controls implemented
+- [ ] Security tier boundaries respected
+- [ ] Audit logging included where appropriate
+
+### Pre-merge Checklist
+- [ ] Code follows project style guidelines
+- [ ] Self-review completed
+- [ ] Tests added and passing
+- [ ] Documentation updated
+- [ ] No new warnings or errors
+- [ ] Approved by required reviewers
+- [ ] Proposal vote passed (if applicable)
+
+## Obsidian-Git Workflow Notes
+
+<!-- For PRs initiated from Obsidian -->
+**Obsidian Draft Origin**: <!-- e.g., vault/member/.github/pr-queue/2024-01-15-feature.md -->
+**Draft Template Used**: <!-- OBSIDIAN_PR_DRAFT.md or custom -->
+**Meta Bind Export**: <!-- Yes/No - was this exported via Meta Bind? -->
+**Sync Method**: <!-- manual commit, auto-sync, PR queue -->
 
 ---
+
+<!-- 
+For maintainers: 
+- Check if PR was drafted in Obsidian (see workflow notes)
+- Ensure proper branch protections are enabled
+- Verify security classifications match repository
+- Check proposal approval before merging implementation
+- For Obsidian-originated PRs, verify the draft was properly validated
+-->
