@@ -1,0 +1,289 @@
+name: Security Classification Validation
+
+on:
+  pull_request:
+    paths:
+      - 'repos/vault/**'
+      - '**/*.md'
+  push:
+    branches:
+      - main
+      - dev
+    paths:
+      - 'repos/vault/**'
+      - '**/*.md'
+
+jobs:
+  validate-security:
+    name: Validate Security Classifications
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: |
+          npm install yaml gray-matter
+
+      - name: Validate security classifications
+        run: |
+          node << 'EOF'
+          const fs = require('fs');
+          const path = require('path');
+          const matter = require('gray-matter');
+          
+          // Security tier mappings
+          const securityTiers = {
+            'L0': ['public', 'unclassified'],
+            'L1': ['member', 'candidate', 'internal'],
+            'L2': ['cadre', 'restricted', 'confidential']
+          };
+          
+          // Directory to security tier mapping
+          const directoryTiers = {
+            'repos/vault/public': 'L0',
+            'repos/vault/member': 'L1',
+            'repos/vault/cadre': 'L2',
+            'repos/website': 'L0',
+            'repos/druids-wiki': 'L0'
+          };
+          
+          let errors = [];
+          let warnings = [];
+          
+          // Function to get security tier from classification
+          function getSecurityTier(classification) {
+            if (!classification) return null;
+            
+            const normalizedClass = classification.toLowerCase();
+            for (const [tier, values] of Object.entries(securityTiers)) {
+              if (values.includes(normalizedClass)) {
+                return tier;
+              }
+            }
+            return null;
+          }
+          
+          // Function to get expected tier from path
+          function getExpectedTier(filePath) {
+            for (const [dir, tier] of Object.entries(directoryTiers)) {
+              if (filePath.startsWith(dir)) {
+                return tier;
+              }
+            }
+            return null;
+          }
+          
+          // Function to validate a single file
+          function validateFile(filePath) {
+            // Skip non-markdown files
+            if (!filePath.endsWith('.md')) return;
+            
+            // Skip cadre directory (L2) - forbidden for AI systems
+            if (filePath.includes('vault/cadre')) {
+              console.log(`⚠️  Skipping L2/cadre file: ${filePath} (AI access forbidden)`);
+              return;
+            }
+            
+            try {
+              const content = fs.readFileSync(filePath, 'utf8');
+              const { data: frontmatter } = matter(content);
+              
+              // Check for security classification in frontmatter
+              const security = frontmatter.security || frontmatter.security_classification;
+              if (!security) {
+                warnings.push(`Missing security classification: ${filePath}`);
+                return;
+              }
+              
+              // Get the security tier from classification
+              const fileTier = getSecurityTier(security);
+              if (!fileTier) {
+                errors.push(`Invalid security classification '${security}': ${filePath}`);
+                return;
+              }
+              
+              // Get expected tier from directory
+              const expectedTier = getExpectedTier(filePath);
+              if (!expectedTier) return; // File not in a security-controlled directory
+              
+              // Validate tier matches directory
+              if (fileTier !== expectedTier) {
+                errors.push(`Security mismatch: ${filePath} has ${fileTier} classification but is in ${expectedTier} directory`);
+              }
+              
+              // Additional validation for required fields based on security tier
+              if (fileTier === 'L1' || fileTier === 'L2') {
+                if (!frontmatter.document_id) {
+                  warnings.push(`Missing document_id for ${fileTier} document: ${filePath}`);
+                }
+                if (!frontmatter.version) {
+                  warnings.push(`Missing version for ${fileTier} document: ${filePath}`);
+                }
+              }
+              
+            } catch (error) {
+              errors.push(`Error processing ${filePath}: ${error.message}`);
+            }
+          }
+          
+          // Function to recursively find all files
+          function findFiles(dir, fileList = []) {
+            const files = fs.readdirSync(dir);
+            
+            files.forEach(file => {
+              const filePath = path.join(dir, file);
+              const stat = fs.statSync(filePath);
+              
+              if (stat.isDirectory()) {
+                // Skip .git and node_modules directories
+                if (!file.startsWith('.') && file !== 'node_modules') {
+                  findFiles(filePath, fileList);
+                }
+              } else {
+                fileList.push(filePath);
+              }
+            });
+            
+            return fileList;
+          }
+          
+          // Main validation logic
+          console.log('🔒 Starting security classification validation...\n');
+          
+          // Find all files in security-controlled directories
+          const directories = ['repos/vault/public', 'repos/vault/member', 'repos/druids-wiki', 'repos/website'];
+          
+          directories.forEach(dir => {
+            if (fs.existsSync(dir)) {
+              console.log(`📁 Checking ${dir}...`);
+              const files = findFiles(dir);
+              files.forEach(validateFile);
+            }
+          });
+          
+          // Report results
+          console.log('\n📊 Validation Results:');
+          console.log(`✅ Files validated: ${errors.length === 0 ? 'All passed' : errors.length + ' errors found'}`);
+          
+          if (warnings.length > 0) {
+            console.log('\n⚠️  Warnings:');
+            warnings.forEach(warning => console.log(`  - ${warning}`));
+          }
+          
+          if (errors.length > 0) {
+            console.log('\n❌ Errors:');
+            errors.forEach(error => console.log(`  - ${error}`));
+            process.exit(1);
+          } else {
+            console.log('\n✅ All security classifications are valid!');
+          }
+          EOF
+
+      - name: Check for sensitive content
+        if: always()
+        run: |
+          echo "🔍 Checking for potentially sensitive content..."
+          
+          # Check for common sensitive patterns
+          # Note: This is a basic check and should be expanded based on your needs
+          
+          # Check for potential secrets (basic patterns)
+          if grep -r -E "(password|secret|token|key)\s*[:=]\s*['\"][^'\"]{8,}['\"]" --include="*.md" --include="*.yml" --include="*.yaml" --exclude-dir=".git" --exclude-dir="node_modules" .; then
+            echo "❌ Potential secrets found in files!"
+            exit 1
+          fi
+          
+          # Check for email addresses in public content
+          if find repos/vault/public repos/website repos/druids-wiki -name "*.md" -type f -exec grep -l -E "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}" {} \; | grep -v "example.com\|noreply"; then
+            echo "⚠️  Warning: Email addresses found in public content"
+          fi
+          
+          echo "✅ Sensitive content check completed"
+
+      - name: Generate security report
+        if: always()
+        run: |
+          echo "📄 Generating security classification report..."
+          
+          node << 'EOF'
+          const fs = require('fs');
+          const path = require('path');
+          const matter = require('gray-matter');
+          
+          const report = {
+            L0: { count: 0, files: [] },
+            L1: { count: 0, files: [] },
+            unclassified: { count: 0, files: [] }
+          };
+          
+          function analyzeFile(filePath) {
+            if (!filePath.endsWith('.md')) return;
+            if (filePath.includes('vault/cadre')) return; // Skip L2
+            
+            try {
+              const content = fs.readFileSync(filePath, 'utf8');
+              const { data: frontmatter } = matter(content);
+              const security = frontmatter.security || frontmatter.security_classification;
+              
+              if (!security) {
+                report.unclassified.count++;
+                report.unclassified.files.push(filePath);
+              } else if (security.toLowerCase() === 'public' || security.toLowerCase() === 'unclassified') {
+                report.L0.count++;
+                report.L0.files.push(filePath);
+              } else if (['member', 'candidate', 'internal'].includes(security.toLowerCase())) {
+                report.L1.count++;
+                report.L1.files.push(filePath);
+              }
+            } catch (error) {
+              // Ignore errors
+            }
+          }
+          
+          function findFiles(dir, fileList = []) {
+            if (!fs.existsSync(dir)) return fileList;
+            
+            const files = fs.readdirSync(dir);
+            files.forEach(file => {
+              const filePath = path.join(dir, file);
+              const stat = fs.statSync(filePath);
+              
+              if (stat.isDirectory() && !file.startsWith('.') && file !== 'node_modules') {
+                findFiles(filePath, fileList);
+              } else {
+                fileList.push(filePath);
+              }
+            });
+            
+            return fileList;
+          }
+          
+          // Analyze all files
+          ['repos/vault/public', 'repos/vault/member', 'repos/druids-wiki', 'repos/website'].forEach(dir => {
+            const files = findFiles(dir);
+            files.forEach(analyzeFile);
+          });
+          
+          // Output report
+          console.log('\n📊 Security Classification Summary:');
+          console.log(`L0 (Public): ${report.L0.count} files`);
+          console.log(`L1 (Member): ${report.L1.count} files`);
+          console.log(`Unclassified: ${report.unclassified.count} files`);
+          
+          if (report.unclassified.count > 0) {
+            console.log('\n⚠️  Unclassified files need security classification:');
+            report.unclassified.files.slice(0, 10).forEach(file => console.log(`  - ${file}`));
+            if (report.unclassified.count > 10) {
+              console.log(`  ... and ${report.unclassified.count - 10} more`);
+            }
+          }
+          EOF

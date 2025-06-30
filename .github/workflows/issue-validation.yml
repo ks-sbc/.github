@@ -1,0 +1,144 @@
+name: Issue Label Validation
+
+on:
+  issues:
+    types: [opened, edited, labeled, unlabeled]
+
+jobs:
+  validate-labels:
+    name: Validate Required Labels
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    
+    steps:
+      - name: Check Required Labels
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issue = context.payload.issue;
+            const labels = issue.labels.map(label => label.name);
+            
+            // Required label categories based on CLAUDE.md
+            const requiredCategories = {
+              type: ['type:task', 'type:document', 'type:bug', 'type:feature', 'type:question', 'type:discussion'],
+              priority: ['priority:p0', 'priority:p1', 'priority:p2', 'priority:p3', 'priority:p4', 'priority:p5'],
+              status: ['status:todo', 'status:doing', 'status:blocked', 'status:review', 'status:done'],
+              time: ['time:XS', 'time:S', 'time:M', 'time:L', 'time:XL']
+            };
+            
+            const missingCategories = [];
+            
+            // Check each required category
+            for (const [category, validLabels] of Object.entries(requiredCategories)) {
+              const hasLabel = labels.some(label => validLabels.includes(label));
+              if (!hasLabel) {
+                missingCategories.push(category);
+              }
+            }
+            
+            // Add comment if labels are missing
+            if (missingCategories.length > 0) {
+              const comment = `⚠️ **Missing Required Labels**
+              
+              This issue is missing the following required label categories:
+              ${missingCategories.map(cat => `- **${cat}**: Choose one of ${requiredCategories[cat].join(', ')}`).join('\n')}
+              
+              Please add the appropriate labels to this issue. For more information, see our [contribution guidelines](https://github.com/ks-sbc/KSBC/blob/main/CONTRIBUTING.md).`;
+              
+              // Check if we already commented
+              const comments = await github.rest.issues.listComments({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number
+              });
+              
+              const botComment = comments.data.find(comment => 
+                comment.user.type === 'Bot' && 
+                comment.body.includes('Missing Required Labels')
+              );
+              
+              if (botComment) {
+                // Update existing comment
+                await github.rest.issues.updateComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: botComment.id,
+                  body: comment
+                });
+              } else {
+                // Create new comment
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  body: comment
+                });
+              }
+              
+              // Add a label to indicate validation failed
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                labels: ['needs:labels']
+              });
+              
+              core.setFailed(`Issue is missing required labels: ${missingCategories.join(', ')}`);
+            } else {
+              // Remove the needs:labels label if all required labels are present
+              try {
+                await github.rest.issues.removeLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  name: 'needs:labels'
+                });
+              } catch (error) {
+                // Label might not exist, ignore error
+              }
+              
+              console.log('✅ All required labels are present');
+            }
+
+      - name: Check Security Classification
+        if: always()
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issue = context.payload.issue;
+            const labels = issue.labels.map(label => label.name);
+            
+            // Check if security classification is needed
+            const securityLabels = labels.filter(label => label.startsWith('security:'));
+            
+            // If issue mentions security-related keywords, ensure it has classification
+            const securityKeywords = ['security', 'sensitive', 'confidential', 'private', 'secret', 'credential', 'password', 'key', 'token'];
+            const titleLower = issue.title.toLowerCase();
+            const bodyLower = (issue.body || '').toLowerCase();
+            
+            const mentionsSecurity = securityKeywords.some(keyword => 
+              titleLower.includes(keyword) || bodyLower.includes(keyword)
+            );
+            
+            if (mentionsSecurity && securityLabels.length === 0) {
+              const comment = `🔒 **Security Classification Needed**
+              
+              This issue appears to mention security-related topics but doesn't have a security classification label.
+              
+              Please add one of the following labels:
+              - \`security:public\` - For non-sensitive security discussions
+              - \`security:candidate\` - For member-only security content
+              - \`security:cadre\` - For highly sensitive security matters
+              
+              If this issue doesn't actually contain security-sensitive information, you can ignore this message.`;
+              
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: comment
+              });
+            }
